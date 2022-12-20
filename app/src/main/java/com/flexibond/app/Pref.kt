@@ -790,10 +790,7 @@ object Pref : PreferenceHolder() {
     var IsShowNewOrderCart: Boolean by bindToPreferenceField(false, "IsShowNewOrderCart")
     var IsLoginSelfieRequired: Boolean by bindToPreferenceField(false, "IsLoginSelfieRequired")
 
-    var IsmanualInOutTimeRequired: Boolean by bindToPreferenceField(
-        false,
-        "IsmanualInOutTimeRequired"
-    )
+    var IsmanualInOutTimeRequired: Boolean by bindToPreferenceField(false, "IsmanualInOutTimeRequired")
     var surveytext: String by bindToPreferenceField("survey", "surveytext")
 
     var IsDiscountInOrder: Boolean by bindToPreferenceField(false, "IsDiscountInOrder")
