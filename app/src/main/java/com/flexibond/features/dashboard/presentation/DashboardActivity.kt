@@ -345,7 +345,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
         })
 
 
-        println("load_frag " + mFragType.toString() + "     " + Pref.gpsAccuracy.toString());
+        println("load_frag " + mFragType.toString() + "     " + Pref.IsmanualInOutTimeRequired.toString());
         //AppDatabase.getDBInstance()!!.userLocationDataDao().updateUnknownLocationTest(AppUtils.getCurrentDateForShopActi(),"Unknown",false)
         if (addToStack) {
             mTransaction.add(R.id.frame_layout_container, getFragInstance(mFragType, initializeObject, true)!!, mFragType.toString())

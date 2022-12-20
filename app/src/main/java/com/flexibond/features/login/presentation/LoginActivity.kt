@@ -6954,6 +6954,8 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                                     }
                                                     if (list_gender.get(l).gender_id == 2) {
                                                         Pref.new_ord_gender_female = list_gender.get(l).gender.toString().toUpperCase()
+                                                    }else {
+                                                        Pref.new_ord_gender_male = list_gender.get(l).gender.toString().toUpperCase()
                                                     }
                                                 }
 
