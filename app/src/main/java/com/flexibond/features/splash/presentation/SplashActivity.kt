@@ -479,7 +479,7 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
 
     fun goTONextActi(){
 
-        val intent = Intent()
+      /*  val intent = Intent()
         val packageName = packageName
         val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
         var t=pm.isIgnoringBatteryOptimizations(packageName)
@@ -489,7 +489,7 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
                 startActivityForResult( Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS),175)
                                            }, 1000)
             return
-        }
+        }*/
 
         if (TextUtils.isEmpty(Pref.user_id) || Pref.user_id.isNullOrBlank()) {
             if (!isLoginLoaded) {
@@ -548,11 +548,11 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
             goTONextActi()
         }
 
-        if(requestCode == 175){
+       /* if(requestCode == 175){
             println("battery get 175")
             checkBatteryOptiSettings()
             return
-        }
+        }*/
 
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == 100) {
