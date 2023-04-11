@@ -17,7 +17,8 @@ import com.flexibond.app.domain.PerformanceEntity
 import com.flexibond.app.utils.AppUtils
 import com.flexibond.features.location.LocationWizard
 import com.flexibond.mappackage.SendBrod
-import com.elvishew.xlog.XLog
+
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -28,7 +29,7 @@ class SystemEventReceiver : BroadcastReceiver() {
                 intent.action == "android.intent.action.ACTION_SHUTDOWN") {
 
             if (intent.action == "android.intent.action.BOOT_COMPLETED")
-                XLog.e("=======================Boot Completed successfully ${AppUtils.getCurrentDateTime()} (SystemEventReceiver)=======================")
+                Timber.e("=======================Boot Completed successfully ${AppUtils.getCurrentDateTime()} (SystemEventReceiver)=======================")
             else if(intent.action == "android.intent.action.AIRPLANE_MODE") {
                 var text = ""
 
@@ -38,19 +39,19 @@ class SystemEventReceiver : BroadcastReceiver() {
                     calculategpsStatus(false)
                 }
                 else{
-                    XLog.e("First time airplane off detect")
+                    Timber.e("First time airplane off detect")
                     text = "Airplane Mode is Off "
                     SendBrod.stopBrod(context)
                     calculategpsStatus(true)
 
                 }
-                XLog.e("========================${text + AppUtils.getCurrentDateTime()}=======================")
+                Timber.e("========================${text + AppUtils.getCurrentDateTime()}=======================")
 
             }else if(intent.action == "android.intent.action.ACTION_SHUTDOWN"){
                 val locationName = LocationWizard.getLocationName(context, Pref.latitude!!.toDouble(), Pref.longitude!!.toDouble())
-                XLog.e("\n======================== \n Phone Shutdown || DateTime : ${AppUtils.getCurrentDateTime()} || Location : last_lat: ${Pref.latitude} || last_long: ${Pref.longitude} || LocationName ${locationName} \n=======================")
+                Timber.e("\n======================== \n Phone Shutdown || DateTime : ${AppUtils.getCurrentDateTime()} || Location : last_lat: ${Pref.latitude} || last_long: ${Pref.longitude} || LocationName ${locationName} \n=======================")
             }else if(intent.action == "android.os.action.POWER_SAVE_MODE_CHANGED"){
-                XLog.e("\n android.os.action.POWER_SAVE_MODE_CHANGED")
+                Timber.e("\n android.os.action.POWER_SAVE_MODE_CHANGED")
             }
 
         }
@@ -60,7 +61,7 @@ class SystemEventReceiver : BroadcastReceiver() {
     private fun calculategpsStatus(gpsStatus: Boolean) {
 
         if (!AppUtils.isOnReceived) {
-            XLog.e("First time airplane off detect working")
+            Timber.e("First time airplane off detect working")
             AppUtils.isOnReceived = true
 
             if (!gpsStatus) {

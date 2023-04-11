@@ -2,6 +2,8 @@ package com.flexibond.features.viewAllOrder
 
 import android.content.Context
 import android.graphics.Color
+import android.os.Handler
+import android.os.Looper
 import android.text.*
 import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
@@ -19,6 +21,8 @@ import com.flexibond.app.Pref
 import com.flexibond.app.domain.ProductListEntity
 import com.flexibond.app.domain.ProductRateEntity
 import com.flexibond.app.utils.AppUtils
+import com.flexibond.app.utils.CustomSpecialTextWatcher
+import com.flexibond.app.utils.CustomSpecialTextWatcher2
 import com.flexibond.features.DecimalDigitsInputFilter
 import com.flexibond.features.dashboard.presentation.DashboardActivity
 import com.flexibond.features.login.model.productlistmodel.ProductRateDataModel
@@ -34,6 +38,14 @@ import kotlinx.android.synthetic.main.inflate_product_new_list.view.*
 /**
  * Created by Saikat on 08-11-2018.
  */
+//Revision History
+// mantis 	0025571
+// 1.0  AppV 4.0.6  ProductListAdapter Saheli    06/01/2023 edt_rt_product_new_list off settext blank
+// 2.0  AppV 4.0.6  ProductListAdapter Saheli    06/01/2023 0 discount reflect
+// 3.0  AppV 4.0.6  ProductListAdapter  Saheli    06/01/2023 decimal input handle
+// 4.0  AppV 4.0.6  ProductListAdapter  Saheli    06/01/2023 discount logic correction
+// 5.0  AppV 4.0.6  ProductListAdapter  Saheli    20/01/2023 Scroll handle mantis 25596
+// 6.0 ProductListAdapter AppV 4.0.7 saheli 10-02-2023 order rate issue mantis  25666
 class ProductListAdapter(
     private val context: Context,
     private val workTypeList: ArrayList<ProductListEntity>?,
@@ -365,7 +377,8 @@ class ProductListAdapter(
             else{
                 itemView.ll_qty_rt_product_new_list.visibility = View.GONE
             }
-
+            // 6.0 ProductListAdapter AppV 4.0.7 saheli 10-02-2023 order rate issue mantis  25666
+            Handler(Looper.getMainLooper()).postDelayed({
                 itemView.iv_prod_new_list_tick.setOnClickListener {
                     if(CustomStatic.productAddedID.contains(categoryList?.get(adapterPosition)!!.id)){
                         (context as DashboardActivity).showSnackMessage("This product has already added to cart")
@@ -410,6 +423,7 @@ class ProductListAdapter(
 
                     listener.onProductClick(categoryList!!.get(adapterPosition), adapterPosition)
                 }
+            }, 2000)
 
                 itemView.iv_prod_new_list_cross.setOnClickListener {
                     CustomStatic.productAddedID.remove(categoryList?.get(adapterPosition)!!.id)
@@ -418,7 +432,7 @@ class ProductListAdapter(
                     itemView.iv_prod_new_list_cross1.visibility = View.GONE
                     itemView.iv_prod_new_list_tick.visibility = View.GONE
                     itemView.edt_qty_product_new_list.setText("")
-                    itemView.edt_rt_product_new_list.setText("")
+//                    itemView.edt_rt_product_new_list.setText("") //1.0  AppV 4.0.6  ProductListAdapter edt_rt_product_new_list off settext blank
                     listenerDel.onProductDelClick(categoryList?.get(adapterPosition)!!)
                 }
 
@@ -542,22 +556,36 @@ class ProductListAdapter(
             }else{
                 itemView.tv_mrp_product_new_list.visibility = View.GONE
             }
+
+
+
             if(Pref.IsDiscountInOrder) {
-                itemView.edt_discount_product_new_list.setText(categoryList!!.get(adapterPosition).product_discount_show)
+                // 5.0  AppV 4.0.6  ProductListAdapter Scroll handle mantis 25596
+//                itemView.edt_discount_product_new_list.setText(categoryList!!.get(adapterPosition).product_discount_show)
+
+                itemView.edt_discount_product_new_list.text = "Discount : "+categoryList!!.get(adapterPosition).product_discount_show
+
+                itemView.ll_pro_nw_list_disct_root.visibility = View.VISIBLE
             }else{
                 itemView.edt_discount_product_new_list.visibility = View.GONE
+                itemView.ll_pro_nw_list_disct_root.visibility = View.GONE
             }
             if(Pref.IsDiscountInOrder ){
             if( !categoryList!!.get(adapterPosition).product_discount_show.equals("")){
                 var newRate=(categoryList!!.get(adapterPosition).product_mrp_show)!!.toDouble() * (categoryList!!.get(adapterPosition).product_discount_show)!!.toDouble()
                 var newRatewithdis = newRate/100
-                itemView.edt_rt_product_new_list.setText(newRatewithdis.toString())
+                var oriPrice = (categoryList!!.get(adapterPosition).product_mrp_show)!!.toDouble() - newRatewithdis// 4.0  AppV 4.0.6  ProductListAdapter   discount logic correction
+//                itemView.edt_rt_product_new_list.setText(oriPrice.toString())
+                // mantis 25601
+                itemView.edt_rt_product_new_list.setText(String.format("%.2f",oriPrice.toDouble()))
+
             }else{
                 itemView.edt_rt_product_new_list.setText("")
             }}
 
             try{
-                itemView.edt_discount_product_new_list.addTextChangedListener(object : TextWatcher {
+                // 3.0  AppV 4.0.6  ProductListAdapter  decimal input handle old
+                /*itemView.edt_discount_product_new_list.addTextChangedListener(object : TextWatcher {
                     override fun afterTextChanged(p0: Editable?) {
                     }
                     override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -572,7 +600,8 @@ class ProductListAdapter(
                             if(mrpShow!!.isNotEmpty()|| !mrpShow.equals("")|| !mrpShow.equals("0")|| !mrpShow.equals("0.0")||!mrpShow.equals("0.00")){
                                 var newRate=(categoryList!!.get(adapterPosition).product_mrp_show)!!.toString().trim().toDouble() * (itemView.edt_discount_product_new_list.text.toString().toDouble())
                                 var newRatewithdis = newRate/100
-                                itemView.edt_rt_product_new_list.setText(newRatewithdis.toString())
+                                var oriPrice = (categoryList!!.get(adapterPosition).product_mrp_show)!!.toDouble() - newRatewithdis
+                                itemView.edt_rt_product_new_list.setText(oriPrice.toString())
                             }
                             else{
                                 itemView.edt_rt_product_new_list.setText("")
@@ -580,7 +609,42 @@ class ProductListAdapter(
 
                         }
                     }
-                })
+                })*/
+
+        // 3.0  AppV 4.0.6  ProductListAdapter  decimal input handle
+
+                // 5.0  AppV 4.0.6  ProductListAdapter Scroll handle mantis 25596
+               /* itemView.edt_discount_product_new_list.addTextChangedListener(
+                    CustomSpecialTextWatcher2(itemView.edt_discount_product_new_list, 2, 2, object : CustomSpecialTextWatcher2.GetCustomTextChangeListener {
+                        override fun beforeTextChange(text: String) {
+
+                        }
+
+                        override fun customTextChange(p0: String) {
+                            var strDis :String = p0!!.toString()
+//                            if (strDis!!.equals("") || strDis.equals("0")){
+                                if (strDis!!.equals("")){   // 2.0  AppV 4.0.6  ProductListAdapter  0 discount reflect
+                                return
+                            }
+                            else{
+                                var mrpShow = categoryList!!.get(adapterPosition).product_mrp_show
+                                if(mrpShow!!.isNotEmpty()|| !mrpShow.equals("")|| !mrpShow.equals("0")|| !mrpShow.equals("0.0")||!mrpShow.equals("0.00")){
+                                    var newRate=(categoryList!!.get(adapterPosition).product_mrp_show)!!.toString().trim().toDouble() * (itemView.edt_discount_product_new_list.text.toString().toDouble())
+                                    var newRatewithdis = newRate/100
+                                    var oriPrice = (categoryList!!.get(adapterPosition).product_mrp_show)!!.toDouble() - newRatewithdis// 4.0  AppV 4.0.6  ProductListAdapter   discount logic correction
+                                    itemView.edt_rt_product_new_list.setText(oriPrice.toString())
+                                }
+                                else{
+                                    itemView.edt_rt_product_new_list.setText("")
+                                }
+
+                            }
+                        }
+                    })
+                )*/
+
+        // 3.0  AppV 4.0.6  ProductListAdapter  decimal input handle
+
             }catch (e: IllegalStateException) {
                 e.printStackTrace()
             }
@@ -591,6 +655,13 @@ class ProductListAdapter(
                 else{
                     itemView.edt_rt_product_new_list.isEnabled = true
                 }
+
+            if(!Pref.IsDiscountInOrder && !Pref.IsViewMRPInOrder){
+                itemView.ll_pro_nw_list_mrp_disc_root.visibility = View.GONE
+            }else{
+                itemView.ll_pro_nw_list_mrp_disc_root.visibility = View.VISIBLE
+            }
+
 //            }else{
 //                itemView.edt_rt_product_new_list.isEnabled = true
 //            }

@@ -46,11 +46,12 @@ import com.flexibond.features.viewAllOrder.model.NewOrderCartModel
 import com.flexibond.features.viewAllOrder.model.NewOrderSaveApiModel
 import com.flexibond.features.viewAllOrder.presentation.NewOrderCartAdapterNew
 import com.flexibond.widgets.AppCustomTextView
-import com.elvishew.xlog.XLog
+
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
+import timber.log.Timber
 import java.io.File
 
 
@@ -256,7 +257,7 @@ class NeworderScrCartFragment : BaseFragment(), View.OnClickListener {
                     obj.rate= (cartOrder!!.get(i).rate.toDouble()).toString()
                     AppDatabase.getDBInstance()?.newOrderScrOrderDao()?.insert(obj)
 
-                    XLog.d("NeworderScrCartFragment ITEM : "  + AppUtils.getCurrentDateTime().toString()+"\n"+
+                    Timber.d("NeworderScrCartFragment ITEM : "  + AppUtils.getCurrentDateTime().toString()+"\n"+
                     "ordID:"+ordID+"~product_id:"+obj.product_id+"~gender:"+obj.gender+"~size:"+obj.size+"~qty:"+obj.qty+"~order_date:"+obj.order_date+"~shop_id:"+obj.shop_id+
                     "~color_id:"+obj.color_id+"~color_name:"+obj.color_name+"\n")
                 }
@@ -326,6 +327,10 @@ class NeworderScrCartFragment : BaseFragment(), View.OnClickListener {
             product.scheme_rate = "0"
             product.total_scheme_price = "0"
             product.MRP = "0"
+
+            //mantis 25601 23-01-2023
+            product.order_mrp = "0"
+            product.order_discount = "0"
             productList.add(product)
         }
 
@@ -339,7 +344,7 @@ class NeworderScrCartFragment : BaseFragment(), View.OnClickListener {
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeOn(Schedulers.io())
                         .subscribe({ result ->
-                            XLog.d("NewOrderScrCartFrag OrderWithProductAttribute/OrderWithProductAttribute : RESPONSE " + result.status)
+                            Timber.d("NewOrderScrCartFrag OrderWithProductAttribute/OrderWithProductAttribute : RESPONSE " + result.status)
                             if (result.status == NetworkConstant.SUCCESS) {
 
                                 doAsync {
@@ -357,9 +362,9 @@ class NeworderScrCartFragment : BaseFragment(), View.OnClickListener {
                             }
                         }, { error ->
                             if (error == null) {
-                                XLog.d("NewOrderScrCartFrag OrderWithProductAttribute/OrderWithProductAttribute : ERROR ")
+                                Timber.d("NewOrderScrCartFrag OrderWithProductAttribute/OrderWithProductAttribute : ERROR ")
                             } else {
-                                XLog.d("NewOrderScrCartFrag OrderWithProductAttribute/OrderWithProductAttribute : ERROR " + error.localizedMessage)
+                                Timber.d("NewOrderScrCartFrag OrderWithProductAttribute/OrderWithProductAttribute : ERROR " + error.localizedMessage)
                                 error.printStackTrace()
                             }
                         })

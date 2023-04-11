@@ -42,7 +42,7 @@ import com.flexibond.features.photoReg.api.GetUserListPhotoRegProvider
 import com.flexibond.features.photoReg.model.ImageResponse
 import com.flexibond.features.survey.api.SurveyDataProvider
 import com.flexibond.widgets.AppCustomTextView
-import com.elvishew.xlog.XLog
+
 import com.pnikosis.materialishprogress.ProgressWheel
 import com.themechangeapp.pickimage.PermissionHelper
 import io.reactivex.android.schedulers.AndroidSchedulers

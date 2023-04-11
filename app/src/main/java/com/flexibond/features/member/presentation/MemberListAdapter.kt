@@ -180,31 +180,27 @@ class MemberListAdapter(context: Context, val teamList: ArrayList<TeamListDataMo
             }
 
             if(Pref.IsShowStateInTeam){
-                itemView.tv_state_member_list.visibility = View.VISIBLE
-                itemView.tv_state_member_list_show.visibility = View.VISIBLE
+                itemView.ll_state_root.visibility = View.VISIBLE
             }else{
-                itemView.tv_state_member_list.visibility = View.GONE
-                itemView.tv_state_member_list_show.visibility = View.GONE
+                itemView.ll_state_root.visibility = View.GONE
             }
             if(Pref.IsShowBranchInTeam){
-                itemView.tv_branch_member_list.visibility = View.VISIBLE
-                itemView.tv_branch_member_list_show.visibility = View.VISIBLE
+                itemView.ll_branch_root.visibility = View.VISIBLE
             }else{
-                itemView.tv_branch_member_list.visibility  = View.GONE
-                itemView.tv_branch_member_list_show.visibility = View.GONE
+                itemView.ll_branch_root.visibility = View.GONE
             }
             if(Pref.IsShowDesignationInTeam){
-                itemView.tv_des_member_list.visibility = View.VISIBLE
-                itemView.tv_des_member_list_show.visibility = View.VISIBLE
+                itemView.ll_design_root.visibility = View.VISIBLE
             }else{
-                itemView.tv_des_member_list.visibility = View.GONE
-                itemView.tv_des_member_list_show.visibility = View.GONE
+                itemView.ll_design_root.visibility = View.GONE
             }
 
 
             itemView.tv_state_member_list_show.text  = teamList[adapterPosition].State
             itemView.tv_branch_member_list_show.text  = teamList[adapterPosition].Branch
             itemView.tv_des_member_list_show.text  = teamList[adapterPosition].Designation
+
+            itemView.tv_empcode_member_list_show.text  = teamList[adapterPosition].Employee_Code
 
         }
     }

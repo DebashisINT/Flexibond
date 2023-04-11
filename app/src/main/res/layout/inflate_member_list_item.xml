@@ -156,70 +156,132 @@
                     android:orientation="horizontal">
 
 
-                    <TextView
-                        android:id="@+id/tv_state_member_list"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="State : "
-                        android:textColor="@color/black_50"
-                        android:textSize="@dimen/_11sdp" />
-
-                    <TextView
-                        android:id="@+id/tv_state_member_list_show"
+                    <LinearLayout
+                        android:id="@+id/ll_state_root"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:gravity="center|start"
-                        android:text="State "
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/_11sdp" />
+                        android:orientation="horizontal">
 
+                        <TextView
+                            android:id="@+id/tv_state_member_list"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:text="State : "
+                            android:textColor="@color/black_50"
+                            android:textSize="@dimen/_11sdp" />
 
-                    <TextView
-                        android:id="@+id/tv_branch_member_list"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="Branch : "
-                        android:textColor="@color/black_50"
-                        android:textSize="@dimen/_11sdp" />
+                        <TextView
+                            android:id="@+id/tv_state_member_list_show"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center|start"
+                            android:layout_gravity="center"
+                            android:text=""
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/_11sdp" />
 
-                    <TextView
-                        android:id="@+id/tv_branch_member_list_show"
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/ll_branch_root"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:gravity="center|start"
-                        android:text="Branch"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/_11sdp" />
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tv_branch_member_list"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="Branch : "
+                            android:textColor="@color/black_50"
+                            android:textSize="@dimen/_11sdp" />
+
+                        <TextView
+                            android:id="@+id/tv_branch_member_list_show"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center|start"
+                            android:layout_gravity="center"
+                            android:text=""
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/_11sdp" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
+
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/tv_des_member_list"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:textColor="@color/black_50"
-                    android:textSize="@dimen/_11sdp"
-                    android:text="Designation : " />
+                    <LinearLayout
+                        android:id="@+id/ll_design_root"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/tv_des_member_list_show"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center|start"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/_11sdp"
-                    android:text="Designation"
-                     />
+                        <TextView
+                            android:id="@+id/tv_des_member_list"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:textColor="@color/black_50"
+                            android:textSize="@dimen/_11sdp"
+                            android:text="Designation : " />
+
+                        <TextView
+                            android:id="@+id/tv_des_member_list_show"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center|start"
+                            android:layout_gravity="center"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/_11sdp"
+                            android:text="" />
+
+                    </LinearLayout>
+
+
+                    <LinearLayout
+                        android:id="@+id/ll_emp_code_root"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tv_empcode_member_list"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:textColor="@color/black_50"
+                            android:textSize="@dimen/_11sdp"
+                            android:text="Emp Code : " />
+
+                        <TextView
+                            android:id="@+id/tv_empcode_member_list_show"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center|start"
+                            android:layout_gravity="center"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/_11sdp"
+                            android:text="" />
+
+                    </LinearLayout>
+
+
+
                 </LinearLayout>
 
             </LinearLayout>

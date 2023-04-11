@@ -4,11 +4,14 @@ import android.text.TextUtils
 import com.flexibond.app.AppDatabase
 import com.flexibond.app.Pref
 import com.flexibond.app.utils.AppUtils
-import com.elvishew.xlog.XLog
+
+import timber.log.Timber
 
 /**
  * Created by riddhi on 19/12/17.
  */
+// Revision History
+// 1.0 ReimbursementFragment AppV 4.0.7 Saheli    02/03/2023 Timber Log Implementation
 class InfoWizard {
 
     companion object {
@@ -157,7 +160,8 @@ class InfoWizard {
                     "" + hours
 
                 val totalDuration = "$sHours:$sMinute:$sSecond"
-                XLog.e("Total duration Spent====> $totalDuration")
+//                XLog.e("Total duration Spent====> $totalDuration")
+                Timber.e("Total duration Spent====> $totalDuration")
 
                 return totalDuration
                 
@@ -260,7 +264,8 @@ class InfoWizard {
                         "" + hours
 
                     val totalDuration = "$sHours:$sMinute:$sSecond"
-                    XLog.e("Total duration Spent====> $totalDuration")
+//                    XLog.e("Total duration Spent====> $totalDuration")
+                    Timber.e("Total duration Spent====> $totalDuration")
 
                     return totalDuration
                 }
@@ -369,7 +374,8 @@ class InfoWizard {
                     "" + hours
 
                 val totalDuration = "$sHours:$sMinute:$sSecond"
-                XLog.e("Total duration Spent====> $totalDuration")
+//                XLog.e("Total duration Spent====> $totalDuration")
+                Timber.e("Total duration Spent====> $totalDuration")
 
                 return totalDuration
             } catch (e: Exception) {

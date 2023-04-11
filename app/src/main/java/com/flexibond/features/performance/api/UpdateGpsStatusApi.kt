@@ -2,6 +2,7 @@ package com.flexibond.features.performance.api
 
 import com.flexibond.app.NetworkConstant
 import com.flexibond.base.BaseResponse
+import com.flexibond.features.performance.model.UpdateGpsInputListParamsModel
 import com.flexibond.features.performance.model.UpdateGpsInputParamsModel
 import io.reactivex.Observable
 import retrofit2.Retrofit
@@ -17,6 +18,9 @@ interface UpdateGpsStatusApi {
 
     @POST("GPSStatus/Update")
     fun updateGpsStatus(@Body updateGps: UpdateGpsInputParamsModel?): Observable<BaseResponse>
+
+    @POST("GPSStatus/GPSLocationUpdateByLists")
+    fun updateGpsStatusWithList(@Body updateGps: UpdateGpsInputListParamsModel?): Observable<BaseResponse>
 
     /**
      * Companion object to create the UpdateGpsStatusApi

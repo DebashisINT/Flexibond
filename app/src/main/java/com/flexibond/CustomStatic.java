@@ -39,6 +39,7 @@ public class CustomStatic {
 
     public static String FaceDetectionAccuracyLower="";
     public static String FaceDetectionAccuracyUpper="";
+    public static Boolean IsFaceRecognitionOnEyeblink=false;
 
     public static Boolean IsPowerSaverFragShowing=false;
 
@@ -63,5 +64,16 @@ public class CustomStatic {
     public static HashMap<Integer,String> productQtyEdi = new HashMap<>();
     public static HashMap<Integer,String> productRateEdi = new HashMap<>();
     public static ArrayList<Integer> productAddedID = new ArrayList<>();
+
+    public static Boolean IsAadhaarForPhotoReg=false;
+    public static Boolean IsVoterForPhotoReg=false;
+    public static Boolean IsPanForPhotoReg=false;
+    public static String FaceRegFaceImgPath="";
+    public static String AadhaarPicRegUrl="";
+    public static String FacePicRegUrl="";
+
+    public static String TeamUserSelect_user_id = "";
+
+    public static Boolean IsBackFromNewOptiCart = false;
 
 }

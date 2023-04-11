@@ -32,11 +32,12 @@ import com.flexibond.features.dymanicSection.api.DynamicRepoProvider
 import com.flexibond.features.dymanicSection.model.*
 import com.flexibond.widgets.AppCustomEditText
 import com.flexibond.widgets.AppCustomTextView
-import com.elvishew.xlog.XLog
+
 import com.pnikosis.materialishprogress.ProgressWheel
 import com.themechangeapp.pickimage.PermissionHelper
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
@@ -45,6 +46,8 @@ import kotlin.collections.HashMap
 /**
  * Created by Saikat on 19-Aug-20.
  */
+// Revision History
+// 1.0 ExoPlayerActivity AppV 4.0.7 Saheli    02/03/2023 Timber Log Implementation
 class AddDynamicFragment : BaseFragment() {
 
     private lateinit var mContext: Context
@@ -166,7 +169,8 @@ class AddDynamicFragment : BaseFragment() {
 
                             val response = result as DynamicResponseModel
 
-                            XLog.d("DYNAMIC RESPONSE=======> " + response.status)
+//                            XLog.d("DYNAMIC RESPONSE=======> " + response.status)
+                            Timber.d("DYNAMIC RESPONSE=======> " + response.status)
 
                             if (response.status == NetworkConstant.SUCCESS) {
                                 if (response.view_list != null && response.view_list!!.size > 0) {
@@ -188,7 +192,8 @@ class AddDynamicFragment : BaseFragment() {
                             progress_wheel.stopSpinning()
                             tv_no_data.visibility = View.VISIBLE
                             (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
-                            XLog.d("DYNAMIC ERROR=======> " + error.localizedMessage)
+//                            XLog.d("DYNAMIC ERROR=======> " + error.localizedMessage)
+                            Timber.d("DYNAMIC ERROR=======> " + error.localizedMessage)
                         })
         )
     }
@@ -563,7 +568,8 @@ class AddDynamicFragment : BaseFragment() {
 
                                 val response = result as BaseResponse
 
-                                XLog.d("ADD DYNAMIC RESPONSE=======> " + response.status)
+//                                XLog.d("ADD DYNAMIC RESPONSE=======> " + response.status)
+                                Timber.d("ADD DYNAMIC RESPONSE=======> " + response.status)
 
                                 (mContext as DashboardActivity).showSnackMessage(response.message!!)
                                 if (response.status == NetworkConstant.SUCCESS) {
@@ -579,7 +585,8 @@ class AddDynamicFragment : BaseFragment() {
                                 error.printStackTrace()
                                 progress_wheel.stopSpinning()
                                 (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
-                                XLog.d("ADD DYNAMIC ERROR=======> " + error.localizedMessage)
+//                                XLog.d("ADD DYNAMIC ERROR=======> " + error.localizedMessage)
+                                Timber.d("ADD DYNAMIC ERROR=======> " + error.localizedMessage)
                             })
             )
         }
@@ -596,7 +603,8 @@ class AddDynamicFragment : BaseFragment() {
 
                                 val response = result as BaseResponse
 
-                                XLog.d("ADD DYNAMIC RESPONSE=======> " + response.status)
+//                                XLog.d("ADD DYNAMIC RESPONSE=======> " + response.status)
+                                Timber.d("ADD DYNAMIC RESPONSE=======> " + response.status)
 
                                 (mContext as DashboardActivity).showSnackMessage(response.message!!)
                                 if (response.status == NetworkConstant.SUCCESS) {
@@ -612,7 +620,8 @@ class AddDynamicFragment : BaseFragment() {
                                 error.printStackTrace()
                                 progress_wheel.stopSpinning()
                                 (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
-                                XLog.d("ADD DYNAMIC ERROR=======> " + error.localizedMessage)
+//                                XLog.d("ADD DYNAMIC ERROR=======> " + error.localizedMessage)
+                                Timber.d("ADD DYNAMIC ERROR=======> " + error.localizedMessage)
                             })
             )
         }

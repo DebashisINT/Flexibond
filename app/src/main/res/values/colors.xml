@@ -119,4 +119,17 @@
     <color name="color_custom_white_1">#00A311</color>
     <color name="color_custom_red_1">#f8424e</color>
     <color name="color_custom_red_2">#82F8424E</color>
+
+    <color name="custom_yellow">#82F6DAA4</color>
+    <color name="custom_yellow_light">#4FF8E5C1</color>
+
+    <color name="custom_red">#82F49AA0</color>
+    <color name="custom_red_light">#4FF4C8CB</color>
+
+    <color name="custom_sky">#8289E2F6</color>
+    <color name="custom_sky_light">#4FCFF3FB</color>
+    <color name="color_light_sky">#dde7f1</color>
+    <color name="color_custom_blue">#0f4990</color>
+    <color name="color_transparent_blue">#C8F0F8FF</color>
+
 </resources>

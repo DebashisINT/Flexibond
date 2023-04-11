@@ -125,12 +125,12 @@ class PendingOutLocationFrag: BaseFragment(),
             R.id.visit_icon , R.id.frag_pending_visit_TV ->{
 
                 feedbackDialog = AddFeedbackSingleBtnDialog.getInstance(shopNameStr + "\n" + shopContactStr, getString(R.string.confirm_revisit), shopIdStr, object : AddFeedbackSingleBtnDialog.OnOkClickListener {
-                    override fun onOkClick(mFeedback: String, mNextVisitDate: String, filePath: String, mapproxValue: String, mprosId: String) {
+                    override fun onOkClick(mFeedback: String, mNextVisitDate: String, filePath: String, mapproxValue: String, mprosId: String,sel_extraContNameStr:String,sel_extraContPhStr:String) {
                         AppDatabase.getDBInstance()!!.shopActivityDao().updateFeedbackVisitdate(mFeedback,mNextVisitDate, shopIdStr, AppUtils.getCurrentDateForShopActi())
                         proceed()
                     }
 
-                    override fun onCloseClick(mfeedback: String) {
+                    override fun onCloseClick(mfeedback: String,sel_extraContNameStr :String,sel_extraContPhStr : String) {
                         //
                         proceed()
                     }

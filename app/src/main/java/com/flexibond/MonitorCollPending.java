@@ -22,7 +22,9 @@ import com.flexibond.app.utils.AppUtils;
 import com.flexibond.features.dashboard.presentation.DashboardActivity;
 import com.flexibond.features.newcollectionreport.CollectionNotiViewPagerFrag1;
 import com.flexibond.features.splash.presentation.SplashActivity;
-import com.elvishew.xlog.XLog;
+
+import timber.log.Timber;
+
 
 public class MonitorCollPending extends BroadcastReceiver {
     public static MediaPlayer player = null;
@@ -32,15 +34,20 @@ public class MonitorCollPending extends BroadcastReceiver {
     @SuppressLint("NewApi")
     @Override
     public void onReceive(Context context, Intent intent) {
-
+        Timber.d("MonitorCollPending onReceive entered");
         int notiID=intent.getIntExtra("notiId",0);
         String subject=intent.getStringExtra("coll");
         String body = "";
-        if(subject.contains("Order")){
+        try{        if(subject.contains("Order")){
             body=":: No order taken fo certain shop.";
         }else{
-             body=":: Please collect your pending amount.";
+            body=":: Please collect your pending amount.";
         }
+        }catch (Exception ex){
+            ex.printStackTrace();
+            Timber.d("MonitorCollPending onReceive error "+ex.getLocalizedMessage());
+        }
+
         Intent mainIntent = new Intent(context, DashboardActivity.class);
         mainIntent.putExtra("TYPE", "ZERO_COLL_STATUS");
         mainIntent.putExtra("Subject",subject);

@@ -1,7 +1,9 @@
 package com.flexibond.features.nearbyshops.presentation
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import androidx.recyclerview.widget.RecyclerView
 import android.text.Html
 import android.text.SpannableString
@@ -59,6 +61,10 @@ import kotlinx.android.synthetic.main.inflate_registered_shops.view.tv_shop_cont
 /**
  * Created by Pratishruti on 30-10-2017.
  */
+//Revision History
+// 1.0 NearByShopsListAdapter  AppV 4.0.6  Saheli   10/01/2023 phone number calling added
+// 2.0 NearByShopsListAdapter  AppV 4.0.6  Saheli   11/01/2023 IsAllowShopStatusUpdate
+// 3.0 NearByShopsListAdapter  AppV 4.0.6  Suman   31/01/2023 Retailer/Entity show from room db mantis_id 25636
 class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>, val listener: NearByShopsListClickListener) : RecyclerView.Adapter<NearByShopsListAdapter.MyViewHolder>() {
     private val layoutInflater: LayoutInflater
     private var context: Context
@@ -136,7 +142,16 @@ class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>,
                 })
 
                 itemView.direction_ll.findViewById<LinearLayout>(R.id.direction_ll).setOnClickListener(View.OnClickListener {
-                    listener.mapClick(adapterPosition)
+                    //listener.mapClick(adapterPosition)
+                    try{
+                        var intentGmap: Intent = Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q=${list[adapterPosition].shopLat},${list[adapterPosition].shopLong}&mode=1"))
+                        intentGmap.setPackage("com.google.android.apps.maps")
+                        if(intentGmap.resolveActivity(context.packageManager) !=null){
+                            context.startActivity(intentGmap)
+                        }
+                    }catch (ex:Exception){
+                        ex.printStackTrace()
+                    }
                 })
 
                 itemView.add_order_ll.findViewById<LinearLayout>(R.id.add_order_ll).setOnClickListener(View.OnClickListener {
@@ -174,6 +189,17 @@ class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>,
                 } else{
                     itemView.tv_type.text = "NA"
                     //itemView.ll_shop_type.visibility = View.GONE
+                }
+                // 2.0 NearByShopsListAdapter  AppV 4.0.6 IsAllowShopStatusUpdate
+                if(Pref.IsAllowShopStatusUpdate) {
+                    itemView.tv_update_status_inflate_registered_shops.visibility = View.VISIBLE
+                }
+                else {
+                    itemView.tv_update_status_inflate_registered_shops.visibility = View.GONE
+                }
+
+                itemView.tv_update_status_inflate_registered_shops.setOnClickListener {
+                    listener.onUpdateStatusClick(list[adapterPosition])
                 }
                 if(Pref.isCollectioninMenuShow) {
                     itemView.ll_collection.visibility = View.VISIBLE
@@ -558,6 +584,11 @@ class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>,
                 }
                 itemView.tv_shop_contact_no.text = list[adapterPosition].ownerName + " (${list[adapterPosition].ownerContactNumber})"
 
+                // 1.0 NearByShopsListAdapter phone number calling added
+                itemView.tv_shop_contact_no.setOnClickListener(View.OnClickListener {
+                    listener.callClick(adapterPosition)
+                })
+
                 if (Pref.isOrderShow) {
                     itemView.add_order_ll.visibility = View.VISIBLE
                     itemView.direction_view.visibility = View.VISIBLE
@@ -755,9 +786,15 @@ class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>,
                 } else
                     itemView.next_visit_date_RL.visibility = View.GONE
 
+                if(Pref.ShowApproxDistanceInNearbyShopList){
+                    itemView.ll_distance.visibility = View.VISIBLE
                 val distance = LocationWizard.getDistance(list[adapterPosition].shopLat, list[adapterPosition].shopLong,
                         Pref.current_latitude.toDouble(), Pref.current_longitude.toDouble())
                 itemView.tv_distance.text = "$distance (Approx. from current location)"
+                }
+                else{
+                    itemView.ll_distance.visibility = View.GONE
+                }
 
                 itemView.iv_whatsapp.setOnClickListener {
                     listener.onWhatsAppClick(list[adapterPosition].ownerContactNumber)
@@ -813,6 +850,17 @@ class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>,
                 else
                     itemView.tv_party_status.text = "N.A."
 
+                itemView.tv_retailer_entity_headerr.text = "Party Category: "
+                try{
+                    if(list[adapterPosition].retailer_id == null || list[adapterPosition].retailer_id.equals("")){
+                        itemView.tv_retailer_entity.text = "N.A."
+                    }else{
+                        itemView.tv_retailer_entity.text = AppDatabase.getDBInstance()?.retailerDao()?.getSingleItem(list[adapterPosition].retailer_id.toString())!!.name
+                    }
+                }catch (ex:Exception){
+                    itemView.tv_retailer_entity.text = "N.A."
+                }
+
                 itemView.update_party_status_TV.setOnClickListener {
                     listener.onUpdatePartyStatusClick(adapterPosition)
                 }
@@ -855,35 +903,52 @@ class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>,
                 itemView.shop_survey_ll.setOnClickListener{
                     listener.onSurveyClick(list[adapterPosition].shop_id)
                 }
+                if(Pref.IsMultipleContactEnableforShop){
+                    itemView.shop_extra_contact_ll.visibility = View.VISIBLE
+                    itemView.shop_extra_contact_view.visibility = View.VISIBLE
+                }else{
+                    itemView.shop_extra_contact_ll.visibility = View.GONE
+                    itemView.shop_extra_contact_view.visibility = View.GONE
+                }
+                itemView.shop_extra_contact_ll.setOnClickListener{
+                    listener.onExtraContactClick(list[adapterPosition].shop_id)
+                }
 
+                // 3.0 Pref  AppV 4.0.7 Suman    10/03/2023 Pdf generation settings wise  mantis 25650
                 //Hardcoded for EuroBond
-                //itemView.ll_last_visit_age.visibility=View.GONE
-                //itemView.ll_average_visit_time.visibility=View.GONE
-                //itemView.ll_distance.visibility=View.GONE
-                //itemView.order_amount_tv.visibility=View.GONE
-                //itemView.highest_order_amount_tv.visibility=View.GONE
-                //itemView.avg_order_amount_tv.visibility=View.GONE
-                //itemView.lowest_order_amount_tv.visibility=View.GONE
-                //itemView.high_value_month_tv.visibility=View.GONE
-                //itemView.low_value_month_tv.visibility=View.GONE
+                if(Pref.IsShowQuotationFooterforEurobond){
+                itemView.ll_last_visit_age.visibility=View.GONE
+                itemView.ll_average_visit_time.visibility=View.GONE
+                itemView.ll_distance.visibility=View.GONE
+                itemView.order_amount_tv.visibility=View.GONE
+                itemView.highest_order_amount_tv.visibility=View.GONE
+                itemView.avg_order_amount_tv.visibility=View.GONE
+                itemView.lowest_order_amount_tv.visibility=View.GONE
+                itemView.high_value_month_tv.visibility=View.GONE
+                itemView.low_value_month_tv.visibility=View.GONE
+                }
 
+                // 3.0 Pref  AppV 4.0.7 Suman    10/03/2023 Pdf generation settings wise  mantis 25650
                 //Hardcoded for Pure chemical
-//                itemView.ll_last_visit_age.visibility=View.GONE
-//                itemView.ll_average_visit_time.visibility=View.GONE
-//                itemView.ll_distance.visibility=View.GONE
-//                itemView.order_amount_tv.visibility=View.GONE
-//                itemView.highest_order_amount_tv.visibility=View.GONE
-//                itemView.avg_order_amount_tv.visibility=View.GONE
-//                itemView.lowest_order_amount_tv.visibility=View.GONE
-//                itemView.high_value_month_tv.visibility=View.GONE
-//                itemView.low_value_month_tv.visibility=View.GONE
-//                itemView.tv_funnel_stage_header.visibility = View.GONE
-//                itemView.tv_funnel_stage.visibility = View.GONE
-//                itemView.rl_beat_type.visibility = View.GONE
-//                itemView.rl_entity_type.visibility = View.GONE
-//                itemView.rl_party_status.visibility = View.GONE
-//                itemView.next_visit_date_RL.visibility = View.GONE
-//                itemView.ll_shop_code.visibility = View.GONE
+                if(!Pref.IsShowOtherInfoinShopMaster){
+                    itemView.ll_last_visit_age.visibility=View.GONE
+                    itemView.ll_average_visit_time.visibility=View.GONE
+                    itemView.ll_distance.visibility=View.GONE
+                    itemView.order_amount_tv.visibility=View.GONE
+                    itemView.highest_order_amount_tv.visibility=View.GONE
+                    itemView.avg_order_amount_tv.visibility=View.GONE
+                    itemView.lowest_order_amount_tv.visibility=View.GONE
+                    itemView.high_value_month_tv.visibility=View.GONE
+                    itemView.low_value_month_tv.visibility=View.GONE
+                    itemView.tv_funnel_stage_header.visibility = View.GONE
+                    itemView.tv_funnel_stage.visibility = View.GONE
+                    itemView.rl_beat_type.visibility = View.GONE
+                    itemView.rl_entity_type.visibility = View.GONE
+                    itemView.rl_party_status.visibility = View.GONE
+                    itemView.next_visit_date_RL.visibility = View.GONE
+                    itemView.ll_shop_code.visibility = View.GONE
+                }
+
 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -931,8 +996,6 @@ class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>,
                         itemView.add_multiple_ll.visibility = View.GONE
                         itemView.new_multi_view.visibility = View.GONE
                     }
-
-
 
 
 

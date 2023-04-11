@@ -90,8 +90,22 @@ class ViewCartAdapter(private val context: Context, private val selectedProductL
 //            else
 //                itemView.tv_category_item.text = "Quantity: " + categoryList[adapterPosition].qty
             try {
-                val qty = String.format("%.3f", categoryList[adapterPosition].qty?.toFloat())
-                itemView.tv_category_item.text = "Quantity: " + qty
+
+                var finalQty = ""
+                try {
+                    val qty = String.format("%.3f", categoryList[adapterPosition].qty!!.toDouble()).toString()
+                    val qtyDouble = qty.toDouble()
+                    val qtyInt:Int =qtyDouble.toInt()
+
+                    if((qtyDouble - qtyInt) == 0.0){
+                        finalQty =qtyInt.toString()
+                    }else{
+                        finalQty = qtyDouble.toString()
+                    }
+                }catch (ex:Exception){
+                    finalQty=""
+                }
+                itemView.tv_category_item.text = "Quantity: " + finalQty
             } catch (e: Exception) {
                 e.printStackTrace()
             }

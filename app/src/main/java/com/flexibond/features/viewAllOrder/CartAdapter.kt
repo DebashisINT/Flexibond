@@ -17,6 +17,7 @@ import com.flexibond.app.domain.ProductListEntity
 import com.flexibond.app.domain.ProductRateEntity
 import com.flexibond.app.utils.AppUtils
 import com.flexibond.app.utils.CustomSpecialTextWatcher
+import com.flexibond.app.utils.CustomSpecialTextWatcher2
 import com.flexibond.features.dashboard.presentation.DashboardActivity
 import kotlinx.android.synthetic.main.cart_adapter_body_layout_newchange.view.*
 import kotlinx.android.synthetic.main.item_right_menu.view.*
@@ -25,6 +26,7 @@ import kotlinx.android.synthetic.main.item_right_menu.view.*
 /**
  * Created by Saikat on 09-11-2018.
  */
+// 1.0 CartAdapter AppV 4.0.6  Saheli    25/01/2023  mantis 25623
 class CartAdapter(private val context: Context, private val selectedProductList: ArrayList<ProductListEntity>?, private val listener: OnProductClickListener) :
         RecyclerView.Adapter<CartAdapter.MyViewHolder>() {
 
@@ -599,6 +601,48 @@ class CartAdapter(private val context: Context, private val selectedProductList:
                 })*/
 
                 //(context as DashboardActivity).totalPrice.add(totalPrice.toDouble())
+                // mantis 25623
+                if(Pref.IsDiscountEditableInOrder){
+                    itemView.rl_cart_adapter_discount.visibility = View.VISIBLE
+                }
+                else{
+                    itemView.rl_cart_adapter_discount.visibility = View.GONE
+                }
+                var viewDiscount = categoryList!!.get(adapterPosition).product_discount_show
+                if(viewDiscount!!.isNotEmpty()|| !viewDiscount.equals("")){
+                    itemView.et_cart_adapter_discount.setText(categoryList!!.get(adapterPosition).product_discount_show)
+                }
+                else{
+                    itemView.et_cart_adapter_discount.setText("0.00")
+                }
+
+                itemView.et_cart_adapter_discount.addTextChangedListener(
+                    CustomSpecialTextWatcher2(itemView.et_cart_adapter_discount, 2, 2, object : CustomSpecialTextWatcher2.GetCustomTextChangeListener {
+                        override fun beforeTextChange(text: String) {
+
+                        }
+
+                        override fun customTextChange(p0: String) {
+                            var strDis :String = p0!!.toString()
+                            if (strDis!!.equals("")){
+                                return
+                            }
+                            else{
+                                var mrpShow = categoryList!!.get(adapterPosition).product_mrp_show
+                                if(mrpShow!!.isNotEmpty()|| !mrpShow.equals("")|| !mrpShow.equals("0")|| !mrpShow.equals("0.0")||!mrpShow.equals("0.00")){
+                                    var newRate=(categoryList!!.get(adapterPosition).product_mrp_show)!!.toString().trim().toDouble() * (itemView.et_cart_adapter_discount.text.toString().toDouble())
+                                    var newRatewithdis = newRate/100
+                                    var oriPrice = (categoryList!!.get(adapterPosition).product_mrp_show)!!.toDouble() - newRatewithdis
+                                    itemView.et_rate.setText(oriPrice.toString())
+                                }
+                                else{
+
+                                }
+
+                            }
+                        }
+                    }))
+
 
             } catch (e: Exception) {
                 e.printStackTrace()

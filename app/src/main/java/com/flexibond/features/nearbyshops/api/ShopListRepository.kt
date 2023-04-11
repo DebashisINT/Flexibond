@@ -1,6 +1,7 @@
 package com.flexibond.features.nearbyshops.api
 
 import com.flexibond.app.Pref
+import com.flexibond.base.BaseResponse
 import com.flexibond.features.login.model.GetQtsAnsSubmitDtlsResponseModel
 import com.flexibond.features.login.model.GetSecImageUploadResponseModel
 import com.flexibond.features.login.model.productlistmodel.ModelListResponse
@@ -71,4 +72,10 @@ class ShopListRepository(val apiService: ShopListApi) {
     fun getQuestionList(): Observable<QuesListResponseModel> {
         return apiService.getQuesList(Pref.session_token!!, Pref.user_id!!)
     }
+
+    fun deleteImei(): Observable<BaseResponse> {
+        return apiService.deleteImeiAPI(Pref.session_token!!, Pref.user_id!!)
+    }
+
+
 }

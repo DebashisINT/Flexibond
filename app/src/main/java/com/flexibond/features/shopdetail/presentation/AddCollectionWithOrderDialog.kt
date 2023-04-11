@@ -51,7 +51,7 @@ import com.flexibond.widgets.AppCustomTextView
 import com.downloader.Error
 import com.downloader.OnDownloadListener
 import com.downloader.PRDownloader
-import com.elvishew.xlog.XLog
+
 import com.google.android.material.textfield.TextInputLayout
 import com.pnikosis.materialishprogress.ProgressWheel
 import com.themechangeapp.pickimage.PermissionHelper
@@ -59,6 +59,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
+import timber.log.Timber
 import java.io.File
 import java.util.*
 
@@ -762,7 +763,7 @@ class AddCollectionWithOrderDialog : DialogFragment(), View.OnClickListener {
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->
                     val response = result as PaymentModeResponseModel
-                    XLog.d("PAYMENT RESPONSE=======> " + response.status)
+                    Timber.d("PAYMENT RESPONSE=======> " + response.status)
 
                     if (response.status == NetworkConstant.SUCCESS) {
                         if (response.paymemt_mode_list != null && response.paymemt_mode_list!!.size > 0) {
@@ -799,7 +800,7 @@ class AddCollectionWithOrderDialog : DialogFragment(), View.OnClickListener {
                     error.printStackTrace()
                     progress_wheel.stopSpinning()
                     Toaster.msgShort(mContext, getString(R.string.something_went_wrong))
-                    XLog.d("PAYMENT ERROR=======> " + error.localizedMessage)
+                    Timber.d("PAYMENT ERROR=======> " + error.localizedMessage)
                 })
         )
     }

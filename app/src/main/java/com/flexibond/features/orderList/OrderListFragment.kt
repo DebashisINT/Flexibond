@@ -19,7 +19,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.TextView
-import com.elvishew.xlog.XLog
+
 import com.flexibond.R
 import com.flexibond.app.AppDatabase
 import com.flexibond.app.NetworkConstant
@@ -50,11 +50,13 @@ import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import org.joda.time.DateTime
+import timber.log.Timber
 
 
 /**
  * Created by Pratishruti on 15-11-2017.
  */
+// 1.0 OrderListFragment AppV 4.0.6 saheli 12-01-2023 multiple contact Data added on Api called
 class OrderListFragment : BaseFragment(), DatePickerListener, View.OnClickListener {
 
 
@@ -232,6 +234,13 @@ class OrderListFragment : BaseFragment(), DatePickerListener, View.OnClickListen
         shopDurationData.out_time = shopActivity.out_time
         shopDurationData.start_timestamp = shopActivity.startTimeStamp
 
+        //New shop Create issue
+        shopDurationData.isnewShop = shopActivity.isnewShop
+
+        // 1.0 OrderListFragment AppV 4.0.6  multiple contact Data added on Api called
+        shopDurationData.multi_contact_name = shopActivity.multi_contact_name
+        shopDurationData.multi_contact_number = shopActivity.multi_contact_number
+
         shopDataList.add(shopDurationData)
 
         if (shopDataList.isEmpty()) {
@@ -249,7 +258,7 @@ class OrderListFragment : BaseFragment(), DatePickerListener, View.OnClickListen
                         .subscribeOn(Schedulers.io())
                         .subscribe({ result ->
                             progress_wheel.stopSpinning()
-                            XLog.d("ShopActivityFromAverageShop : " + "User Id" + Pref.user_id + ", Session Token" + Pref.session_token + ", SHOP_ID: " + mList[0].shopid + ", SHOP: " + mList[0].shop_name + ", RESPONSE:" + result.message)
+                            Timber.d("ShopActivityFromAverageShop : " + "User Id" + Pref.user_id + ", Session Token" + Pref.session_token + ", SHOP_ID: " + mList[0].shopid + ", SHOP: " + mList[0].shop_name + ", RESPONSE:" + result.message)
                             if (result.status == NetworkConstant.SUCCESS) {
                                 AppDatabase.getDBInstance()!!.shopActivityDao().updateisUploaded(true, shopId, selectedDate)
                                 OrderListAdapter.updateList(AppDatabase.getDBInstance()!!.shopActivityDao().getTotalShopVisitedForADay(selectedDate))
@@ -261,7 +270,7 @@ class OrderListFragment : BaseFragment(), DatePickerListener, View.OnClickListen
                         }, { error ->
                             error.printStackTrace()
                             progress_wheel.stopSpinning()
-                            XLog.d("ShopActivityFromAverageShop : " + "User Id" + Pref.user_id + ", Session Token" + Pref.session_token + ", SHOP_ID: " + mList[0].shopid + ", SHOP: " + mList[0].shop_name + ", ERROR:" + error.localizedMessage)
+                            Timber.d("ShopActivityFromAverageShop : " + "User Id" + Pref.user_id + ", Session Token" + Pref.session_token + ", SHOP_ID: " + mList[0].shopid + ", SHOP: " + mList[0].shop_name + ", ERROR:" + error.localizedMessage)
                             (mContext as DashboardActivity).showSnackMessage(mContext.getString(R.string.unable_to_sync))
 
                         })
@@ -569,6 +578,14 @@ class OrderListFragment : BaseFragment(), DatePickerListener, View.OnClickListen
         shopDurationData.out_time = shopActivity.out_time
         shopDurationData.start_timestamp = shopActivity.startTimeStamp
 
+        //New shop Create issue
+        shopDurationData.isnewShop = shopActivity.isnewShop
+
+        // 1.0 OrderListFragment AppV 4.0.6  multiple contact Data added on Api called
+        shopDurationData.multi_contact_name = shopActivity.multi_contact_name
+        shopDurationData.multi_contact_number = shopActivity.multi_contact_number
+
+
         shopDataList.add(shopDurationData)
 
         if (shopDataList.isEmpty()) {
@@ -584,7 +601,7 @@ class OrderListFragment : BaseFragment(), DatePickerListener, View.OnClickListen
                         .subscribeOn(Schedulers.io())
                         .subscribe({ result ->
                             progress_wheel.stopSpinning()
-                            XLog.d("ShopActivityFromAverageShop : " + "User Id" + Pref.user_id + ", Session Token" + Pref.session_token + ", SHOP_ID: " + mList[0].shopid + ", SHOP: " + mList[0].shop_name + ", RESPONSE:" + result.message)
+                            Timber.d("ShopActivityFromAverageShop : " + "User Id" + Pref.user_id + ", Session Token" + Pref.session_token + ", SHOP_ID: " + mList[0].shopid + ", SHOP: " + mList[0].shop_name + ", RESPONSE:" + result.message)
                             if (result.status == NetworkConstant.SUCCESS) {
                                 AppDatabase.getDBInstance()!!.shopActivityDao().updateisUploaded(true, shopId, selectedDate)
                                 //
@@ -605,7 +622,7 @@ class OrderListFragment : BaseFragment(), DatePickerListener, View.OnClickListen
                             progress_wheel.stopSpinning()
                             error.printStackTrace()
                             if (error != null) {
-                                XLog.d("ShopActivityFromAverageShop : " + "User Id" + Pref.user_id + ", Session Token" + Pref.session_token + ", SHOP_ID: " + mList[0].shopid + ", SHOP: " + mList[0].shop_name + ", ERROR:" + error.localizedMessage)
+                                Timber.d("ShopActivityFromAverageShop : " + "User Id" + Pref.user_id + ", Session Token" + Pref.session_token + ", SHOP_ID: " + mList[0].shopid + ", SHOP: " + mList[0].shop_name + ", ERROR:" + error.localizedMessage)
                                 (mContext as DashboardActivity).showSnackMessage(mContext.getString(R.string.unable_to_sync))
                             }
                         })

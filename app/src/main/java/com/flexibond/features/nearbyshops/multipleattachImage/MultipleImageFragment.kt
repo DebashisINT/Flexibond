@@ -44,7 +44,7 @@ import com.flexibond.features.beatCustom.api.GetBeatRegProvider
 import com.flexibond.features.dashboard.presentation.DashboardActivity
 import com.flexibond.features.marketing.model.MarketingDetailImageData
 import com.flexibond.widgets.AppCustomTextView
-import com.elvishew.xlog.XLog
+
 import com.pnikosis.materialishprogress.ProgressWheel
 import com.squareup.picasso.Cache
 import com.squareup.picasso.MemoryPolicy
@@ -55,6 +55,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
+import timber.log.Timber
 import java.io.File
 import java.io.FileInputStream
 
@@ -228,7 +229,7 @@ class MultipleImageFragment: BaseFragment(),
             val fileSize = AppUtils.getCompressOldImage(filePath,mContext)
             uiThread {
                 if (newFile != null) {
-                    XLog.e("=========Image from new technique==========")
+                    //XLog.e("=========Image from new technique==========")
                     if(isDocDegree == 0){
                         progress_wheel.stopSpinning()
                         tv_text1.setText(newFile!!.name)
@@ -490,7 +491,7 @@ class MultipleImageFragment: BaseFragment(),
                 }, { error ->
                     progress_wheel.stopSpinning()
                     if (error != null) {
-                        XLog.d("AddShop : Image Upload 1" + ", SHOP: " + shopId + ", ERROR: " + error.localizedMessage)
+                        Timber.d("AddShop : Image Upload 1" + ", SHOP: " + shopId + ", ERROR: " + error.localizedMessage)
                     }
                 })
         )
@@ -533,7 +534,7 @@ class MultipleImageFragment: BaseFragment(),
                     if (error != null) {
                         progress_wheel.stopSpinning()
                         openDialogPopup("Hi ${Pref.user_name} !","upload 2 attcmentment not successfully.")
-                        XLog.d("AddShop : Image Upload 1" + ", SHOP: " + shopId + ", ERROR: " + error.localizedMessage)
+                        Timber.d("AddShop : Image Upload 1" + ", SHOP: " + shopId + ", ERROR: " + error.localizedMessage)
                     }
                 })
         )}
@@ -573,7 +574,7 @@ class MultipleImageFragment: BaseFragment(),
                     if (error != null) {
                         progress_wheel.stopSpinning()
                         openDialogPopup("Hi ${Pref.user_name} !","upload 3 attcmentment not successfully.")
-                        XLog.d("AddShop : Image Upload 1" + ", SHOP: " + shopId + ", ERROR: " + error.localizedMessage)
+                        Timber.d("AddShop : Image Upload 1" + ", SHOP: " + shopId + ", ERROR: " + error.localizedMessage)
                     }
                 })
         )
@@ -608,7 +609,7 @@ class MultipleImageFragment: BaseFragment(),
                     if (error != null) {
                         progress_wheel.stopSpinning()
                         openDialogPopup("Hi ${Pref.user_name} !","upload 4 attcmentment not successfully.")
-                        XLog.d("AddShop : Image Upload 4" + ", SHOP: " + shopId + ", ERROR: " + error.localizedMessage)
+                        Timber.d("AddShop : Image Upload 4" + ", SHOP: " + shopId + ", ERROR: " + error.localizedMessage)
                     }
                 })
         )

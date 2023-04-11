@@ -1,6 +1,7 @@
 package com.flexibond.features.nearbyshops.api
 
 import com.flexibond.app.NetworkConstant
+import com.flexibond.base.BaseResponse
 import com.flexibond.features.login.model.GetQtsAnsSubmitDtlsResponseModel
 import com.flexibond.features.login.model.GetSecImageUploadResponseModel
 import com.flexibond.features.login.model.productlistmodel.ModelListResponse
@@ -74,6 +75,10 @@ interface ShopListApi {
     @POST("RubyFoodLead/QuestionAnswerList")
     fun getQuestionAnsSubmitDetails(@Field("session_token") session_token:String,@Field("user_id") user_id:String)
             : Observable<GetQtsAnsSubmitDtlsResponseModel>
+
+    @FormUrlEncoded
+    @POST("EmployeeSync/UserIMEIClear")
+    fun deleteImeiAPI(@Field("session_token") session_token:String,@Field("user_id") user_id:String): Observable<BaseResponse>
 
 
     @FormUrlEncoded

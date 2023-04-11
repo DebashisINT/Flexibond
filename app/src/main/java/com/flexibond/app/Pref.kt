@@ -5,6 +5,12 @@ import com.marcinmoskala.kotlinpreferences.PreferenceHolder
 /**
  * Created by Pratishruti on 08-11-2017.
  */
+// Revision History
+// 1.0 Pref  AppV 4.0.6 Saheli    16/01/2023 Update beat feature
+// 2.0 Pref  AppV 4.0.6 Saheli    25/01/2023 mantis 25623
+// 3.0 Pref  AppV 4.0.7 Suman    10/03/2023 Pdf generation settings wise  mantis 25650
+// 4.0 Pref  AppV 4.0.7 Suman    23/03/2023 ShowApproxDistanceInNearbyShopList Show approx distance in nearby + shopmaster  mantis 0025742
+// 5.0 Pref  AppV 4.0.8 Saheli   06/04/2023 mantis 0025780 IsAssignedDDAvailableForAllUser Useds LoginActivity If this feature 'On' then Assigned DD [Assigned DD Table] shall be available in 'Shop Master'
 object Pref : PreferenceHolder() {
     var text: String? by bindToPreferenceFieldNullable()
     var num: Int by bindToPreferenceField(0, "SomeIntKey")
@@ -799,11 +805,58 @@ object Pref : PreferenceHolder() {
 
     var IsJointVisitEnable:Boolean by bindToPreferenceField(false, "IsJointVisitEnable")
     var IsShowAllEmployeeforJointVisit:Boolean by bindToPreferenceField(false, "IsShowAllEmployeeforJointVisit")
+    var JointVisitSelectedUserName:String by bindToPreferenceField("", "JointVisitSelectedUserName")
 
     var IsShowStateInTeam: Boolean by bindToPreferenceField(false, "IsShowStateInTeam")
     var IsShowBranchInTeam: Boolean by bindToPreferenceField(false, "IsShowBranchInTeam")
     var IsShowDesignationInTeam: Boolean by bindToPreferenceField(false, "IsShowDesignationInTeam")
 
+    var IsAllowClickForVisit: Boolean by bindToPreferenceField(false, "IsAllowClickForVisit")
+    var IsShowInPortalManualPhotoRegn: Boolean by bindToPreferenceField(false, "IsShowInPortalManualPhotoRegn")
+    var IsShowTypeInRegistration: Boolean by bindToPreferenceField(false, "IsShowTypeInRegistration")
+    var UpdateUserName: Boolean by bindToPreferenceField(false, "UpdateUserName")
+    var IsAllowClickForPhotoRegister: Boolean by bindToPreferenceField(false, "IsAllowClickForPhotoRegister")
+    var ShowAutoRevisitInAppMenu: Boolean by bindToPreferenceField(false, "ShowAutoRevisitInAppMenu")// 1.0  AppV 4.0.6
+    var OfflineShopAccuracy: String by bindToPreferenceField("700", "OfflineShopAccuracy")// 1.0  AppV 4.0.6
 
+    var IsFaceRecognitionOnEyeblink: Boolean by bindToPreferenceField(false, "IsFaceRecognitionOnEyeblink")
+    var PartyUpdateAddrMandatory: Boolean by bindToPreferenceField(false, "PartyUpdateAddrMandatory") // 2.0 AppV 4.0.6
 
+    var IsAttendVisitShowInDashboardGlobal: Boolean by bindToPreferenceField(false, "IsAttendVisitShowInDashboardGlobal") // 2.0 DashboardFragment  AppV 4.0.6
+    var IsAttendVisitShowInDashboard: Boolean by bindToPreferenceField(false, "IsAttendVisitShowInDashboard") // 2.0 DashboardFragment  AppV 4.0.6
+    var CommonAINotification: Boolean by bindToPreferenceField(false, "CommonAINotification")// 1.0  AppV 4.0.6 LocationFuzedService
+    var IsIMEICheck: Boolean by bindToPreferenceField(false, "IsIMEICheck")//1.0 LoginActivity  AppV 4.0.6
+
+    var Show_App_Logout_Notification_Global: Boolean by bindToPreferenceField(false, "Show_App_Logout_Notification_Global")//2.0 LocationFuzedService  AppV 4.0.6
+    var Show_App_Logout_Notification: Boolean by bindToPreferenceField(false, "Show_App_Logout_Notification")//2.0 LocationFuzedService  AppV 4.0.6
+    var AllowProfileUpdate: Boolean by bindToPreferenceField(false, "AllowProfileUpdate")// 1.0 MyProfileFragment  AppV 4.0.6
+    var ShowAutoRevisitInDashboard: Boolean by bindToPreferenceField(false, "ShowAutoRevisitInDashboard")
+    var ShowTotalVisitAppMenu: Boolean by bindToPreferenceField(false, "ShowTotalVisitAppMenu")// 3.0  AppV 4.0.6  DashboardActivity
+
+    var IsMultipleContactEnableforShop: Boolean by bindToPreferenceField(false, "IsMultipleContactEnableforShop")
+    var IsContactPersonSelectionRequiredinRevisit: Boolean by bindToPreferenceField(false, "IsContactPersonSelectionRequiredinRevisit")
+    var IsContactPersonRequiredinQuotation: Boolean by bindToPreferenceField(false, "IsContactPersonRequiredinQuotation")// 4.0  AppV 4.0.6  DashboardFragment Addquot work
+    var IsAllowShopStatusUpdate: Boolean by bindToPreferenceField(false, "IsAllowShopStatusUpdate")//2.0 NearByShopsListAdapter  AppV 4.0.6 IsAllowShopStatusUpdate
+    var IsShowBeatInMenu:Boolean by bindToPreferenceField(false, "IsShowBeatInMenu")//userwise 1.0 Pref  AppV 4.0.6 Update beat feature
+    var IsBeatAvailable :Boolean by bindToPreferenceField(false, "IsBeatAvailable")// global 1.0 Pref  AppV 4.0.6 Update beat feature
+
+    var isExpenseFeatureAvailable :Boolean by bindToPreferenceField(false, "isExpenseFeatureAvailable")//mantis 25607
+
+    var IsDiscountEditableInOrder: Boolean by bindToPreferenceField(false, "IsDiscountEditableInOrder")//mantis 25623
+
+    var IsRouteStartFromAttendance: Boolean by bindToPreferenceField(false, "IsRouteStartFromAttendance")//mantis 25637
+
+    var IsShowQuotationFooterforEurobond: Boolean by bindToPreferenceField(false, "IsShowQuotationFooterforEurobond")// 3.0 Pref  AppV 4.0.7 Suman    10/03/2023 Pdf generation settings wise  mantis 25650
+    var IsShowOtherInfoinShopMaster: Boolean by bindToPreferenceField(false, "IsShowOtherInfoinShopMaster") // 3.0 Pref  AppV 4.0.7 Suman    10/03/2023 Pdf generation settings wise  mantis 25650
+
+    var IsVoiceEnable: Boolean by bindToPreferenceField(true, "IsVoiceEnable")
+
+    var IsAllowZeroRateOrder: Boolean by bindToPreferenceField(false, "IsAllowZeroRateOrder")
+
+    // 4.0 Pref  AppV 4.0.7 Suman    23/03/2023 ShowApproxDistanceInNearbyShopList Show approx distance in nearby + shopmaster  mantis 0025742
+    var ShowApproxDistanceInNearbyShopList: Boolean by bindToPreferenceField(false, "ShowApproxDistanceInNearbyShopList")
+
+    // 5.0 Pref  AppV 4.0.8 Saheli    06/04/2023 mantis 0025780 IsAssignedDDAvailableForAllUser Useds LoginActivity If this feature 'On' then Assigned DD [Assigned DD Table] shall be available in 'Shop Master'
+    var IsAssignedDDAvailableForAllUserGlobal: Boolean by bindToPreferenceField(false, "IsAssignedDDAvailableForAllUser ")
+    var IsAssignedDDAvailableForAllUser : Boolean by bindToPreferenceField(false, "IsAssignedDDAvailableForAllUser ")
 }

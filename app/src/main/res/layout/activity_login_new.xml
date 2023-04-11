@@ -65,8 +65,8 @@
                     android:textStyle="bold"
                     android:layout_centerHorizontal="true"
                     android:textColor="#287fb2"
-                    android:text="@string/name_filed_managenent_system"
                     android:visibility="gone"
+                    android:text="@string/name_filed_managenent_system"
                     android:textSize="@dimen/_12sdp"
                     android:layout_marginTop="@dimen/_10sdp"/>
 
@@ -374,6 +374,8 @@
                     android:textSize="@dimen/_11sdp"
                     android:textColor="@color/color_deep_blue" />
 
+
+
                 <ImageView
                     android:id="@+id/icon_internet"
                     android:src="@drawable/ic_info_interenet"
@@ -404,14 +406,34 @@
         android:textSize="@dimen/_10sdp"
         android:visibility="visible" />
 
-    <com.pnikosis.materialishprogress.ProgressWheel
+
+    <!--<com.pnikosis.materialishprogress.ProgressWheel
         android:id="@+id/progress_wheel"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         wheel:matProg_barColor="@color/default_text_color"
-        wheel:matProg_progressIndeterminate="true" />
+        wheel:matProg_progressIndeterminate="true" />-->
+
+    <!-- loader work 25642 mantis -->
+
+    <ImageView
+        android:id="@+id/iv_background_color_set"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/color_transparent_blue"
+        android:visibility="gone"
+        />
+
+    <ImageView
+        android:id="@+id/iv_loader_spin"
+        android:layout_width="@dimen/_80sdp"
+        android:layout_height="@dimen/_80sdp"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        android:scaleType="centerCrop"
+        />
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/alert_snack_bar"

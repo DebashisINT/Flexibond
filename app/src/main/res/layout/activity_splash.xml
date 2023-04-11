@@ -8,7 +8,7 @@
 
     <ImageView
         android:id="@+id/logo_new"
-        android:layout_width="@dimen/_155sdp"
+        android:layout_width="@dimen/_175sdp"
         android:layout_height="@dimen/_70sdp"
         android:src="@drawable/breezelogo"
         android:layout_marginTop="@dimen/_170sdp"
@@ -24,8 +24,8 @@
         android:layout_marginTop="@dimen/_10sdp"
         android:gravity="center|center_horizontal"
         android:text="@string/name_filed_managenent_system"
-        android:visibility="gone"
         android:textColor="#287fb2"
+        android:visibility="gone"
         android:textSize="@dimen/_12sdp"
         android:textStyle="bold" />
 

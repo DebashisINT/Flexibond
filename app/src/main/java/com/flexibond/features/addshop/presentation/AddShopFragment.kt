@@ -5,9 +5,11 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.app.Dialog
+import android.content.ActivityNotFoundException
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Point
 import android.graphics.drawable.BitmapDrawable
@@ -18,6 +20,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.provider.MediaStore
+import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
 import android.text.Editable
 import android.text.InputFilter
@@ -47,6 +50,7 @@ import com.flexibond.app.utils.*
 import com.flexibond.base.BaseResponse
 import com.flexibond.base.presentation.BaseActivity
 import com.flexibond.base.presentation.BaseFragment
+import com.flexibond.features.NewQuotation.AddQuotFormFragment
 import com.flexibond.features.SearchLocation.locationInfoModel
 import com.flexibond.features.addAttendence.FingerprintDialog
 import com.flexibond.features.addshop.api.AddShopRepositoryProvider
@@ -84,7 +88,8 @@ import com.flexibond.features.shopdetail.presentation.api.EditShopRepoProvider
 import com.flexibond.features.viewAllOrder.interf.QaOnCLick
 import com.flexibond.widgets.AppCustomEditText
 import com.flexibond.widgets.AppCustomTextView
-import com.elvishew.xlog.XLog
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputLayout
 import com.squareup.picasso.Picasso
 import com.themechangeapp.pickimage.PermissionHelper
@@ -93,6 +98,7 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_add_shop.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
+import timber.log.Timber
 import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
@@ -100,6 +106,14 @@ import kotlin.collections.ArrayList
 /**
  * Created by Pratishruti on 27-10-2017.
  */
+// 1.0 AddShopFragment AppV 4.0.6 saheli 12-01-2023 multiple contact Data added on Api called
+// 2.0 AddShopFragment AppV 4.0.6 suman 12-01-2023 multiple contact updation
+// 3.0 AddShopFragment AppV 4.0.6 saheli 20-01-2023  Shop duartion Issue mantis 25597
+// 4.0 AddShopFragment AppV 4.0.6 Suman 18-01-2023 extracontact dob added
+// 5.0 AddShopFragment AppV 4.0.7 saheli 20-02-2023  add feedback voice added mantis 0025684
+
+
+
 class AddShopFragment : BaseFragment(), View.OnClickListener {
     private lateinit var captureShopImage: ImageView
     private lateinit var shopImage: RelativeLayout
@@ -253,6 +267,14 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
     private lateinit var assign_to_shop_rl: RelativeLayout
     private lateinit var assign_to_shop_tv: AppCustomTextView
 
+    private lateinit var tv_addContact1: TextView
+    private lateinit var tv_addContact2: TextView
+    private lateinit var tv_addContact3: TextView
+    private lateinit var tv_addContact4: TextView
+    private lateinit var tv_addContact5: TextView
+    private lateinit var tv_addContact6: TextView
+    private lateinit var ll_addExtraContactRoot: LinearLayout
+
     private var fingerprintDialog: FingerprintDialog? = null
     private var areaId = ""
     private var modelId = ""
@@ -333,12 +355,15 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
     private lateinit var ll_feedback: LinearLayout
     private lateinit var tv_feedback_asterisk_mark: AppCustomTextView
 
+    var shopExtraContactList:ArrayList<ShopExtraContactEntity> = ArrayList()
 
-
-
-
+    var shopListSubmitResponse : multiContactRequestData = multiContactRequestData()
 
     var quesAnsList:ArrayList<QuestionAns> = ArrayList()
+
+    private lateinit var iv_frag_add_shop_mic:ImageView  // 5.0 AddShopFragment AppV 4.0.7  add feedback voice added mantis 0025684
+
+    private var  suffixText:String = ""
 
     private val mTess: TessOCR by lazy {
         TessOCR(mContext)
@@ -417,11 +442,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
             if (AppUtils.mLocation!!.accuracy <= 100) {
                 getAddressFromLatLng(AppUtils.mLocation!!)
             } else {
-                XLog.d("======Saved current location is inaccurate (Add Shop)========")
+                Timber.d("======Saved current location is inaccurate (Add Shop)========")
                 normalGetLocFlow()
             }
         } else {
-            XLog.d("=====Saved current location is null (Add Shop)======")
+            Timber.d("=====Saved current location is null (Add Shop)======")
             normalGetLocFlow()
         }*/
 
@@ -473,17 +498,17 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                 //if (AppUtils.mLocation!!.accuracy <= 1) {
                     getAddressFromLatLng(AppUtils.mLocation!!)
                 } else {
-                    XLog.d("======Saved current location is inaccurate (Add Shop)========")
+                    Timber.d("======Saved current location is inaccurate (Add Shop)========")
                     getShopLatLong()
                 }
             } else {
-                XLog.d("=====Saved current location is null (Add Shop)======")
+                Timber.d("=====Saved current location is null (Add Shop)======")
                 getShopLatLong()
             }
 
 
         } else {
-            XLog.d("=====Get location from map (Add Shop)======")
+            Timber.d("=====Get location from map (Add Shop)======")
             actualAddress = fullAdd
             shopAddress.setText(fullAdd)
             shopPin.setText(pinCode)
@@ -557,7 +582,8 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         //22.6068776, 88.4898951
         mLocation = location
         var address = LocationWizard.getAdressFromLatlng(mContext, location.latitude, location.longitude)
-        XLog.e("Shop address (Add Shop)======> $address")
+//        Timber.e("Shop address (Add Shop)======> $address")
+        Timber.e("Shop address (Add Shop)======> $address")
 
         if (address.contains("http"))
             address = "Unknown"
@@ -569,6 +595,8 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun initView(view: View) {
+        iv_frag_add_shop_mic = view.findViewById(R.id.iv_frag_add_shop_mic)  // 5.0 AddShopFragment AppV 4.0.7  add feedback voice added mantis 0025684
+        iv_frag_add_shop_mic.setOnClickListener(this)  // 5.0 AddShopFragment AppV 4.0.7  add feedback voice added mantis 0025684
         PANNumberRL = view.findViewById(R.id.PANNumberRL)
         GSTINNumberRL = view.findViewById(R.id.GSTINNumberRL)
         assign_to_tv = view.findViewById(R.id.assign_to_tv)
@@ -727,6 +755,25 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         ll_feedback =  view.findViewById(R.id.ll_feedback)
         tv_feedback_asterisk_mark =  view.findViewById(R.id.tv_feedback_asterisk_mark)
 
+        tv_addContact1 = view.findViewById(R.id.tv_frag_add_shop_add_contact1)
+        tv_addContact1.setOnClickListener(this)
+        tv_addContact2 = view.findViewById(R.id.tv_frag_add_shop_add_contact2)
+        tv_addContact2.setOnClickListener(this)
+        tv_addContact3 = view.findViewById(R.id.tv_frag_add_shop_add_contact3)
+        tv_addContact3.setOnClickListener(this)
+        tv_addContact4 = view.findViewById(R.id.tv_frag_add_shop_add_contact4)
+        tv_addContact4.setOnClickListener(this)
+        tv_addContact5 = view.findViewById(R.id.tv_frag_add_shop_add_contact5)
+        tv_addContact5.setOnClickListener(this)
+        tv_addContact6 = view.findViewById(R.id.tv_frag_add_shop_add_contact6)
+        tv_addContact6.setOnClickListener(this)
+        ll_addExtraContactRoot = view.findViewById(R.id.ll_frag_add_shop_more_contact_root)
+
+        if(Pref.IsMultipleContactEnableforShop){
+            ll_addExtraContactRoot.visibility = View.VISIBLE
+        }else{
+            ll_addExtraContactRoot.visibility = View.GONE
+        }
 
         tv_select_beat.hint = "Select " + "${Pref.beatText}"
 
@@ -1632,10 +1679,10 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         try {
             if (mLongitude != "" && mLatitude != "") {
                 //Toaster.msgShort(mContext, "Lat: $mLatitude, Lng: $mLongitude")
-                XLog.e("AddShop : Lat=> $mLatitude, Long==> $mLongitude")
+                Timber.e("AddShop : Lat=> $mLatitude, Long==> $mLongitude")
             } else {
                 //Toaster.msgShort(mContext, "Lat: ${mLocation?.latitude}, Lng: ${mLocation?.longitude}")
-                XLog.e("AddShop : Lat=> " + mLocation?.latitude + ", Long==> " + mLocation?.longitude)
+                Timber.e("AddShop : Lat=> " + mLocation?.latitude + ", Long==> " + mLocation?.longitude)
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -1808,75 +1855,76 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
 //        }
         AppUtils.isShopAdded = true
 
-        XLog.d("================AddShop Input Params==================")
-        XLog.d("shop id=======> " + addShop.shop_id)
+        Timber.d("================AddShop Input Params==================")
+        Timber.d("shop id=======> " + addShop.shop_id)
         val index = addShop.shop_id!!.indexOf("_")
-        XLog.d("decoded shop id=======> " + addShop.user_id + "_" + AppUtils.getDate(addShop.shop_id!!.substring(index + 1, addShop.shop_id!!.length).toLong()))
-        XLog.d("shop added date=======> " + addShop.added_date)
-        XLog.d("shop address=======> " + addShop.address)
-        XLog.d("assigned to dd id=======> " + addShop.assigned_to_dd_id)
-        XLog.d("assigned to pp id=======> " + addShop.assigned_to_pp_id)
-        XLog.d("date aniversery=======> " + addShop.date_aniversary)
-        XLog.d("dob=======> " + addShop.dob)
-        XLog.d("shop owner phn no=======> " + addShop.owner_contact_no)
-        XLog.d("shop owner email=======> " + addShop.owner_email)
-        XLog.d("shop owner name=======> " + addShop.owner_name)
-        XLog.d("shop pincode=======> " + addShop.pin_code)
-        XLog.d("session token=======> " + addShop.session_token)
-        XLog.d("shop lat=======> " + addShop.shop_lat)
-        XLog.d("shop long=======> " + addShop.shop_long)
-        XLog.d("shop name=======> " + addShop.shop_name)
-        XLog.d("shop type=======> " + addShop.type)
-        XLog.d("user id=======> " + addShop.user_id)
-        XLog.d("amount=======> " + addShop.amount)
-        XLog.d("area id=======> " + addShop.area_id)
-        XLog.d("model id=======> " + addShop.model_id)
-        XLog.d("primary app id=======> " + addShop.primary_app_id)
-        XLog.d("secondary app id=======> " + addShop.secondary_app_id)
-        XLog.d("lead id=======> " + addShop.lead_id)
-        XLog.d("stage id=======> " + addShop.stage_id)
-        XLog.d("funnel stage id=======> " + addShop.funnel_stage_id)
-        XLog.d("booking amount=======> " + addShop.booking_amount)
-        XLog.d("type id=======> " + addShop.type_id)
-        XLog.d("director name=======> " + addShop.director_name)
-        XLog.d("family member dob=======> " + addShop.family_member_dob)
-        XLog.d("key person's name=======> " + addShop.key_person_name)
-        XLog.d("phone no=======> " + addShop.phone_no)
-        XLog.d("additional dob=======> " + addShop.addtional_dob)
-        XLog.d("additional doa=======> " + addShop.addtional_doa)
-        XLog.d("doctor family member dob=======> " + addShop.doc_family_member_dob)
-        XLog.d("specialization=======> " + addShop.specialization)
-        XLog.d("average patient count per day=======> " + addShop.average_patient_per_day)
-        XLog.d("category=======> " + addShop.category)
-        XLog.d("doctor address=======> " + addShop.doc_address)
-        XLog.d("doctor pincode=======> " + addShop.doc_pincode)
-        XLog.d("chambers or hospital under same headquarter=======> " + addShop.is_chamber_same_headquarter)
-        XLog.d("chamber related remarks=======> " + addShop.is_chamber_same_headquarter_remarks)
-        XLog.d("chemist name=======> " + addShop.chemist_name)
-        XLog.d("chemist name=======> " + addShop.chemist_address)
-        XLog.d("chemist pincode=======> " + addShop.chemist_pincode)
-        XLog.d("assistant name=======> " + addShop.assistant_name)
-        XLog.d("assistant contact no=======> " + addShop.assistant_contact_no)
-        XLog.d("assistant dob=======> " + addShop.assistant_dob)
-        XLog.d("assistant date of anniversary=======> " + addShop.assistant_doa)
-        XLog.d("assistant family dob=======> " + addShop.assistant_family_dob)
-        XLog.d("entity id=======> " + addShop.entity_id)
-        XLog.d("party status id=======> " + addShop.party_status_id)
-        XLog.d("retailer id=======> " + addShop.retailer_id)
-        XLog.d("dealer id=======> " + addShop.dealer_id)
-        XLog.d("beat id=======> " + addShop.beat_id)
-        XLog.d("assigned to shop id=======> " + addShop.assigned_to_shop_id)
-        XLog.d("actual address=======> " + addShop.actual_address)
-        XLog.d("shopDuplicate=======> " + addShop.isShopDuplicate)
+        Timber.d("decoded shop id=======> " + addShop.user_id + "_" + AppUtils.getDate(addShop.shop_id!!.substring(index + 1, addShop.shop_id!!.length).toLong()))
+        Timber.d("shop added date=======> " + addShop.added_date)
+        Timber.d("shop address=======> " + addShop.address)
+        Timber.d("assigned to dd id=======> " + addShop.assigned_to_dd_id)
+        Timber.d("assigned to pp id=======> " + addShop.assigned_to_pp_id)
+        Timber.d("date aniversery=======> " + addShop.date_aniversary)
+        Timber.d("dob=======> " + addShop.dob)
+        Timber.d("shop owner phn no=======> " + addShop.owner_contact_no)
+        Timber.d("shop owner email=======> " + addShop.owner_email)
+        Timber.d("shop owner name=======> " + addShop.owner_name)
+        Timber.d("shop pincode=======> " + addShop.pin_code)
+        Timber.d("session token=======> " + addShop.session_token)
+        Timber.d("shop lat=======> " + addShop.shop_lat)
+        Timber.d("shop long=======> " + addShop.shop_long)
+        Timber.d("shop name=======> " + addShop.shop_name)
+        Timber.d("shop type=======> " + addShop.type)
+        Timber.d("user id=======> " + addShop.user_id)
+        Timber.d("amount=======> " + addShop.amount)
+        Timber.d("area id=======> " + addShop.area_id)
+        Timber.d("model id=======> " + addShop.model_id)
+        Timber.d("primary app id=======> " + addShop.primary_app_id)
+        Timber.d("secondary app id=======> " + addShop.secondary_app_id)
+        Timber.d("lead id=======> " + addShop.lead_id)
+        Timber.d("stage id=======> " + addShop.stage_id)
+        Timber.d("funnel stage id=======> " + addShop.funnel_stage_id)
+        Timber.d("booking amount=======> " + addShop.booking_amount)
+        Timber.d("type id=======> " + addShop.type_id)
+        Timber.d("director name=======> " + addShop.director_name)
+        Timber.d("family member dob=======> " + addShop.family_member_dob)
+        Timber.d("key person's name=======> " + addShop.key_person_name)
+        Timber.d("phone no=======> " + addShop.phone_no)
+        Timber.d("additional dob=======> " + addShop.addtional_dob)
+        Timber.d("additional doa=======> " + addShop.addtional_doa)
+        Timber.d("doctor family member dob=======> " + addShop.doc_family_member_dob)
+        Timber.d("specialization=======> " + addShop.specialization)
+        Timber.d("average patient count per day=======> " + addShop.average_patient_per_day)
+        Timber.d("category=======> " + addShop.category)
+        Timber.d("doctor address=======> " + addShop.doc_address)
+        Timber.d("doctor pincode=======> " + addShop.doc_pincode)
+        Timber.d("chambers or hospital under same headquarter=======> " + addShop.is_chamber_same_headquarter)
+        Timber.d("chamber related remarks=======> " + addShop.is_chamber_same_headquarter_remarks)
+        Timber.d("chemist name=======> " + addShop.chemist_name)
+        Timber.d("chemist name=======> " + addShop.chemist_address)
+        Timber.d("chemist pincode=======> " + addShop.chemist_pincode)
+        Timber.d("assistant name=======> " + addShop.assistant_name)
+        Timber.d("assistant contact no=======> " + addShop.assistant_contact_no)
+        Timber.d("assistant dob=======> " + addShop.assistant_dob)
+        Timber.d("assistant date of anniversary=======> " + addShop.assistant_doa)
+        Timber.d("assistant family dob=======> " + addShop.assistant_family_dob)
+        Timber.d("entity id=======> " + addShop.entity_id)
+        Timber.d("party status id=======> " + addShop.party_status_id)
+        Timber.d("retailer id=======> " + addShop.retailer_id)
+        Timber.d("dealer id=======> " + addShop.dealer_id)
+        Timber.d("beat id=======> " + addShop.beat_id)
+        Timber.d("assigned to shop id=======> " + addShop.assigned_to_shop_id)
+        Timber.d("actual address=======> " + addShop.actual_address)
+        Timber.d("shopDuplicate=======> " + addShop.isShopDuplicate)
 
         if (shop_imgPath != null)
-            XLog.d("shop image path=======> $shop_imgPath")
+            Timber.d("shop image path=======> $shop_imgPath")
 
         if (doc_degree != null)
-            XLog.d("doctor degree image path=======> $doc_degree")
-        XLog.d("====================================================")
+            Timber.d("doctor degree image path=======> $doc_degree")
+        Timber.d("====================================================")
 
         progress_wheel.spin()
+
 
         if (TextUtils.isEmpty(shop_imgPath) && TextUtils.isEmpty(doc_degree)) {
             val repository = AddShopRepositoryProvider.provideAddShopWithoutImageRepository()
@@ -1886,12 +1934,14 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                             .subscribeOn(Schedulers.io())
                             .subscribe({ result ->
                                 val addShopResult = result as AddShopResponse
-                                XLog.d("AddShop : " + ", SHOP: " + addShop.shop_name + ", RESPONSE:" + result.message)
+                                Timber.d("AddShop : " + ", SHOP: " + addShop.shop_name + ", RESPONSE:" + result.message)
                                 if (addShopResult.status == NetworkConstant.SUCCESS) {
                                     AppDatabase.getDBInstance()!!.addShopEntryDao().updateIsUploaded(true, addShop.shop_id)
                                     if(AppUtils.isOnline(mContext)){
 //                                        if(Pref.isMultipleVisitEnable)
-                                            AppDatabase.getDBInstance()!!.shopActivityDao().updateIsUploaded(true, addShop.shop_id!!,AppUtils.getCurrentDateForShopActi())
+                                        // 3.0 AddShopFragment AppV 4.0.6 Shop duartion Issue mantis 25597
+//                                            AppDatabase.getDBInstance()!!.shopActivityDao().updateIsUploaded(true, addShop.shop_id!!,AppUtils.getCurrentDateForShopActi())
+                                            AppDatabase.getDBInstance()!!.shopActivityDao().updateIsNewshopUploaded(true, addShop.shop_id!!,AppUtils.getCurrentDateForShopActi())
 
                                     }
 
@@ -1921,14 +1971,14 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                                     //showShopVerificationDialog(addShop.shop_id!!)
 
                                 } else if (addShopResult.status == NetworkConstant.SESSION_MISMATCH) {
-                                    XLog.d("AddShop : " + ", SHOP: " + addShop.shop_name + ", RESPONSE:" + result.message)
+                                    Timber.d("AddShop : " + ", SHOP: " + addShop.shop_name + ", RESPONSE:" + result.message)
                                     progress_wheel.stopSpinning()
                                     (mContext as DashboardActivity).clearData()
                                     startActivity(Intent(mContext as DashboardActivity, LoginActivity::class.java))
                                     (mContext as DashboardActivity).overridePendingTransition(0, 0)
                                     (mContext as DashboardActivity).finish()
                                 } else if (addShopResult.status == NetworkConstant.DUPLICATE_SHOP_ID) {
-                                    XLog.d("DuplicateShop : " + ", SHOP: " + addShop.shop_name)
+                                    Timber.d("DuplicateShop : " + ", SHOP: " + addShop.shop_name)
                                     progress_wheel.stopSpinning()
                                     (mContext as DashboardActivity).showSnackMessage(addShopResult.message!!)
                                     if (AppDatabase.getDBInstance()!!.addShopEntryDao().getDuplicateShopData(addShop.owner_contact_no).size > 0) {
@@ -1939,7 +1989,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                                     (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, addShop.shop_id!!)
                                 } else {
                                     progress_wheel.stopSpinning()
-                                    XLog.d("AddShop : " + ", SHOP: " + addShop.shop_name + ", RESPONSE:" + result.message)
+                                    Timber.d("AddShop : " + ", SHOP: " + addShop.shop_name + ", RESPONSE:" + result.message)
                                     (mContext as DashboardActivity).showSnackMessage(getString(R.string.shop_added_successfully))
                                     voiceAttendanceMsg(getString(R.string.shop_added_successfully))
 //                                (mContext as DashboardActivity).showSnackMessage(getString(R.string.shop_added_successfully))
@@ -1974,7 +2024,8 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                                                 notification.sendLocNotification(mContext, body)
                                             }
                                         }
-                                        (mContext as DashboardActivity).loadFragment(FragType.DashboardFragment,true,"")
+                                        //(mContext as DashboardActivity).loadFragment(FragType.DashboardFragment,true,"")
+                                        syncAddMultiContact()
                                     } //(mContext as DashboardActivity).loadFragment(FragType.NearByShopsListFragment, false, "")
 //                                    (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, addShop.shop_id!!)
                                 }
@@ -2025,12 +2076,13 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                                             notification.sendLocNotification(mContext, body)
                                         }
                                     }
-                                    (mContext as DashboardActivity).loadFragment(FragType.DashboardFragment,true,"")
+                                    //(mContext as DashboardActivity).loadFragment(FragType.DashboardFragment,true,"")
+                                    syncAddMultiContact()
                                 }
                                 //(mContext as DashboardActivity).loadFragment(FragType.NearByShopsListFragment, false, "")
 //                                (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, addShop.shop_id!!)
                                 if (error != null) {
-                                    XLog.d("AddShop : " + ", SHOP: " + addShop.shop_name + ", ERROR: " + error.localizedMessage)
+                                    Timber.d("AddShop : " + ", SHOP: " + addShop.shop_name + ", ERROR: " + error.localizedMessage)
                                 }
                             })
             )
@@ -2042,9 +2094,16 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                             .subscribeOn(Schedulers.io())
                             .subscribe({ result ->
                                 val addShopResult = result as AddShopResponse
-                                XLog.d("AddShop : " + ", SHOP: " + addShop.shop_name + ", RESPONSE:" + result.message)
+                                Timber.d("AddShop : " + ", SHOP: " + addShop.shop_name + ", RESPONSE:" + result.message)
                                 if (addShopResult.status == NetworkConstant.SUCCESS) {
                                     AppDatabase.getDBInstance()!!.addShopEntryDao().updateIsUploaded(true, addShop.shop_id)
+                                    if(AppUtils.isOnline(mContext)){
+//                                        if(Pref.isMultipleVisitEnable)
+                                        // 3.0 AddShopFragment AppV 4.0.6 Shop duartion Issue mantis 25597
+//                                        AppDatabase.getDBInstance()!!.shopActivityDao().updateIsUploaded(true, addShop.shop_id!!,AppUtils.getCurrentDateForShopActi())
+                                        AppDatabase.getDBInstance()!!.shopActivityDao().updateIsNewshopUploaded(true, addShop.shop_id!!,AppUtils.getCurrentDateForShopActi())
+
+                                    }
                                     //callShopActivitySubmit(addShop.shop_id!!)
                                     progress_wheel.stopSpinning()
 //                                (mContext as DashboardActivity).showSnackMessage("SUCCESS")
@@ -2071,14 +2130,14 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                                     //showShopVerificationDialog(addShop.shop_id!!)
 
                                 } else if (addShopResult.status == NetworkConstant.SESSION_MISMATCH) {
-                                    XLog.d("AddShop : " + ", SHOP: " + addShop.shop_name + ", RESPONSE:" + result.message)
+                                    Timber.d("AddShop : " + ", SHOP: " + addShop.shop_name + ", RESPONSE:" + result.message)
                                     progress_wheel.stopSpinning()
                                     (mContext as DashboardActivity).clearData()
                                     startActivity(Intent(mContext as DashboardActivity, LoginActivity::class.java))
                                     (mContext as DashboardActivity).overridePendingTransition(0, 0)
                                     (mContext as DashboardActivity).finish()
                                 } else if (addShopResult.status == NetworkConstant.DUPLICATE_SHOP_ID) {
-                                    XLog.d("DuplicateShop : " + ", SHOP: " + addShop.shop_name)
+                                    Timber.d("DuplicateShop : " + ", SHOP: " + addShop.shop_name)
                                     progress_wheel.stopSpinning()
                                     (mContext as DashboardActivity).showSnackMessage(addShopResult.message!!)
                                     if (AppDatabase.getDBInstance()!!.addShopEntryDao().getDuplicateShopData(addShop.owner_contact_no).size > 0) {
@@ -2089,7 +2148,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                                     (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, addShop.shop_id!!)
                                 } else {
                                     progress_wheel.stopSpinning()
-                                    XLog.d("AddShop : " + ", SHOP: " + addShop.shop_name + ", RESPONSE:" + result.message)
+                                    Timber.d("AddShop : " + ", SHOP: " + addShop.shop_name + ", RESPONSE:" + result.message)
                                     (mContext as DashboardActivity).showSnackMessage(getString(R.string.shop_added_successfully))
                                     voiceAttendanceMsg(getString(R.string.shop_added_successfully))
 //                                (mContext as DashboardActivity).showSnackMessage(getString(R.string.shop_added_successfully))
@@ -2125,7 +2184,8 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                                                 notification.sendLocNotification(mContext, body)
                                             }
                                         }
-                                        (mContext as DashboardActivity).loadFragment(FragType.DashboardFragment,true,"")
+                                        //(mContext as DashboardActivity).loadFragment(FragType.DashboardFragment,true,"")
+                                        syncAddMultiContact()
                                     }
 //                                    (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, addShop.shop_id!!)
                                 }
@@ -2177,11 +2237,12 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                                             notification.sendLocNotification(mContext, body)
                                         }
                                     }
-                                    (mContext as DashboardActivity).loadFragment(FragType.DashboardFragment,true,"")
+                                    //(mContext as DashboardActivity).loadFragment(FragType.DashboardFragment,true,"")
+                                    syncAddMultiContact()
                                 }
 //                                (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, addShop.shop_id!!)
                                 if (error != null) {
-                                    XLog.d("AddShop : " + ", SHOP: " + addShop.shop_name + ", ERROR: " + error.localizedMessage)
+                                    Timber.d("AddShop : " + ", SHOP: " + addShop.shop_name + ", ERROR: " + error.localizedMessage)
                                 }
                             })
             )
@@ -2206,13 +2267,13 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                             val response = result as BaseResponse
                             if (response.status == NetworkConstant.SUCCESS) {
                                 AppDatabase.getDBInstance()!!.shopVisitCompetetorImageDao().updateisUploaded(true, shopId)
-                                XLog.d("AddShop : CompetetorImg" + ", SHOP: " + shopId + ", Success: ")
+                                Timber.d("AddShop : CompetetorImg" + ", SHOP: " + shopId + ", Success: ")
                             } else {
-                                XLog.d("AddShop : CompetetorImg" + ", SHOP: " + shopId + ", Failed: ")
+                                Timber.d("AddShop : CompetetorImg" + ", SHOP: " + shopId + ", Failed: ")
                             }
                         }, { error ->
                             if (error != null) {
-                                XLog.d("AddShop : CompetetorImg" + ", SHOP: " + shopId + ", ERROR: " + error.localizedMessage)
+                                Timber.d("AddShop : CompetetorImg" + ", SHOP: " + shopId + ", ERROR: " + error.localizedMessage)
                             }
                         })
         )
@@ -2241,14 +2302,14 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                                     syncQuesSubmit(shopId)
 
                                 }
-                                XLog.d("AddShop : Img1" + ", SHOP: " + shopId + ", Success: ")
+                                Timber.d("AddShop : Img1" + ", SHOP: " + shopId + ", Success: ")
                             } else {
-                                XLog.d("AddShop : Img1" + ", SHOP: " + shopId + ", Failed: ")
+                                Timber.d("AddShop : Img1" + ", SHOP: " + shopId + ", Failed: ")
                             }
                         }, { error ->
                             println("sec-image addShopSeconaryUploadImg error")
                             if (error != null) {
-                                XLog.d("AddShop : Img1" + ", SHOP: " + shopId + ", ERROR: " + error.localizedMessage)
+                                Timber.d("AddShop : Img1" + ", SHOP: " + shopId + ", ERROR: " + error.localizedMessage)
                             }
                         })
         )
@@ -2274,14 +2335,14 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                                 AppDatabase.getDBInstance()!!.addShopSecondaryImgDao().updateisUploaded2(true, shopId)
                                 syncQuesSubmit(shopId)
 //                                getAssignedPPListApi(true, shopId)
-                                XLog.d("AddShop : Img2" + ", SHOP: " + shopId + ", Success: ")
+                                Timber.d("AddShop : Img2" + ", SHOP: " + shopId + ", Success: ")
                             } else {
-                                XLog.d("AddShop : Img2" + ", SHOP: " + shopId + ", Failed: ")
+                                Timber.d("AddShop : Img2" + ", SHOP: " + shopId + ", Failed: ")
                             }
                         }, { error ->
                             println("sec-image addShopSeconaryUploadImg2 error")
                             if (error != null) {
-                                XLog.d("AddShop : Img2" + ", SHOP: " + shopId + ", ERROR: " + error.localizedMessage)
+                                Timber.d("AddShop : Img2" + ", SHOP: " + shopId + ", ERROR: " + error.localizedMessage)
                             }
                         })
         )
@@ -2324,7 +2385,8 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                         }
                     }
 
-                (mContext as DashboardActivity).loadFragment(FragType.DashboardFragment,true,"")
+                //(mContext as DashboardActivity).loadFragment(FragType.DashboardFragment,true,"")
+                syncAddMultiContact()
             }
 //            (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, shop_id)
         } else {
@@ -2374,7 +2436,8 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                             }
                         }
 
-                        (mContext as DashboardActivity).loadFragment(FragType.DashboardFragment,true,"")
+                        //(mContext as DashboardActivity).loadFragment(FragType.DashboardFragment,true,"")
+                        syncAddMultiContact()
                     }
 //                    (mContext as DashboardActivity).loadFragment(FragType.ShopDetailFragment, true, shop_id)
                 }
@@ -2506,7 +2569,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                         .subscribeOn(Schedulers.io())
                         .subscribe({ result ->
                             val addShopResult = result as AddShopResponse
-                            XLog.d("Edit Shop : " + ", SHOP: " + addShopReqData.shop_name + ", RESPONSE:" + result.message)
+                            Timber.d("Edit Shop : " + ", SHOP: " + addShopReqData.shop_name + ", RESPONSE:" + result.message)
                             if (addShopResult.status == NetworkConstant.SUCCESS) {
                                 AppDatabase.getDBInstance()!!.addShopEntryDao().updateIsEditUploaded(1, addShopReqData.shop_id)
                                 progress_wheel.stopSpinning()
@@ -2695,6 +2758,13 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         else
             shopDurationData.approximate_1st_billing_value = ""
 
+        //New shop Create issue
+        shopDurationData.isnewShop = shopActivity.isnewShop!!
+
+        // 1.0 AddShopFragment AppV 4.0.6  multiple contact Data added on Api called
+        shopDurationData.multi_contact_name = shopActivity.multi_contact_name
+        shopDurationData.multi_contact_number = shopActivity.multi_contact_number
+
         shopDataList.add(shopDurationData)
 
         if (shopDataList.isEmpty()) {
@@ -2709,7 +2779,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeOn(Schedulers.io())
                         .subscribe({ result ->
-                            XLog.d("ShopActivityFromAddShop : " + ", SHOP: " + mList[0].shop_name + ", RESPONSE:" + result.message)
+                            Timber.d("ShopActivityFromAddShop : " + ", SHOP: " + mList[0].shop_name + ", RESPONSE:" + result.message)
                             if (result.status == NetworkConstant.SUCCESS) {
 
                             }
@@ -2717,7 +2787,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                         }, { error ->
                             error.printStackTrace()
                             if (error != null)
-                                XLog.d("ShopActivityFromAddShop : " + ", SHOP: " + mList[0].shop_name + ", ERROR:" + error.localizedMessage)
+                                Timber.d("ShopActivityFromAddShop : " + ", SHOP: " + mList[0].shop_name + ", ERROR:" + error.localizedMessage)
                         })
         )
 
@@ -2827,34 +2897,34 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         shopActivityEntity.next_visit_date = nextVisitDate
 
         var distance = 0.0
-        XLog.e("======New Distance (At add shop time)=========")
+        Timber.e("======New Distance (At add shop time)=========")
 
         val shop = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopDetail(addShop.shop_id)
 
         if (Pref.isOnLeave.equals("false", ignoreCase = true)) {
 
-            XLog.e("=====User is at work (At add shop time)=======")
+            Timber.e("=====User is at work (At add shop time)=======")
 
             /*if (!TextUtils.isEmpty(addShop.shop_lat) && !TextUtils.isEmpty(addShop.shop_long)) {
                 if (!TextUtils.isEmpty(Pref.source_latitude) && !TextUtils.isEmpty(Pref.source_longitude)) {
                     distance = LocationWizard.getDistance(Pref.source_latitude.toDouble(), Pref.source_longitude.toDouble(),
                             addShop.shop_lat?.toDouble()!!, addShop.shop_long?.toDouble()!!)
 
-                    XLog.e("=====Both location available=======")
+                    Timber.e("=====Both location available=======")
                 } else {
                     distance = 0.0 //LocationWizard.getDistance(0.0, 0.0, addShop.shop_lat?.toDouble()!!, addShop.shop_long?.toDouble()!!)
-                    XLog.e("=====Only new location available=======")
+                    Timber.e("=====Only new location available=======")
                 }
                 Pref.source_latitude = addShop.shop_lat!!
                 Pref.source_longitude = addShop.shop_long!!
             } else {
                 if (!TextUtils.isEmpty(Pref.source_latitude) && !TextUtils.isEmpty(Pref.source_longitude)) {
                     distance = 0.0 //LocationWizard.getDistance(0.0, 0.0, Pref.source_latitude.toDouble(), Pref.source_longitude.toDouble())
-                    XLog.e("=====Only old location available=======")
+                    Timber.e("=====Only old location available=======")
                 } else {
                     distance = 0.0
 
-                    XLog.e("=====No location available=======")
+                    Timber.e("=====No location available=======")
                 }
             }*/
 
@@ -2870,11 +2940,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                     userlocation.latitude.toDouble(), userlocation.longitude.toDouble())
             val finalDistance = (Pref.tempDistance.toDouble() + loc_distance).toString()
 
-            XLog.e("===Distance (At new shop visit time)===")
-            XLog.e("Temp Distance====> " + Pref.tempDistance)
-            XLog.e("Normal Distance====> $loc_distance")
-            XLog.e("Total Distance====> $finalDistance")
-            XLog.e("=======================================")
+            Timber.e("===Distance (At new shop visit time)===")
+            Timber.e("Temp Distance====> " + Pref.tempDistance)
+            Timber.e("Normal Distance====> $loc_distance")
+            Timber.e("Total Distance====> $finalDistance")
+            Timber.e("=======================================")
 
             userlocation.distance = finalDistance
             userlocation.locationName = LocationWizard.getNewLocationName(mContext, userlocation.latitude.toDouble(), userlocation.longitude.toDouble())
@@ -2892,7 +2962,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
             userlocation.battery_percentage = AppUtils.getBatteryPercentage(mContext).toString()
             AppDatabase.getDBInstance()!!.userLocationDataDao().insertAll(userlocation)
 
-            XLog.e("=====New shop visit data added=======")
+            Timber.e("=====New shop visit data added=======")
 
             Pref.totalS2SDistance = (Pref.totalS2SDistance.toDouble() + userlocation.distance.toDouble()).toString()
 
@@ -2900,11 +2970,11 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
             Pref.totalS2SDistance = "0.0"
             Pref.tempDistance = "0.0"
         } else {
-            XLog.e("=====User is on leave =======")
+            Timber.e("=====User is on leave =======")
             distance = 0.0
         }
 
-        XLog.e("shop to shop distance (At new shop visit time)====> $distance")
+        Timber.e("shop to shop distance (At new shop visit time)====> $distance")
 
         shopActivityEntity.distance_travelled = distance.toString()
 
@@ -3609,9 +3679,549 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                          .into(iv_upload_image_view_image1)
                  iv_image_cross_icon_2.visibility = View.GONE
             }
+            R.id.tv_frag_add_shop_add_contact1 ->{
+                val simpleDialog = Dialog(mContext)
+                simpleDialog.setCancelable(true)
+                simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                simpleDialog.setContentView(R.layout.dialog_multiple_contact)
 
+                val ic_cross = simpleDialog.findViewById(R.id.iv_dialog_multi_cont_cross) as ImageView
+                val et_contactName = simpleDialog.findViewById(R.id.et_dialog_multi_contact_name) as EditText
+                val et_contactPhno = simpleDialog.findViewById(R.id.et_dialog_multi_contact_phno) as EditText
+                val et_contact_email = simpleDialog.findViewById(R.id.et_dialog_multi_contact_email) as EditText
+                val et_dob = simpleDialog.findViewById(R.id.tv_dialog_multi_contact_dob) as TextView
+                val et_anniv = simpleDialog.findViewById(R.id.tv_dialog_multi_contact_anniv) as TextView
+                val fab_add = simpleDialog.findViewById(R.id.fab_dialog_multi_contact_plus) as FloatingActionButton
+
+                val dateOtherAnniv = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+                    myCalendar.set(Calendar.YEAR, year)
+                    myCalendar.set(Calendar.MONTH, monthOfYear)
+                    myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+                    //et_anniv.setText(AppUtils.changeAttendanceDateFormat(AppUtils.getDobFormattedDate(myCalendar.time)))
+                    //et_anniv.setText(AppUtils.getFormattedDateForApi(myCalendar.time))
+                    et_anniv.setText(AppUtils.getFormattedDateForApi1(myCalendar.time))
+                }
+                val dateOtherDOB = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+                    myCalendar.set(Calendar.YEAR, year)
+                    myCalendar.set(Calendar.MONTH, monthOfYear)
+                    myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+                    //et_anniv.setText(AppUtils.changeAttendanceDateFormat(AppUtils.getDobFormattedDate(myCalendar.time)))
+                    //et_anniv.setText(AppUtils.getFormattedDateForApi(myCalendar.time))
+                    et_dob.setText(AppUtils.getFormattedDateForApi1(myCalendar.time))
+                }
+
+                fab_add.setOnClickListener({ view ->
+                    if(et_contactName.text.toString().length == 0){
+                        Toaster.msgShort(mContext,"Please enter Contact Name")
+                        return@setOnClickListener
+                    }
+                    if(et_contactPhno.text.toString().length == 0 || et_contactPhno.text.toString().length !=10){
+                        Toaster.msgShort(mContext,"Please enter valid Contact Phone Number")
+                        return@setOnClickListener
+                    }
+
+                    var obj : ShopExtraContactEntity = ShopExtraContactEntity()
+                    obj.apply {
+                        shop_id = ""
+                        contact_serial = "1"
+                        contact_name = et_contactName.text.toString()
+                        contact_number = et_contactPhno.text.toString()
+                        contact_email = et_contact_email.text.toString()
+                        contact_dob = if(et_dob.text.toString().length>0) AppUtils.getFormatedDateNew(et_dob.text.toString(),"dd-mm-yyyy","yyyy-mm-dd") else ""
+                        contact_doa = if(et_anniv.text.toString().length>0) AppUtils.getFormatedDateNew(et_anniv.text.toString(),"dd-mm-yyyy","yyyy-mm-dd") else ""//et_anniv.text.toString()
+                        isUploaded = false
+                    }
+                    shopExtraContactList.add(obj)
+                    tv_addContact1.backgroundTintList = ColorStateList.valueOf(getResources().getColor(R.color.approved_green))
+                    tv_addContact1.isEnabled = false
+                    tv_addContact2.visibility = View.VISIBLE
+                    simpleDialog.dismiss()
+                })
+                et_anniv.setOnClickListener({ view ->
+                    AppUtils.hideSoftKeyboard(mContext as DashboardActivity)
+                    var aniDatePicker = DatePickerDialog(mContext, R.style.DatePickerTheme, dateOtherAnniv, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH))
+                    aniDatePicker.datePicker.maxDate = Calendar.getInstance(Locale.ENGLISH).timeInMillis
+                    aniDatePicker.show()
+                })
+                et_dob.setOnClickListener({ view ->
+                    AppUtils.hideSoftKeyboard(mContext as DashboardActivity)
+                    var dobDatePicker = DatePickerDialog(mContext, R.style.DatePickerTheme, dateOtherDOB, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH))
+                    dobDatePicker.datePicker.maxDate = Calendar.getInstance(Locale.ENGLISH).timeInMillis
+                    dobDatePicker.show()
+                })
+
+                ic_cross.setOnClickListener {
+                    simpleDialog.dismiss()
+                }
+
+                simpleDialog.show()
+            }
+            R.id.tv_frag_add_shop_add_contact2 ->{
+                val simpleDialog = Dialog(mContext)
+                simpleDialog.setCancelable(true)
+                simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                simpleDialog.setContentView(R.layout.dialog_multiple_contact)
+
+                val ic_cross = simpleDialog.findViewById(R.id.iv_dialog_multi_cont_cross) as ImageView
+                val et_contactName = simpleDialog.findViewById(R.id.et_dialog_multi_contact_name) as EditText
+                val et_contactPhno = simpleDialog.findViewById(R.id.et_dialog_multi_contact_phno) as EditText
+                val et_contact_email = simpleDialog.findViewById(R.id.et_dialog_multi_contact_email) as EditText
+                val et_dob = simpleDialog.findViewById(R.id.tv_dialog_multi_contact_dob) as TextView
+                val et_anniv = simpleDialog.findViewById(R.id.tv_dialog_multi_contact_anniv) as TextView
+                val fab_add = simpleDialog.findViewById(R.id.fab_dialog_multi_contact_plus) as FloatingActionButton
+
+                val dateOtherAnniv = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+                    myCalendar.set(Calendar.YEAR, year)
+                    myCalendar.set(Calendar.MONTH, monthOfYear)
+                    myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+                    //et_anniv.setText(AppUtils.changeAttendanceDateFormat(AppUtils.getDobFormattedDate(myCalendar.time)))
+                    et_anniv.setText(AppUtils.getFormattedDateForApi1(myCalendar.time))
+                }
+                val dateOtherDOB = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+                    myCalendar.set(Calendar.YEAR, year)
+                    myCalendar.set(Calendar.MONTH, monthOfYear)
+                    myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+                    //et_anniv.setText(AppUtils.changeAttendanceDateFormat(AppUtils.getDobFormattedDate(myCalendar.time)))
+                    //et_anniv.setText(AppUtils.getFormattedDateForApi(myCalendar.time))
+                    et_dob.setText(AppUtils.getFormattedDateForApi1(myCalendar.time))
+                }
+
+                fab_add.setOnClickListener({ view ->
+                    if(et_contactName.text.toString().length == 0){
+                        Toaster.msgShort(mContext,"Please enter Contact Name")
+                        return@setOnClickListener
+                    }
+                    if(et_contactPhno.text.toString().length == 0 || et_contactPhno.text.toString().length !=10){
+                        Toaster.msgShort(mContext,"Please enter valid Contact Phone Number")
+                        return@setOnClickListener
+                    }
+
+                    var obj : ShopExtraContactEntity = ShopExtraContactEntity()
+                    obj.apply {
+                        shop_id = ""
+                        contact_serial = "2"
+                        contact_name = et_contactName.text.toString()
+                        contact_number = et_contactPhno.text.toString()
+                        contact_email = et_contact_email.text.toString()
+                        contact_dob = if(et_dob.text.toString().length>0) AppUtils.getFormatedDateNew(et_dob.text.toString(),"dd-mm-yyyy","yyyy-mm-dd") else ""
+                        contact_doa = if(et_anniv.text.toString().length>0) AppUtils.getFormatedDateNew(et_anniv.text.toString(),"dd-mm-yyyy","yyyy-mm-dd") else ""//et_anniv.text.toString()
+                        isUploaded = false
+                    }
+                    shopExtraContactList.add(obj)
+                    tv_addContact2.backgroundTintList = ColorStateList.valueOf(getResources().getColor(R.color.approved_green))
+                    tv_addContact2.isEnabled = false
+                    tv_addContact3.visibility = View.VISIBLE
+
+                    simpleDialog.dismiss()
+                })
+                et_anniv.setOnClickListener({ view ->
+                    AppUtils.hideSoftKeyboard(mContext as DashboardActivity)
+                    var aniDatePicker = DatePickerDialog(mContext, R.style.DatePickerTheme, dateOtherAnniv, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH))
+                    aniDatePicker.datePicker.maxDate = Calendar.getInstance(Locale.ENGLISH).timeInMillis
+                    aniDatePicker.show()
+                })
+                et_dob.setOnClickListener({ view ->
+                    AppUtils.hideSoftKeyboard(mContext as DashboardActivity)
+                    var dobDatePicker = DatePickerDialog(mContext, R.style.DatePickerTheme, dateOtherDOB, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH))
+                    dobDatePicker.datePicker.maxDate = Calendar.getInstance(Locale.ENGLISH).timeInMillis
+                    dobDatePicker.show()
+                })
+
+                ic_cross.setOnClickListener {
+                    simpleDialog.dismiss()
+                }
+
+                simpleDialog.show()
+            }
+            R.id.tv_frag_add_shop_add_contact3 ->{
+                val simpleDialog = Dialog(mContext)
+                simpleDialog.setCancelable(true)
+                simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                simpleDialog.setContentView(R.layout.dialog_multiple_contact)
+
+                val ic_cross = simpleDialog.findViewById(R.id.iv_dialog_multi_cont_cross) as ImageView
+                val et_contactName = simpleDialog.findViewById(R.id.et_dialog_multi_contact_name) as EditText
+                val et_contactPhno = simpleDialog.findViewById(R.id.et_dialog_multi_contact_phno) as EditText
+                val et_contact_email = simpleDialog.findViewById(R.id.et_dialog_multi_contact_email) as EditText
+                val et_dob = simpleDialog.findViewById(R.id.tv_dialog_multi_contact_dob) as TextView
+                val et_anniv = simpleDialog.findViewById(R.id.tv_dialog_multi_contact_anniv) as TextView
+                val fab_add = simpleDialog.findViewById(R.id.fab_dialog_multi_contact_plus) as FloatingActionButton
+
+                val dateOtherAnniv = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+                    myCalendar.set(Calendar.YEAR, year)
+                    myCalendar.set(Calendar.MONTH, monthOfYear)
+                    myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+                    //et_anniv.setText(AppUtils.changeAttendanceDateFormat(AppUtils.getDobFormattedDate(myCalendar.time)))
+                    et_anniv.setText(AppUtils.getFormattedDateForApi1(myCalendar.time))
+                }
+                val dateOtherDOB = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+                    myCalendar.set(Calendar.YEAR, year)
+                    myCalendar.set(Calendar.MONTH, monthOfYear)
+                    myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+                    //et_anniv.setText(AppUtils.changeAttendanceDateFormat(AppUtils.getDobFormattedDate(myCalendar.time)))
+                    //et_anniv.setText(AppUtils.getFormattedDateForApi(myCalendar.time))
+                    et_dob.setText(AppUtils.getFormattedDateForApi1(myCalendar.time))
+                }
+
+                fab_add.setOnClickListener({ view ->
+                    if(et_contactName.text.toString().length == 0){
+                        Toaster.msgShort(mContext,"Please enter Contact Name")
+                        return@setOnClickListener
+                    }
+                    if(et_contactPhno.text.toString().length == 0 || et_contactPhno.text.toString().length !=10){
+                        Toaster.msgShort(mContext,"Please enter valid Contact Phone Number")
+                        return@setOnClickListener
+                    }
+
+                    var obj : ShopExtraContactEntity = ShopExtraContactEntity()
+                    obj.apply {
+                        shop_id = ""
+                        contact_serial = "3"
+                        contact_name = et_contactName.text.toString()
+                        contact_number = et_contactPhno.text.toString()
+                        contact_email = et_contact_email.text.toString()
+                        contact_dob = if(et_dob.text.toString().length>0) AppUtils.getFormatedDateNew(et_dob.text.toString(),"dd-mm-yyyy","yyyy-mm-dd") else ""
+                        contact_doa = if(et_anniv.text.toString().length>0) AppUtils.getFormatedDateNew(et_anniv.text.toString(),"dd-mm-yyyy","yyyy-mm-dd") else ""//et_anniv.text.toString()
+                        isUploaded = false
+                    }
+                    shopExtraContactList.add(obj)
+                    tv_addContact3.backgroundTintList = ColorStateList.valueOf(getResources().getColor(R.color.approved_green))
+                    tv_addContact3.isEnabled = false
+                    tv_addContact4.visibility = View.VISIBLE
+
+
+                    simpleDialog.dismiss()
+                })
+                et_anniv.setOnClickListener({ view ->
+                    AppUtils.hideSoftKeyboard(mContext as DashboardActivity)
+                    var aniDatePicker = DatePickerDialog(mContext, R.style.DatePickerTheme, dateOtherAnniv, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH))
+                    aniDatePicker.datePicker.maxDate = Calendar.getInstance(Locale.ENGLISH).timeInMillis
+                    aniDatePicker.show()
+                })
+                et_dob.setOnClickListener({ view ->
+                    AppUtils.hideSoftKeyboard(mContext as DashboardActivity)
+                    var dobDatePicker = DatePickerDialog(mContext, R.style.DatePickerTheme, dateOtherDOB, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH))
+                    dobDatePicker.datePicker.maxDate = Calendar.getInstance(Locale.ENGLISH).timeInMillis
+                    dobDatePicker.show()
+                })
+
+                ic_cross.setOnClickListener {
+                    simpleDialog.dismiss()
+                }
+
+                simpleDialog.show()
+            }
+            R.id.tv_frag_add_shop_add_contact4 ->{
+                val simpleDialog = Dialog(mContext)
+                simpleDialog.setCancelable(true)
+                simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                simpleDialog.setContentView(R.layout.dialog_multiple_contact)
+
+                val ic_cross = simpleDialog.findViewById(R.id.iv_dialog_multi_cont_cross) as ImageView
+                val et_contactName = simpleDialog.findViewById(R.id.et_dialog_multi_contact_name) as EditText
+                val et_contactPhno = simpleDialog.findViewById(R.id.et_dialog_multi_contact_phno) as EditText
+                val et_contact_email = simpleDialog.findViewById(R.id.et_dialog_multi_contact_email) as EditText
+                val et_dob = simpleDialog.findViewById(R.id.tv_dialog_multi_contact_dob) as TextView
+                val et_anniv = simpleDialog.findViewById(R.id.tv_dialog_multi_contact_anniv) as TextView
+                val fab_add = simpleDialog.findViewById(R.id.fab_dialog_multi_contact_plus) as FloatingActionButton
+
+                val dateOtherAnniv = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+                    myCalendar.set(Calendar.YEAR, year)
+                    myCalendar.set(Calendar.MONTH, monthOfYear)
+                    myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+                    //et_anniv.setText(AppUtils.changeAttendanceDateFormat(AppUtils.getDobFormattedDate(myCalendar.time)))
+                    et_anniv.setText(AppUtils.getFormattedDateForApi1(myCalendar.time))
+                }
+                val dateOtherDOB = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+                    myCalendar.set(Calendar.YEAR, year)
+                    myCalendar.set(Calendar.MONTH, monthOfYear)
+                    myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+                    //et_anniv.setText(AppUtils.changeAttendanceDateFormat(AppUtils.getDobFormattedDate(myCalendar.time)))
+                    //et_anniv.setText(AppUtils.getFormattedDateForApi(myCalendar.time))
+                    et_dob.setText(AppUtils.getFormattedDateForApi1(myCalendar.time))
+                }
+
+                fab_add.setOnClickListener({ view ->
+                    if(et_contactName.text.toString().length == 0){
+                        Toaster.msgShort(mContext,"Please enter Contact Name")
+                        return@setOnClickListener
+                    }
+                    if(et_contactPhno.text.toString().length == 0 || et_contactPhno.text.toString().length !=10){
+                        Toaster.msgShort(mContext,"Please enter valid Contact Phone Number")
+                        return@setOnClickListener
+                    }
+
+                    var obj : ShopExtraContactEntity = ShopExtraContactEntity()
+                    obj.apply {
+                        shop_id = ""
+                        contact_serial = "4"
+                        contact_name = et_contactName.text.toString()
+                        contact_number = et_contactPhno.text.toString()
+                        contact_email = et_contact_email.text.toString()
+                        contact_dob = if(et_dob.text.toString().length>0) AppUtils.getFormatedDateNew(et_dob.text.toString(),"dd-mm-yyyy","yyyy-mm-dd") else ""
+                        contact_doa = if(et_anniv.text.toString().length>0) AppUtils.getFormatedDateNew(et_anniv.text.toString(),"dd-mm-yyyy","yyyy-mm-dd") else ""//et_anniv.text.toString()
+                        isUploaded = false
+                    }
+                    shopExtraContactList.add(obj)
+                    tv_addContact4.backgroundTintList = ColorStateList.valueOf(getResources().getColor(R.color.approved_green))
+                    tv_addContact4.isEnabled = false
+                    tv_addContact5.visibility = View.VISIBLE
+
+                    simpleDialog.dismiss()
+                })
+                et_anniv.setOnClickListener({ view ->
+                    AppUtils.hideSoftKeyboard(mContext as DashboardActivity)
+                    var aniDatePicker = DatePickerDialog(mContext, R.style.DatePickerTheme, dateOtherAnniv, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH))
+                    aniDatePicker.datePicker.maxDate = Calendar.getInstance(Locale.ENGLISH).timeInMillis
+                    aniDatePicker.show()
+                })
+                et_dob.setOnClickListener({ view ->
+                    AppUtils.hideSoftKeyboard(mContext as DashboardActivity)
+                    var dobDatePicker = DatePickerDialog(mContext, R.style.DatePickerTheme, dateOtherDOB, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH))
+                    dobDatePicker.datePicker.maxDate = Calendar.getInstance(Locale.ENGLISH).timeInMillis
+                    dobDatePicker.show()
+                })
+
+                ic_cross.setOnClickListener {
+                    simpleDialog.dismiss()
+                }
+
+                simpleDialog.show()
+            }
+            R.id.tv_frag_add_shop_add_contact5 ->{
+                val simpleDialog = Dialog(mContext)
+                simpleDialog.setCancelable(true)
+                simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                simpleDialog.setContentView(R.layout.dialog_multiple_contact)
+
+                val ic_cross = simpleDialog.findViewById(R.id.iv_dialog_multi_cont_cross) as ImageView
+                val et_contactName = simpleDialog.findViewById(R.id.et_dialog_multi_contact_name) as EditText
+                val et_contactPhno = simpleDialog.findViewById(R.id.et_dialog_multi_contact_phno) as EditText
+                val et_contact_email = simpleDialog.findViewById(R.id.et_dialog_multi_contact_email) as EditText
+                val et_dob = simpleDialog.findViewById(R.id.tv_dialog_multi_contact_dob) as TextView
+                val et_anniv = simpleDialog.findViewById(R.id.tv_dialog_multi_contact_anniv) as TextView
+                val fab_add = simpleDialog.findViewById(R.id.fab_dialog_multi_contact_plus) as FloatingActionButton
+
+                val dateOtherAnniv = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+                    myCalendar.set(Calendar.YEAR, year)
+                    myCalendar.set(Calendar.MONTH, monthOfYear)
+                    myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+                    //et_anniv.setText(AppUtils.changeAttendanceDateFormat(AppUtils.getDobFormattedDate(myCalendar.time)))
+                    et_anniv.setText(AppUtils.getFormattedDateForApi1(myCalendar.time))
+                }
+                val dateOtherDOB = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+                    myCalendar.set(Calendar.YEAR, year)
+                    myCalendar.set(Calendar.MONTH, monthOfYear)
+                    myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+                    //et_anniv.setText(AppUtils.changeAttendanceDateFormat(AppUtils.getDobFormattedDate(myCalendar.time)))
+                    //et_anniv.setText(AppUtils.getFormattedDateForApi(myCalendar.time))
+                    et_dob.setText(AppUtils.getFormattedDateForApi1(myCalendar.time))
+                }
+
+                fab_add.setOnClickListener({ view ->
+                    if(et_contactName.text.toString().length == 0){
+                        Toaster.msgShort(mContext,"Please enter Contact Name")
+                        return@setOnClickListener
+                    }
+                    if(et_contactPhno.text.toString().length == 0 || et_contactPhno.text.toString().length !=10){
+                        Toaster.msgShort(mContext,"Please enter valid Contact Phone Number")
+                        return@setOnClickListener
+                    }
+
+                    var obj : ShopExtraContactEntity = ShopExtraContactEntity()
+                    obj.apply {
+                        shop_id = ""
+                        contact_serial = "5"
+                        contact_name = et_contactName.text.toString()
+                        contact_number = et_contactPhno.text.toString()
+                        contact_email = et_contact_email.text.toString()
+                        contact_dob = if(et_dob.text.toString().length>0) AppUtils.getFormatedDateNew(et_dob.text.toString(),"dd-mm-yyyy","yyyy-mm-dd") else ""
+                        contact_doa = if(et_anniv.text.toString().length>0) AppUtils.getFormatedDateNew(et_anniv.text.toString(),"dd-mm-yyyy","yyyy-mm-dd") else ""//et_anniv.text.toString()
+                        isUploaded = false
+                    }
+                    shopExtraContactList.add(obj)
+                    tv_addContact5.backgroundTintList = ColorStateList.valueOf(getResources().getColor(R.color.approved_green))
+                    tv_addContact5.isEnabled = false
+                    tv_addContact6.visibility = View.VISIBLE
+                    simpleDialog.dismiss()
+                })
+                et_anniv.setOnClickListener({ view ->
+                    AppUtils.hideSoftKeyboard(mContext as DashboardActivity)
+                    var aniDatePicker = DatePickerDialog(mContext, R.style.DatePickerTheme, dateOtherAnniv, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH))
+                    aniDatePicker.datePicker.maxDate = Calendar.getInstance(Locale.ENGLISH).timeInMillis
+                    aniDatePicker.show()
+                })
+                et_dob.setOnClickListener({ view ->
+                    AppUtils.hideSoftKeyboard(mContext as DashboardActivity)
+                    var dobDatePicker = DatePickerDialog(mContext, R.style.DatePickerTheme, dateOtherDOB, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH))
+                    dobDatePicker.datePicker.maxDate = Calendar.getInstance(Locale.ENGLISH).timeInMillis
+                    dobDatePicker.show()
+                })
+
+                ic_cross.setOnClickListener {
+                    simpleDialog.dismiss()
+                }
+
+                simpleDialog.show()
+            }
+            R.id.tv_frag_add_shop_add_contact6 ->{
+                val simpleDialog = Dialog(mContext)
+                simpleDialog.setCancelable(true)
+                simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                simpleDialog.setContentView(R.layout.dialog_multiple_contact)
+
+                val ic_cross = simpleDialog.findViewById(R.id.iv_dialog_multi_cont_cross) as ImageView
+                val et_contactName = simpleDialog.findViewById(R.id.et_dialog_multi_contact_name) as EditText
+                val et_contactPhno = simpleDialog.findViewById(R.id.et_dialog_multi_contact_phno) as EditText
+                val et_contact_email = simpleDialog.findViewById(R.id.et_dialog_multi_contact_email) as EditText
+                val et_dob = simpleDialog.findViewById(R.id.tv_dialog_multi_contact_dob) as TextView
+                val et_anniv = simpleDialog.findViewById(R.id.tv_dialog_multi_contact_anniv) as TextView
+                val fab_add = simpleDialog.findViewById(R.id.fab_dialog_multi_contact_plus) as FloatingActionButton
+
+                val dateOtherAnniv = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+                    myCalendar.set(Calendar.YEAR, year)
+                    myCalendar.set(Calendar.MONTH, monthOfYear)
+                    myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+                    //et_anniv.setText(AppUtils.changeAttendanceDateFormat(AppUtils.getDobFormattedDate(myCalendar.time)))
+                    et_anniv.setText(AppUtils.getFormattedDateForApi1(myCalendar.time))
+                }
+                val dateOtherDOB = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+                    myCalendar.set(Calendar.YEAR, year)
+                    myCalendar.set(Calendar.MONTH, monthOfYear)
+                    myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+                    //et_anniv.setText(AppUtils.changeAttendanceDateFormat(AppUtils.getDobFormattedDate(myCalendar.time)))
+                    //et_anniv.setText(AppUtils.getFormattedDateForApi(myCalendar.time))
+                    et_dob.setText(AppUtils.getFormattedDateForApi1(myCalendar.time))
+                }
+
+                fab_add.setOnClickListener({ view ->
+                    if(et_contactName.text.toString().length == 0){
+                        Toaster.msgShort(mContext,"Please enter Contact Name")
+                        return@setOnClickListener
+                    }
+                    if(et_contactPhno.text.toString().length == 0 || et_contactPhno.text.toString().length !=10){
+                        Toaster.msgShort(mContext,"Please enter valid Contact Phone Number")
+                        return@setOnClickListener
+                    }
+
+                    var obj : ShopExtraContactEntity = ShopExtraContactEntity()
+                    obj.apply {
+                        shop_id = ""
+                        contact_serial = "6"
+                        contact_name = et_contactName.text.toString()
+                        contact_number = et_contactPhno.text.toString()
+                        contact_email = et_contact_email.text.toString()
+                        contact_dob = if(et_dob.text.toString().length>0) AppUtils.getFormatedDateNew(et_dob.text.toString(),"dd-mm-yyyy","yyyy-mm-dd") else ""
+                        contact_doa = if(et_anniv.text.toString().length>0) AppUtils.getFormatedDateNew(et_anniv.text.toString(),"dd-mm-yyyy","yyyy-mm-dd") else ""//et_anniv.text.toString()
+                        isUploaded = false
+                    }
+                    shopExtraContactList.add(obj)
+                    tv_addContact6.backgroundTintList = ColorStateList.valueOf(getResources().getColor(R.color.approved_green))
+                    tv_addContact6.isEnabled = false
+                    simpleDialog.dismiss()
+                })
+                et_anniv.setOnClickListener({ view ->
+                    AppUtils.hideSoftKeyboard(mContext as DashboardActivity)
+                    var aniDatePicker = DatePickerDialog(mContext, R.style.DatePickerTheme, dateOtherAnniv, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH))
+                    aniDatePicker.datePicker.maxDate = Calendar.getInstance(Locale.ENGLISH).timeInMillis
+                    aniDatePicker.show()
+                })
+                et_dob.setOnClickListener({ view ->
+                    AppUtils.hideSoftKeyboard(mContext as DashboardActivity)
+                    var dobDatePicker = DatePickerDialog(mContext, R.style.DatePickerTheme, dateOtherDOB, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH))
+                    dobDatePicker.datePicker.maxDate = Calendar.getInstance(Locale.ENGLISH).timeInMillis
+                    dobDatePicker.show()
+                })
+
+                ic_cross.setOnClickListener {
+                    simpleDialog.dismiss()
+                }
+
+                simpleDialog.show()
+            }
+
+            R.id.iv_frag_add_shop_mic->{  // 5.0 AddShopFragment AppV 4.0.7  add feedback voice added mantis 0025684
+                suffixText = feedback_EDT.text.toString().trim()
+                startVoiceInput()
+            }
         }
     }
+    // 5.0 AddShopFragment AppV 4.0.7  add feedback voice added mantis 0025684 start
+    private fun startVoiceInput() {
+        val intent: Intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        intent.putExtra(
+            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+        )
+        //intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,"hi")
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,Locale.ENGLISH)
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Hello, How can I help you?")
+        try {
+            startActivityForResult(intent, 7009)
+        } catch (a: ActivityNotFoundException) {
+            a.printStackTrace()
+        }
+    }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?){
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == 7009){
+            try{
+            val result = data!!.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            var t= result!![0]
+            if(suffixText.length>0 && !suffixText.equals("")){
+                var setFullText = suffixText+t
+                feedback_EDT.setText(suffixText+t)
+                feedback_EDT.setSelection(setFullText.length);
+            }else{
+                var SuffixPostText = t+feedback_EDT.text.toString()
+                feedback_EDT.setText(SuffixPostText)
+                feedback_EDT.setSelection(SuffixPostText.length);
+            }
+            }
+            catch (ex:Exception) {
+                ex.printStackTrace()
+            }
+
+//            feedback_EDT.setText(t)
+        }
+    }
+    // 5.0 AddShopFragment AppV 4.0.7  add feedback voice added mantis 0025684 end
 
     //02-11-2021
     private fun DuplicateShopOfPhoneNumberNotAllow() {
@@ -3693,7 +4303,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                         .subscribe({ result ->
                             //val response = result as ModelListResponseModel
                             val response = result as ModelListResponse
-                            XLog.d("GET MODEL DATA : " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
+                            Timber.d("GET MODEL DATA : " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
                             if (response.status == NetworkConstant.SUCCESS) {
 
                                 if (response.model_list != null && response.model_list!!.isNotEmpty()) {
@@ -3728,7 +4338,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
 
                         }, { error ->
                             progress_wheel.stopSpinning()
-                            XLog.d("GET MODEL DATA : " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
+                            Timber.d("GET MODEL DATA : " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
                             error.printStackTrace()
                             (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
                         })
@@ -3759,7 +4369,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                         .subscribeOn(Schedulers.io())
                         .subscribe({ result ->
                             val response = result as PrimaryAppListResponseModel
-                            XLog.d("GET PRIMARY APP DATA : " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
+                            Timber.d("GET PRIMARY APP DATA : " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
                             if (response.status == NetworkConstant.SUCCESS) {
 
                                 if (response.primary_application_list != null && response.primary_application_list!!.isNotEmpty()) {
@@ -3792,7 +4402,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
 
                         }, { error ->
                             progress_wheel.stopSpinning()
-                            XLog.d("GET PRIMARY APP DATA : " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
+                            Timber.d("GET PRIMARY APP DATA : " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
                             error.printStackTrace()
                             (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
                         })
@@ -3823,7 +4433,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                         .subscribeOn(Schedulers.io())
                         .subscribe({ result ->
                             val response = result as SecondaryAppListResponseModel
-                            XLog.d("GET SECONDARY APP DATA : " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
+                            Timber.d("GET SECONDARY APP DATA : " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
                             if (response.status == NetworkConstant.SUCCESS) {
 
                                 if (response.secondary_application_list != null && response.secondary_application_list!!.isNotEmpty()) {
@@ -3856,7 +4466,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
 
                         }, { error ->
                             progress_wheel.stopSpinning()
-                            XLog.d("GET SECONDARY APP DATA : " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
+                            Timber.d("GET SECONDARY APP DATA : " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
                             error.printStackTrace()
                             (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
                         })
@@ -3898,7 +4508,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                         .subscribeOn(Schedulers.io())
                         .subscribe({ result ->
                             val response = result as LeadListResponseModel
-                            XLog.d("GET LEAD TYPE DATA : " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
+                            Timber.d("GET LEAD TYPE DATA : " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
                             if (response.status == NetworkConstant.SUCCESS) {
 
                                 if (response.lead_type_list != null && response.lead_type_list!!.isNotEmpty()) {
@@ -3931,7 +4541,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
 
                         }, { error ->
                             progress_wheel.stopSpinning()
-                            XLog.d("GET LEAD TYPE DATA : " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
+                            Timber.d("GET LEAD TYPE DATA : " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
                             error.printStackTrace()
                             (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
                         })
@@ -3961,7 +4571,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                         .subscribeOn(Schedulers.io())
                         .subscribe({ result ->
                             val response = result as StageListResponseModel
-                            XLog.d("GET STAGE DATA : " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
+                            Timber.d("GET STAGE DATA : " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
                             if (response.status == NetworkConstant.SUCCESS) {
 
                                 if (response.stage_list != null && response.stage_list!!.isNotEmpty()) {
@@ -3994,7 +4604,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
 
                         }, { error ->
                             progress_wheel.stopSpinning()
-                            XLog.d("GET STAGE DATA : " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
+                            Timber.d("GET STAGE DATA : " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
                             error.printStackTrace()
                             (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
                         })
@@ -4025,7 +4635,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                         .subscribeOn(Schedulers.io())
                         .subscribe({ result ->
                             val response = result as FunnelStageListResponseModel
-                            XLog.d("GET FUNNEL STAGE DATA : " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
+                            Timber.d("GET FUNNEL STAGE DATA : " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
                             if (response.status == NetworkConstant.SUCCESS) {
 
                                 if (response.funnel_stage_list != null && response.funnel_stage_list!!.isNotEmpty()) {
@@ -4058,7 +4668,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
 
                         }, { error ->
                             progress_wheel.stopSpinning()
-                            XLog.d("GET FUNNEL STAGE DATA : " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
+                            Timber.d("GET FUNNEL STAGE DATA : " + "ERROR : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + error.localizedMessage)
                             error.printStackTrace()
                             (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
                         })
@@ -5560,7 +6170,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
 
             if (actualAddress.isEmpty()) {
                 var address = LocationWizard.getAdressFromLatlng(mContext, shopLatitude, shopLongitude)
-                XLog.e("Actual Shop address (Add Shop)======> $address")
+                Timber.e("Actual Shop address (Add Shop)======> $address")
 
                 if (address.contains("http"))
                     address = "Unknown"
@@ -5696,8 +6306,76 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         //feeback shop_details table
         shopDataModel.purpose = feedbackValue
 
+        if(shopExtraContactList.size>0){
+            for(o in 0..shopExtraContactList.size-1){
+                shopExtraContactList.get(o).shop_id = shopDataModel.shop_id
+                AppDatabase.getDBInstance()?.shopExtraContactDao()?.insert(shopExtraContactList.get(o))
+            }
+            // new code for multi contact response
+            var extraContL = AppDatabase.getDBInstance()?.shopExtraContactDao()?.getExtraContListByShopID(shopDataModel.shop_id) as ArrayList<ShopExtraContactEntity>
+            var extraContResponseObj : ShopExtraContactReq = ShopExtraContactReq()
+            extraContResponseObj.shop_id = shopDataModel.shop_id
 
-
+            for(a in 0..extraContL.size-1){
+                if(a==0){
+                    extraContResponseObj.apply {
+                        contact_name1 = extraContL.get(a).contact_name.toString()
+                        contact_number1 = extraContL.get(a).contact_number.toString()
+                        contact_email1 = extraContL.get(a).contact_email.toString()
+                        contact_doa1 = extraContL.get(a).contact_doa.toString()
+                        contact_dob1 = extraContL.get(a).contact_dob.toString()
+                    }
+                }
+                if(a==1){
+                    extraContResponseObj.apply {
+                        contact_name2 = extraContL.get(a).contact_name.toString()
+                        contact_number2 = extraContL.get(a).contact_number.toString()
+                        contact_email2 = extraContL.get(a).contact_email.toString()
+                        contact_doa2 = extraContL.get(a).contact_doa.toString()
+                        contact_dob2 = extraContL.get(a).contact_dob.toString()
+                    }
+                }
+                if(a==2){
+                    extraContResponseObj.apply {
+                        contact_name3 = extraContL.get(a).contact_name.toString()
+                        contact_number3 = extraContL.get(a).contact_number.toString()
+                        contact_email3 = extraContL.get(a).contact_email.toString()
+                        contact_doa3 = extraContL.get(a).contact_doa.toString()
+                        contact_dob3 = extraContL.get(a).contact_dob.toString()
+                    }
+                }
+                if(a==3){
+                    extraContResponseObj.apply {
+                        contact_name4 = extraContL.get(a).contact_name.toString()
+                        contact_number4 = extraContL.get(a).contact_number.toString()
+                        contact_email4 = extraContL.get(a).contact_email.toString()
+                        contact_doa4 = extraContL.get(a).contact_doa.toString()
+                        contact_dob4 = extraContL.get(a).contact_dob.toString()
+                    }
+                }
+                if(a==4){
+                    extraContResponseObj.apply {
+                        contact_name5 = extraContL.get(a).contact_name.toString()
+                        contact_number5 = extraContL.get(a).contact_number.toString()
+                        contact_email5 = extraContL.get(a).contact_email.toString()
+                        contact_doa5 = extraContL.get(a).contact_doa.toString()
+                        contact_dob5 = extraContL.get(a).contact_dob.toString()
+                    }
+                }
+                if(a==5){
+                    extraContResponseObj.apply {
+                        contact_name6 = extraContL.get(a).contact_name.toString()
+                        contact_number6 = extraContL.get(a).contact_number.toString()
+                        contact_email6 = extraContL.get(a).contact_email.toString()
+                        contact_doa6 = extraContL.get(a).contact_doa.toString()
+                        contact_dob6 = extraContL.get(a).contact_dob.toString()
+                    }
+                }
+            }
+            shopListSubmitResponse.user_id = Pref.user_id!!
+            shopListSubmitResponse.session_token = Pref.session_token!!
+            shopListSubmitResponse.shop_list.add(extraContResponseObj)
+        }
 
         if (Pref.isFingerPrintMandatoryForVisit) {
             if ((mContext as DashboardActivity).isFingerPrintSupported) {
@@ -7106,7 +7784,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                                 .subscribeOn(Schedulers.io())
                                 .subscribe({ result ->
                                     val response = result as ProsListResponseModel
-                                    XLog.d("GET PROS DATA : " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
+                                    Timber.d("GET PROS DATA : " + "RESPONSE : " + response.status + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name + ",MESSAGE : " + response.message)
                                     if (response.status == NetworkConstant.SUCCESS) {
                                         if (response.Prospect_list != null && response.Prospect_list!!.isNotEmpty()) {
                                             doAsync {
@@ -7167,7 +7845,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                                 .subscribeOn(Schedulers.io())
                                 .subscribe({ result ->
                                     val questionSubmitResponse= result as BaseResponse
-                                    XLog.d("QuestionSubmit : RESPONSE " + result.status)
+                                    Timber.d("QuestionSubmit : RESPONSE " + result.status)
                                     if (result.status == NetworkConstant.SUCCESS){
 
                                         doAsync {
@@ -7179,9 +7857,9 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                                     }
                                 },{error ->
                                     if (error == null) {
-                                        XLog.d("QuestionSubmit : ERROR " )
+                                        Timber.d("QuestionSubmit : ERROR " )
                                     } else {
-                                        XLog.d("QuestionSubmit : ERROR " + error.localizedMessage)
+                                        Timber.d("QuestionSubmit : ERROR " + error.localizedMessage)
                                         error.printStackTrace()
                                     }
                                 })
@@ -7190,7 +7868,7 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
 
             }
         }catch (ex:Exception){
-            XLog.d("QuestionSubmit : ERROR " + ex.toString())
+            Timber.d("QuestionSubmit : ERROR " + ex.toString())
             ex.printStackTrace()
         }
     }
@@ -7246,6 +7924,56 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
             simpleDialog.cancel()
         })
         simpleDialog.show()
+    }
+
+    // 2.0 AddShopFragment AppV 4.0.6 suman 12-01-2023 multiple contact updation
+    fun syncAddMultiContact(){
+        if(shopListSubmitResponse.shop_list.size>0 && Pref.IsMultipleContactEnableforShop && AppUtils.isOnline(mContext)){
+            val repository = AddShopRepositoryProvider.provideAddShopWithoutImageRepository()
+            BaseActivity.compositeDisposable.add(
+                repository.addMutiContact(shopListSubmitResponse)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({ result ->
+                        val addmutliContactResult = result as BaseResponse
+                        if (addmutliContactResult.status==NetworkConstant.SUCCESS){
+                            doAsync {
+                                val obj = shopListSubmitResponse.shop_list.get(0)
+                                if(obj.contact_serial1.equals("1") && !obj.contact_name1.equals("")){
+                                    AppDatabase.getDBInstance()?.shopExtraContactDao()?.updateIsUploaded(true,obj.shop_id,obj.contact_serial1)
+                                }
+                                if(obj.contact_serial2.equals("2") && !obj.contact_name2.equals("")){
+                                    AppDatabase.getDBInstance()?.shopExtraContactDao()?.updateIsUploaded(true,obj.shop_id,obj.contact_serial2)
+                                }
+                                if(obj.contact_serial3.equals("3") && !obj.contact_name3.equals("")){
+                                    AppDatabase.getDBInstance()?.shopExtraContactDao()?.updateIsUploaded(true,obj.shop_id,obj.contact_serial3)
+                                }
+                                if(obj.contact_serial4.equals("4") && !obj.contact_name4.equals("")){
+                                    AppDatabase.getDBInstance()?.shopExtraContactDao()?.updateIsUploaded(true,obj.shop_id,obj.contact_serial4)
+                                }
+                                if(obj.contact_serial5.equals("5") && !obj.contact_name5.equals("")){
+                                    AppDatabase.getDBInstance()?.shopExtraContactDao()?.updateIsUploaded(true,obj.shop_id,obj.contact_serial5)
+                                }
+                                if(obj.contact_serial6.equals("6") && !obj.contact_name6.equals("")){
+                                    AppDatabase.getDBInstance()?.shopExtraContactDao()?.updateIsUploaded(true,obj.shop_id,obj.contact_serial6)
+                                }
+
+                                uiThread {
+                                    (mContext as DashboardActivity).loadFragment(FragType.DashboardFragment,true,"")
+                                }
+                            }
+                        }
+                    }, { error ->
+                        error.printStackTrace()
+                        progress_wheel.stopSpinning()
+                        (mContext as DashboardActivity).showSnackMessage("Error added contact")
+                        (mContext as DashboardActivity).loadFragment(FragType.DashboardFragment,true,"")
+                    })
+            )
+        }else{
+            (mContext as DashboardActivity).loadFragment(FragType.DashboardFragment,true,"")
+        }
+
     }
 
 }

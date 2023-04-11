@@ -18,7 +18,7 @@ import com.flexibond.features.dashboard.presentation.DashboardActivity
 import com.flexibond.features.document.api.DocumentRepoProvider
 import com.flexibond.features.document.model.DocumentTypeResponseModel
 import com.flexibond.widgets.AppCustomTextView
-import com.elvishew.xlog.XLog
+
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.doAsync

@@ -5,7 +5,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
-import com.elvishew.xlog.XLog
+
 import com.flexibond.app.AppDatabase
 import com.flexibond.app.Pref
 import com.flexibond.app.domain.AddShopDBModelEntity
@@ -17,6 +17,7 @@ import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
+import timber.log.Timber
 
 /**
  * Created by Pratishruti on 22-02-2018.
@@ -44,25 +45,25 @@ class GeofenceService : Service(), OnCompleteListener<Void> {
 
     override fun onCreate() {
         super.onCreate()
-        XLog.d("onCreate:GeofenceService " + " , " + " Time :" + AppUtils.getCurrentDateTime())
+        Timber.d("onCreate:GeofenceService " + " , " + " Time :" + AppUtils.getCurrentDateTime())
         populateandAddGeofences()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
-        XLog.d("onStartCommand:GeofenceService " + " , " + " Time :" + AppUtils.getCurrentDateTime())
+        Timber.d("onStartCommand:GeofenceService " + " , " + " Time :" + AppUtils.getCurrentDateTime())
         return START_STICKY
     }
 
     fun populateandAddGeofences() {
 
-        XLog.d("populateandAddGeofences : " + " , " + " Time :" + AppUtils.getCurrentDateTime())
-        XLog.d("populateandAddGeofences : " + " , " + " Circular radius : " + Pref.gpsAccuracy.toFloat())
+        Timber.d("populateandAddGeofences : " + " , " + " Time :" + AppUtils.getCurrentDateTime())
+        Timber.d("populateandAddGeofences : " + " , " + " Circular radius : " + Pref.gpsAccuracy.toFloat())
 
         val list = AppDatabase.getDBInstance()!!.addShopEntryDao().all
         //val list = AppDatabase.getDBInstance()!!.addShopEntryDao().getTop10()
 
-        XLog.e("Geofence:== list size=====> " + list.size)
+        Timber.e("Geofence:== list size=====> " + list.size)
 
         val newList = java.util.ArrayList<AddShopDBModelEntity>()
 
@@ -73,7 +74,7 @@ class GeofenceService : Service(), OnCompleteListener<Void> {
                 newList.add(list[i])
         }
 
-        XLog.e("Geofence:== new list size=====> " + newList.size)
+        Timber.e("Geofence:== new list size=====> " + newList.size)
 
         var mRadious:Float = Pref.gpsAccuracy.toFloat()
         if(Pref.IsRestrictNearbyGeofence){
@@ -123,7 +124,7 @@ class GeofenceService : Service(), OnCompleteListener<Void> {
     @SuppressLint("MissingPermission")
     private fun addGeofences() {
 
-        XLog.d("addGeofences : " + " , " + " Time :" + AppUtils.getCurrentDateTime())
+        Timber.d("addGeofences : " + " , " + " Time :" + AppUtils.getCurrentDateTime())
 
         mGeofencingClient = LocationServices.getGeofencingClient(this)
         val request = getGeofencingRequest()
@@ -131,7 +132,7 @@ class GeofenceService : Service(), OnCompleteListener<Void> {
         request?.let {
             mGeofencingClient.addGeofences(request, getGeofencePendingIntent())
                     .addOnCompleteListener(this)
-            XLog.d("addGeofences Success: " + " , " + " Time :" + AppUtils.getCurrentDateTime())
+            Timber.d("addGeofences Success: " + " , " + " Time :" + AppUtils.getCurrentDateTime())
         }
     }
 
@@ -149,7 +150,7 @@ class GeofenceService : Service(), OnCompleteListener<Void> {
 
         // Add the geofences to be monitored by geofencing service.
         builder.addGeofences(mGeofenceList);
-        XLog.d("addGeofences : " + " ,Geofence Size : " + mGeofenceList.size)
+        Timber.d("addGeofences : " + " ,Geofence Size : " + mGeofenceList.size)
         // Return a GeofencingRequest.
         return if (mGeofenceList.size > 0) builder.build() else null
     }
@@ -166,7 +167,7 @@ class GeofenceService : Service(), OnCompleteListener<Void> {
         if (::mGeofencePendingIntent.isInitialized) {
             return mGeofencePendingIntent
         }
-        XLog.d("geofencePendingIntent : " + " , " + " Time :" + AppUtils.getCurrentDateTime() + " , New Pending Intent for Geofence ")
+        Timber.d("geofencePendingIntent : " + " , " + " Time :" + AppUtils.getCurrentDateTime() + " , New Pending Intent for Geofence ")
         val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
         // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
         // addGeofences() and removeGeofences().
@@ -178,12 +179,12 @@ class GeofenceService : Service(), OnCompleteListener<Void> {
 
     override fun onDestroy() {
         super.onDestroy()
-        XLog.d("onDestroy : " + "GeofenceService")
+        Timber.d("onDestroy : " + "GeofenceService")
         removeGeofence()
     }
 
     private fun removeGeofence() {
-        XLog.d("removeGeofence : ")
+        Timber.d("removeGeofence : ")
         Pref.isGeoFenceAdded = false
         mGeofencingClient.removeGeofences(getGeofencePendingIntent())
     }

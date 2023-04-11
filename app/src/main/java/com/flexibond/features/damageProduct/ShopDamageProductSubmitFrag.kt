@@ -41,12 +41,13 @@ import com.flexibond.features.photoReg.model.ImageResponse
 import com.flexibond.features.photoReg.model.UserPhotoRegModel
 import com.flexibond.features.viewAllOrder.presentation.ProductListNewOrderDialog
 import com.flexibond.widgets.AppCustomTextView
-import com.elvishew.xlog.XLog
+
 import com.pnikosis.materialishprogress.ProgressWheel
 import com.themechangeapp.pickimage.PermissionHelper
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.dialog_add_ta.*
+import timber.log.Timber
 import java.io.File
 import java.io.FileInputStream
 import java.util.*
@@ -215,7 +216,7 @@ class ShopDamageProductSubmitFrag: BaseFragment(), View.OnClickListener {
                         error ->
                     (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
                     if (error != null) {
-                        XLog.d(error.localizedMessage)
+                        Timber.d(error.localizedMessage)
                     }
                     progress_wheel.stopSpinning()
                 })

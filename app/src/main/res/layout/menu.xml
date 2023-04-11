@@ -201,6 +201,38 @@
                     android:textSize="@dimen/_12sdp"
                     android:visibility="visible" />
 
+                <com.flexibond.widgets.AppCustomTextView
+                    android:id="@+id/tb_auto_revisit_menu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/ic_nearby_new"
+                    android:drawablePadding="@dimen/_15sdp"
+                    android:paddingLeft="@dimen/_17sdp"
+                    android:paddingTop="@dimen/_15sdp"
+                    android:paddingRight="@dimen/_17sdp"
+                    android:paddingBottom="@dimen/_7sdp"
+                    android:text="Revisit"
+                    android:textColor="@color/lightest_gray"
+                    android:textSize="@dimen/_12sdp"
+                    android:visibility="visible" />
+
+                <!-- 3.0  AppV 4.0.6  DashboardActivity -->
+                <com.flexibond.widgets.AppCustomTextView
+                    android:id="@+id/tb_total_visit_menu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/ic_nearby_new"
+                    android:drawablePadding="@dimen/_15sdp"
+                    android:paddingLeft="@dimen/_17sdp"
+                    android:paddingTop="@dimen/_15sdp"
+                    android:paddingRight="@dimen/_17sdp"
+                    android:paddingBottom="@dimen/_7sdp"
+                    android:text="Total Visit"
+                    android:textColor="@color/lightest_gray"
+                    android:textSize="@dimen/_12sdp"
+                    android:visibility="visible" />
+
+
                 <!--clear Attendance -->
                 <com.flexibond.widgets.AppCustomTextView
                     android:id="@+id/tv_clear_attendance"
@@ -348,6 +380,21 @@
                     android:visibility="visible" />
 
                 <com.flexibond.widgets.AppCustomTextView
+                    android:id="@+id/menu_beat_TV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="@dimen/_15sdp"
+                    android:drawableStart="@drawable/ic_nearby_new"
+                    android:paddingBottom="@dimen/_7sdp"
+                    android:paddingLeft="@dimen/_17sdp"
+                    android:paddingRight="@dimen/_17sdp"
+                    android:paddingTop="@dimen/_15sdp"
+                    android:text="Beat"
+                    android:textColor="@color/lightest_gray"
+                    android:textSize="@dimen/_12sdp"
+                    android:visibility="visible" />
+
+                <com.flexibond.widgets.AppCustomTextView
                     android:id="@+id/tv_pending_out_loc_menu"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -432,6 +479,21 @@
                     android:paddingRight="@dimen/_17sdp"
                     android:paddingTop="@dimen/_15sdp"
                     android:text="@string/history"
+                    android:textColor="@color/lightest_gray"
+                    android:textSize="@dimen/_12sdp" />
+                <!--Performace Menu In Menu bar 24-03-2023 by saheli-->
+                <com.flexibond.widgets.AppCustomTextView
+                    android:id="@+id/tv_performance_teamMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="@dimen/_15sdp"
+                    android:drawableStart="@drawable/ic_performance"
+                    android:paddingBottom="@dimen/_7sdp"
+                    android:paddingLeft="@dimen/_17sdp"
+                    android:paddingRight="@dimen/_17sdp"
+                    android:paddingTop="@dimen/_15sdp"
+                    android:text="Performance"
+                    android:visibility="gone"
                     android:textColor="@color/lightest_gray"
                     android:textSize="@dimen/_12sdp" />
 
@@ -1112,6 +1174,23 @@
                     android:textSize="@dimen/_12sdp"
                     android:visibility="gone" />
 
+                <!--mantis 0025783 In-app privacy policy working in menu & Login -->
+
+                <com.flexibond.widgets.AppCustomTextView
+                    android:id="@+id/privacy_policy_tv_menu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="@dimen/_15sdp"
+                    android:drawableStart="@drawable/ic_party_status"
+                    android:drawableTint="@color/white"
+                    android:paddingBottom="@dimen/_7sdp"
+                    android:paddingLeft="@dimen/_17sdp"
+                    android:paddingRight="@dimen/_17sdp"
+                    android:paddingTop="@dimen/_15sdp"
+                    android:text="Privacy policy"
+                    android:textColor="@color/lightest_gray"
+                    android:textSize="@dimen/_12sdp" />
+
                 <com.flexibond.widgets.AppCustomTextView
                     android:id="@+id/logout_TV"
                     android:layout_width="match_parent"
@@ -1126,6 +1205,7 @@
                     android:textColor="@color/lightest_gray"
                     android:textSize="@dimen/_12sdp" />
 
+
                 <com.flexibond.widgets.AppCustomTextView
                     android:id="@+id/version_name_TV"
                     android:layout_width="wrap_content"
@@ -1138,6 +1218,8 @@
                     android:textColor="@color/color_custom_red"
                     android:textStyle="bold"
                     android:textSize="@dimen/_12sdp" />
+
+
 
             </LinearLayout>
 

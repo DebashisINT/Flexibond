@@ -74,6 +74,7 @@
                     android:textSize="@dimen/_13sdp" />
 
                 <LinearLayout
+                    android:id="@+id/ll_pro_nw_list_mrp_disc_root"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_35sdp"
                     android:orientation="horizontal"
@@ -89,33 +90,56 @@
                         android:textColor="@color/black_50"
                         android:textSize="@dimen/_9sdp" />
 
-
-                    <com.google.android.material.textfield.TextInputLayout
+                    <LinearLayout
+                        android:id="@+id/ll_pro_nw_list_disct_root"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
-                        app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout">
+                        android:orientation="vertical">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/edt_discount_product_new_list"
+                        <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:background="@drawable/stork_bottom_custom"
-                            android:enabled="true"
-                            android:gravity="center"
-                            android:hint="Discount(%)"
-                            android:imeOptions="actionNext"
-                            android:inputType="number"
-                            android:maxLength="2"
-                            android:textColor="@color/black"
-                            android:textSize="@dimen/_9sdp" />
+                            android:layout_weight="1"
+                            app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout">
 
-                    </com.google.android.material.textfield.TextInputLayout>
+                            <!--5.0  AppV 4.0.6  ProductListAdapter Scroll handle mantis 25596-->
+
+
+                            <TextView
+                                android:id="@+id/edt_discount_product_new_list"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout"
+                                android:gravity="center"/>
+
+<!--                            <TextView-->
+<!--                                android:id="@+id/edt_discount_product_new_list"-->
+<!--                                android:layout_width="match_parent"-->
+<!--                                android:layout_height="match_parent"-->
+<!--                                android:background="@android:color/transparent"-->
+<!--                                android:enabled="true"-->
+<!--                                android:gravity="center"-->
+<!--                                android:hint="Discount(%)"-->
+<!--                                android:imeOptions="actionNext"-->
+<!--                                android:inputType="numberDecimal"-->
+<!--                                android:textColor="@color/black"-->
+<!--                                android:textSize="@dimen/_9sdp" />-->
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/_1sdp"
+                            android:visibility="gone"
+                            android:background="@color/black_50" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
             </LinearLayout>
-
 
             <com.flexibond.widgets.AppCustomTextView
                 android:id="@+id/tv_rate"
@@ -237,50 +261,77 @@
                 android:gravity="center"
                 android:orientation="horizontal">
 
-
-                <com.google.android.material.textfield.TextInputLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout">
+                    android:orientation="vertical">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/edt_qty_product_new_list"
+                    <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/_30sdp"
+                        android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:background="@drawable/stork_bottom_custom"
-                        android:gravity="center"
-                        android:hint="Qty"
-                        android:inputType="numberDecimal"
-                        android:textColor="@color/black" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edt_qty_product_new_list"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/_30sdp"
+                            android:background="@android:color/transparent"
+                            android:gravity="center"
+                            android:hint="Qty"
+                            android:imeOptions="actionNext"
+                            android:inputType="numberDecimal"
+                            android:textColor="@color/black" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_1sdp"
+                        android:background="@color/black_50" />
+
+                </LinearLayout>
+
 
                 <Space
                     android:layout_width="@dimen/_5sdp"
                     android:layout_height="match_parent" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/ti_layout_product_new_list"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout">
+                    android:orientation="vertical">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/edt_rt_product_new_list"
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/ti_layout_product_new_list"
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/_30sdp"
+                        android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:background="@drawable/stork_bottom_custom"
-                        android:enabled="true"
-                        android:gravity="center"
-                        android:hint="Rate"
-                        android:imeOptions="actionNext"
-                        android:inputType="numberDecimal"
-                        android:textColor="@color/black"
-                        app:theme="@style/EvoEditTextTheme" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edt_rt_product_new_list"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/_30sdp"
+                            android:layout_weight="1"
+                            android:background="@android:color/transparent"
+                            android:enabled="true"
+                            android:gravity="center"
+                            android:hint="Rate"
+                            android:inputType="numberDecimal"
+                            android:textColor="@color/black"
+                            app:theme="@style/EvoEditTextTheme" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_1sdp"
+                        android:background="@color/black_50" />
+
+                </LinearLayout>
+
+
 
                 <ImageView
                     android:id="@+id/iv_rate_close"

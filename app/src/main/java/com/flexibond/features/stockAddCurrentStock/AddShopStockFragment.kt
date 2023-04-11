@@ -38,13 +38,14 @@ import com.flexibond.features.stockAddCurrentStock.adapter.AdapterProductList
 import com.flexibond.features.stockAddCurrentStock.api.ShopAddStockProvider
 import com.flexibond.widgets.AppCustomEditText
 import com.flexibond.widgets.AppCustomTextView
-import com.elvishew.xlog.XLog
+
 import com.pnikosis.materialishprogress.ProgressWheel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_add_shop_stock.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
+import timber.log.Timber
 import java.lang.Exception
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -478,7 +479,7 @@ class AddShopStockFragment: BaseFragment(), View.OnClickListener {
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribeOn(Schedulers.io())
                             .subscribe({ result ->
-                                XLog.d("Stock/AddCurrentStock : RESPONSE " + result.status)
+                                Timber.d("Stock/AddCurrentStock : RESPONSE " + result.status)
                                 if (result.status == NetworkConstant.SUCCESS){
                                     AppDatabase.getDBInstance()?.shopCurrentStockEntryDao()!!.syncShopStocktable(currentStock.stock_id.toString())
                                     AppDatabase.getDBInstance()?.shopCurrentStockProductsEntryDao()!!.syncShopProductsStock(currentStock.stock_id.toString())
@@ -490,9 +491,9 @@ class AddShopStockFragment: BaseFragment(), View.OnClickListener {
                             }
                                     ,{error ->
                                 if (error == null) {
-                                    XLog.d("Stock/AddCurrentStock : ERROR " + "UNEXPECTED ERROR IN Add Stock ACTIVITY API")
+                                    Timber.d("Stock/AddCurrentStock : ERROR " + "UNEXPECTED ERROR IN Add Stock ACTIVITY API")
                                 } else {
-                                    XLog.d("Stock/AddCurrentStock : ERROR " + error.localizedMessage)
+                                    Timber.d("Stock/AddCurrentStock : ERROR " + error.localizedMessage)
                                     error.printStackTrace()
                                 }
                             })

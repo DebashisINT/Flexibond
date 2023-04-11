@@ -16,11 +16,14 @@ import android.widget.RelativeLayout
 import com.flexibond.R
 import com.flexibond.app.AppDatabase
 import com.flexibond.app.Pref
+import com.flexibond.app.domain.AddShopDBModelEntity
 import com.flexibond.app.domain.OrderDetailsListEntity
 import com.flexibond.app.uiaction.IntentActionable
 import com.flexibond.app.utils.AppUtils
 import com.flexibond.base.presentation.BaseFragment
 import com.flexibond.features.dashboard.presentation.DashboardActivity
+import com.flexibond.features.location.LocationWizard
+import com.flexibond.features.viewAllOrder.orderOptimized.OrderProductCartFrag
 import com.flexibond.widgets.AppCustomTextView
 
 /**
@@ -98,7 +101,13 @@ class ViewCartFragment : BaseFragment() {
         tv_total_order_value = view.findViewById(R.id.tv_total_order_value)
         tv_shop_name = view.findViewById(R.id.tv_shop_name)
 
-        val shop = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopDetail(orderDetails?.shop_id)
+
+        var shop = AddShopDBModelEntity()
+        try {
+             shop = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopDetail(orderDetails?.shop_id)
+        }catch (ex:Exception){
+            ex.printStackTrace()
+        }
         tv_shop_name.text = shop.shopName
 
         tv_order_id = view.findViewById(R.id.tv_order_id)
