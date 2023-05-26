@@ -350,7 +350,7 @@ class ReimbursementFragment : BaseFragment(), DateAdapter.onPetSelectedListener,
         bottom_sheet = view.findViewById(R.id.bottom_sheet);
         sheetBehavior = BottomSheetBehavior.from(bottom_sheet!!);
         setBottomSheetbehaviour()
-        //attachflexibondData()
+        //attachdemoData()
 
         checked_in_date_TV.text = getCurrentDate()
         checked_in_time_TV.text = getCurrentTime()
@@ -368,7 +368,7 @@ class ReimbursementFragment : BaseFragment(), DateAdapter.onPetSelectedListener,
         if(Pref.IsShowLocalinExpense == true && Pref.IsShowOutStationinExpense == false){
             tabLayout.removeTabAt(1)
         }
-    //(tabLayout.getChildAt(0) as ViewGroup).getChildAt(0).visibility = View.GONE
+        //(tabLayout.getChildAt(0) as ViewGroup).getChildAt(0).visibility = View.GONE
         //val tab = tabLayout.getTabAt(1)
         //tab!!.select()
         //tabLayout.getTabAt(1)!!.setText("TabName");
@@ -425,78 +425,78 @@ class ReimbursementFragment : BaseFragment(), DateAdapter.onPetSelectedListener,
         val repository = ReimbursementConfigRepoProvider.provideReimbursementConfigRepository()
         progress_wheel.spin()
         BaseActivity.compositeDisposable.add(
-                repository.getReimbursementConfig(Pref.user_id!!, state_id)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe({ result ->
+            repository.getReimbursementConfig(Pref.user_id!!, state_id)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({ result ->
 
-                            val configResponse = result as ReimbursementConfigResponseModel
+                    val configResponse = result as ReimbursementConfigResponseModel
 //                            XLog.d("ReimbursementConfigApiResponse : " + "\n" + "Status=====> " + configResponse.status + ", Message====> " + configResponse.message)
-                            Timber.d("ReimbursementConfigApiResponse : " + "\n" + "Status=====> " + configResponse.status + ", Message====> " + configResponse.message)
+                    Timber.d("ReimbursementConfigApiResponse : " + "\n" + "Status=====> " + configResponse.status + ", Message====> " + configResponse.message)
 
-                            progress_wheel.stopSpinning()
-                            if (configResponse.status == NetworkConstant.SUCCESS) {
+                    progress_wheel.stopSpinning()
+                    if (configResponse.status == NetworkConstant.SUCCESS) {
 
-                                if (configResponse.expense_types != null && configResponse.expense_types!!.size > 0) {
-                                    expenseTypesArrayList.addAll(configResponse.expense_types!!)
-                                    //expense_type_TV.text = expenseTypesArrayList[0].expanse_type
-                                }
+                        if (configResponse.expense_types != null && configResponse.expense_types!!.size > 0) {
+                            expenseTypesArrayList.addAll(configResponse.expense_types!!)
+                            //expense_type_TV.text = expenseTypesArrayList[0].expanse_type
+                        }
 
-                                if (configResponse.mode_of_travel != null && configResponse.mode_of_travel!!.size > 0) {
-                                    modeOfTravelArrayList.addAll(configResponse.mode_of_travel!!)
-                                    //mode_of_travel_type_TV.text = modeOfTravelArrayList[0].travel_type
-                                }
+                        if (configResponse.mode_of_travel != null && configResponse.mode_of_travel!!.size > 0) {
+                            modeOfTravelArrayList.addAll(configResponse.mode_of_travel!!)
+                            //mode_of_travel_type_TV.text = modeOfTravelArrayList[0].travel_type
+                        }
 
-                                if (configResponse.fuel_types != null && configResponse.fuel_types!!.size > 0) {
-                                    fuelTypesArrayList.addAll(configResponse.fuel_types!!)
-                                    //fuel_type_value_TV.text = fuelTypesArrayList[0].fuel_type
+                        if (configResponse.fuel_types != null && configResponse.fuel_types!!.size > 0) {
+                            fuelTypesArrayList.addAll(configResponse.fuel_types!!)
+                            //fuel_type_value_TV.text = fuelTypesArrayList[0].fuel_type
 
-                                    if (modeOfTravelArrayList[0].fuel_config!!)
-                                        fuel_type_RL.visibility = View.VISIBLE
-                                    else
-                                        fuel_type_RL.visibility = View.GONE
-                                }
+                            if (modeOfTravelArrayList[0].fuel_config!!)
+                                fuel_type_RL.visibility = View.VISIBLE
+                            else
+                                fuel_type_RL.visibility = View.GONE
+                        }
 
-                                println("reimb_load callReimbursementSettingsApi visitTypeId ${visitTypeId}")
-                                visitTypeId = "1"
+                        println("reimb_load callReimbursementSettingsApi visitTypeId ${visitTypeId}")
+                        visitTypeId = "1"
 
-                                if(!Pref.IsShowLocalinExpense){
-                                    visitTypeId = "2"
-                                }
+                        if(!Pref.IsShowLocalinExpense){
+                            visitTypeId = "2"
+                        }
 
-                                isEditable = configResponse.isEditable!!
-                                //isEditable = false
+                        isEditable = configResponse.isEditable!!
+                        //isEditable = false
 
-                                if (isEditable) {
-                                    ll_editable_location.visibility = View.VISIBLE
-                                    ll_non_editable_location.visibility = View.GONE
-                                    travelled_EDT.isEnabled = true
-                                } else {
-                                    ll_editable_location.visibility = View.GONE
-                                    ll_non_editable_location.visibility = View.VISIBLE
-                                    travelled_EDT.isEnabled = false
-                                }
+                        if (isEditable) {
+                            ll_editable_location.visibility = View.VISIBLE
+                            ll_non_editable_location.visibility = View.GONE
+                            travelled_EDT.isEnabled = true
+                        } else {
+                            ll_editable_location.visibility = View.GONE
+                            ll_non_editable_location.visibility = View.VISIBLE
+                            travelled_EDT.isEnabled = false
+                        }
 
-                                if (!TextUtils.isEmpty(configResponse.reimbursement_past_days))
-                                    setDateData(configResponse.reimbursement_past_days)
-                                else
-                                    setDateData("7")
+                        if (!TextUtils.isEmpty(configResponse.reimbursement_past_days))
+                            setDateData(configResponse.reimbursement_past_days)
+                        else
+                            setDateData("7")
 
-                                isAttachmentMandatoryForLocal = configResponse.isAttachmentMandatoryForLocal!!
-                                isAttachmentMandatoryForOutstation = configResponse.isAttachmentMandatoryForOutstation!!
+                        isAttachmentMandatoryForLocal = configResponse.isAttachmentMandatoryForLocal!!
+                        isAttachmentMandatoryForOutstation = configResponse.isAttachmentMandatoryForOutstation!!
 
-                            } else
-                                (mContext as DashboardActivity).showSnackMessage(configResponse.message!!)
+                    } else
+                        (mContext as DashboardActivity).showSnackMessage(configResponse.message!!)
 
-                            BaseActivity.isApiInitiated = false
+                    BaseActivity.isApiInitiated = false
 
-                        }, { error ->
-                            BaseActivity.isApiInitiated = false
-                            error.printStackTrace()
-                            progress_wheel.stopSpinning()
+                }, { error ->
+                    BaseActivity.isApiInitiated = false
+                    error.printStackTrace()
+                    progress_wheel.stopSpinning()
 //                            XLog.d("ReimbursementConfigApiResponse ERROR: " + error.localizedMessage)
-                            Timber.d("ReimbursementConfigApiResponse ERROR: " + error.localizedMessage)
-                        })
+                    Timber.d("ReimbursementConfigApiResponse ERROR: " + error.localizedMessage)
+                })
         )
     }
 
@@ -537,7 +537,7 @@ class ReimbursementFragment : BaseFragment(), DateAdapter.onPetSelectedListener,
     }
 
     @SuppressLint("SetTextI18n")
-    private fun attachflexibondData() {
+    private fun attachdemoData() {
         val layoutInflater = layoutInflater
         for (i in 0..2) {
             val view = layoutInflater.inflate(R.layout.row_price_layout, llChildLayout, false)
@@ -620,39 +620,39 @@ class ReimbursementFragment : BaseFragment(), DateAdapter.onPetSelectedListener,
         val repository = ReimbursementShopRepoProvider.provideReimbursementConfigRepository()
         progress_wheel.spin()
         BaseActivity.compositeDisposable.add(
-                repository.getReimbursementLoc(date)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe({ result ->
+            repository.getReimbursementLoc(date)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({ result ->
 
-                            val result = result as ReimbursementShopResponseModel
+                    val result = result as ReimbursementShopResponseModel
 //                            XLog.d("ReimbursementLocApi Response : " + "\n" + "Status=====> " + result.status + ", Message====> " + result.message)
-                            Timber.d("ReimbursementLocApi Response : " + "\n" + "Status=====> " + result.status + ", Message====> " + result.message)
+                    Timber.d("ReimbursementLocApi Response : " + "\n" + "Status=====> " + result.status + ", Message====> " + result.message)
 
-                            progress_wheel.stopSpinning()
-                            if (result.status == NetworkConstant.SUCCESS) {
+                    progress_wheel.stopSpinning()
+                    if (result.status == NetworkConstant.SUCCESS) {
 
-                                if (result.loc_list != null && result.loc_list!!.size > 0)
-                                    locList = result.loc_list
+                        if (result.loc_list != null && result.loc_list!!.size > 0)
+                            locList = result.loc_list
 
-                            } else {
-                                //(mContext as DashboardActivity).showSnackMessage(result.message!!)
-                                if (locList != null)
-                                    locList?.clear()
-                            }
+                    } else {
+                        //(mContext as DashboardActivity).showSnackMessage(result.message!!)
+                        if (locList != null)
+                            locList?.clear()
+                    }
 
-                            BaseActivity.isApiInitiated = false
+                    BaseActivity.isApiInitiated = false
 
-                        }, { error ->
-                            BaseActivity.isApiInitiated = false
-                            error.printStackTrace()
-                            progress_wheel.stopSpinning()
-                            (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
+                }, { error ->
+                    BaseActivity.isApiInitiated = false
+                    error.printStackTrace()
+                    progress_wheel.stopSpinning()
+                    (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
 //                            XLog.d("ReimbursementLocApi Response ERROR: " + error.localizedMessage)
-                            Timber.d("ReimbursementLocApi Response ERROR: " + error.localizedMessage)
-                            if (locList != null)
-                                locList?.clear()
-                        })
+                    Timber.d("ReimbursementLocApi Response ERROR: " + error.localizedMessage)
+                    if (locList != null)
+                        locList?.clear()
+                })
         )
     }
 
@@ -669,39 +669,39 @@ class ReimbursementFragment : BaseFragment(), DateAdapter.onPetSelectedListener,
         val repository = ReimbursementShopRepoProvider.provideReimbursementConfigRepository()
         progress_wheel.spin()
         BaseActivity.compositeDisposable.add(
-                repository.getReimbursementShop(date, false, "", "")
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe({ result ->
+            repository.getReimbursementShop(date, false, "", "")
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({ result ->
 
-                            val result = result as ReimbursementShopResponseModel
+                    val result = result as ReimbursementShopResponseModel
 //                            XLog.d("ReimbursementShopApiResponse : " + "\n" + "Status=====> " + result.status + ", Message====> " + result.message)
-                            Timber.d("ReimbursementShopApiResponse : " + "\n" + "Status=====> " + result.status + ", Message====> " + result.message)
+                    Timber.d("ReimbursementShopApiResponse : " + "\n" + "Status=====> " + result.status + ", Message====> " + result.message)
 
-                            progress_wheel.stopSpinning()
-                            if (result.status == NetworkConstant.SUCCESS) {
+                    progress_wheel.stopSpinning()
+                    if (result.status == NetworkConstant.SUCCESS) {
 
-                                if (result.loc_list != null && result.loc_list!!.size > 0)
-                                    locList = result.loc_list
+                        if (result.loc_list != null && result.loc_list!!.size > 0)
+                            locList = result.loc_list
 
-                            } else {
-                                //(mContext as DashboardActivity).showSnackMessage(result.message!!)
-                                if (locList != null)
-                                    locList?.clear()
-                            }
+                    } else {
+                        //(mContext as DashboardActivity).showSnackMessage(result.message!!)
+                        if (locList != null)
+                            locList?.clear()
+                    }
 
-                            BaseActivity.isApiInitiated = false
+                    BaseActivity.isApiInitiated = false
 
-                        }, { error ->
-                            BaseActivity.isApiInitiated = false
-                            error.printStackTrace()
-                            progress_wheel.stopSpinning()
-                            (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
+                }, { error ->
+                    BaseActivity.isApiInitiated = false
+                    error.printStackTrace()
+                    progress_wheel.stopSpinning()
+                    (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
 //                            XLog.d("ReimbursementShopApiResponse ERROR: " + error.localizedMessage)
-                            Timber.d("ReimbursementShopApiResponse ERROR: " + error.localizedMessage)
-                            if (locList != null)
-                                locList?.clear()
-                        })
+                    Timber.d("ReimbursementShopApiResponse ERROR: " + error.localizedMessage)
+                    if (locList != null)
+                        locList?.clear()
+                })
         )
     }
 
@@ -1127,26 +1127,26 @@ class ReimbursementFragment : BaseFragment(), DateAdapter.onPetSelectedListener,
 
                 imagePath_1 = filePath
                 Glide.with(mContext)
-                        .load(filePath)
-                        .apply(RequestOptions.placeholderOf(R.drawable.ic_upload_icon).error(R.drawable.ic_upload_icon))
-                        .into(iv_upload_bills_1)
+                    .load(filePath)
+                    .apply(RequestOptions.placeholderOf(R.drawable.ic_upload_icon).error(R.drawable.ic_upload_icon))
+                    .into(iv_upload_bills_1)
                 iv_image_cross_icon_1.visibility = View.VISIBLE
             }
             2 -> {
                 rl_image_3.visibility = View.VISIBLE
                 imagePath_2 = filePath
                 Glide.with(mContext)
-                        .load(filePath)
-                        .apply(RequestOptions.placeholderOf(R.drawable.ic_upload_icon).error(R.drawable.ic_upload_icon))
-                        .into(iv_upload_bills_2)
+                    .load(filePath)
+                    .apply(RequestOptions.placeholderOf(R.drawable.ic_upload_icon).error(R.drawable.ic_upload_icon))
+                    .into(iv_upload_bills_2)
                 iv_image_cross_icon_2.visibility = View.VISIBLE
             }
             3 -> {
                 imagePath_3 = filePath
                 Glide.with(mContext)
-                        .load(filePath)
-                        .apply(RequestOptions.placeholderOf(R.drawable.ic_upload_icon).error(R.drawable.ic_upload_icon))
-                        .into(iv_upload_bills_3)
+                    .load(filePath)
+                    .apply(RequestOptions.placeholderOf(R.drawable.ic_upload_icon).error(R.drawable.ic_upload_icon))
+                    .into(iv_upload_bills_3)
                 iv_image_cross_icon_3.visibility = View.VISIBLE
             }
         }
@@ -1176,12 +1176,12 @@ class ReimbursementFragment : BaseFragment(), DateAdapter.onPetSelectedListener,
         pictureDialog.setTitle("Select Action")
         val pictureDialogItems = arrayOf("Select photo from gallery", "Capture photo from camera")
         pictureDialog.setItems(pictureDialogItems,
-                DialogInterface.OnClickListener { dialog, which ->
-                    when (which) {
-                        0 -> selectImageInAlbum()
-                        1 -> launchCamera()
-                    }
-                })
+            DialogInterface.OnClickListener { dialog, which ->
+                when (which) {
+                    0 -> selectImageInAlbum()
+                    1 -> launchCamera()
+                }
+            })
         pictureDialog.show()
     }
 
@@ -1321,8 +1321,8 @@ class ReimbursementFragment : BaseFragment(), DateAdapter.onPetSelectedListener,
         }
 
         var datepickerDialog = android.app.DatePickerDialog(mContext, R.style.DatePickerTheme, date, myCalendar
-                .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-                myCalendar.get(Calendar.DAY_OF_MONTH))
+            .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+            myCalendar.get(Calendar.DAY_OF_MONTH))
         datepickerDialog.datePicker.maxDate = Calendar.getInstance(Locale.ENGLISH).timeInMillis
         datepickerDialog.show()
 
@@ -1723,14 +1723,14 @@ class ReimbursementFragment : BaseFragment(), DateAdapter.onPetSelectedListener,
         inputModel.travel_id = travelId
         inputModel.visittype_id = visitTypeId
 
-       /* XLog.d("=====Fetch ReimbursementConfigApi Request=====")
-        XLog.d("user_id===> " + inputModel.user_id)
-        XLog.d("state_id===> " + inputModel.state_id)
-        XLog.d("expense_id===> " + inputModel.expense_id)
-        XLog.d("fuel_id===> " + inputModel.fuel_id)
-        XLog.d("travel_id===> " + inputModel.travel_id)
-        XLog.d("visittype_id===> " + inputModel.visittype_id)
-        XLog.d("===============================================")*/
+        /* XLog.d("=====Fetch ReimbursementConfigApi Request=====")
+         XLog.d("user_id===> " + inputModel.user_id)
+         XLog.d("state_id===> " + inputModel.state_id)
+         XLog.d("expense_id===> " + inputModel.expense_id)
+         XLog.d("fuel_id===> " + inputModel.fuel_id)
+         XLog.d("travel_id===> " + inputModel.travel_id)
+         XLog.d("visittype_id===> " + inputModel.visittype_id)
+         XLog.d("===============================================")*/
 
         Timber.d("=====Fetch ReimbursementConfigApi Request=====")
         Timber.d("user_id===> " + inputModel.user_id)
@@ -1744,56 +1744,56 @@ class ReimbursementFragment : BaseFragment(), DateAdapter.onPetSelectedListener,
         val repository = ReimbursementConfigFetchRepoProvider.provideFetchReimbursementConfigRepository()
         progress_wheel.spin()
         BaseActivity.compositeDisposable.add(
-                repository.fetchReimbursementConfig(inputModel)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe({ result ->
+            repository.fetchReimbursementConfig(inputModel)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({ result ->
 
-                            val configResponse = result as ReimbursementConfigFetchResponseModel
+                    val configResponse = result as ReimbursementConfigFetchResponseModel
 //                            XLog.d("Fetch ReimbursementConfigApiResponse : " + "\n" + "Status===> " + configResponse.status + ", Message===> " + configResponse.message)
-                            Timber.d("Fetch ReimbursementConfigApiResponse : " + "\n" + "Status===> " + configResponse.status + ", Message===> " + configResponse.message)
+                    Timber.d("Fetch ReimbursementConfigApiResponse : " + "\n" + "Status===> " + configResponse.status + ", Message===> " + configResponse.message)
 
-                            progress_wheel.stopSpinning()
-                            if (configResponse.status == NetworkConstant.SUCCESS) {
+                    progress_wheel.stopSpinning()
+                    if (configResponse.status == NetworkConstant.SUCCESS) {
 
-                                if (!TextUtils.isEmpty(configResponse.maximum_allowance)) {
-                                    allowance_amount_LL.visibility = View.VISIBLE
-                                    maximum_amount_allowance_Per_Km_TV.text = "\u20B9 ${configResponse.maximum_allowance}"
-                                    //Begin Rev 2.0 ReimbursementFragment AppV 4.0.8 Suman    02/05/2023 mantis id 25979
-                                    amount_EDT.setText(configResponse.maximum_allowance.toString())
-                                    //End of Rev 2.0 ReimbursementFragment AppV 4.0.8 Suman    02/05/2023 mantis id 25979
-                                } else {
-                                    allowance_amount_LL.visibility = View.GONE
-                                }
+                        if (!TextUtils.isEmpty(configResponse.maximum_allowance)) {
+                            allowance_amount_LL.visibility = View.VISIBLE
+                            maximum_amount_allowance_Per_Km_TV.text = "\u20B9 ${configResponse.maximum_allowance}"
+                            //Begin Rev 2.0 ReimbursementFragment AppV 4.0.8 Suman    02/05/2023 mantis id 25979
+                            amount_EDT.setText(configResponse.maximum_allowance.toString())
+                            //End of Rev 2.0 ReimbursementFragment AppV 4.0.8 Suman    02/05/2023 mantis id 25979
+                        } else {
+                            allowance_amount_LL.visibility = View.GONE
+                        }
 
-                                if (!TextUtils.isEmpty(configResponse.rate))
-                                    rate = configResponse.rate!!
+                        if (!TextUtils.isEmpty(configResponse.rate))
+                            rate = configResponse.rate!!
 
-                                if (!TextUtils.isEmpty(configResponse.distance) && configResponse.distance != "0.00" && (inputModel.travel_id == "1" ||
-                                                inputModel.travel_id == "2")) {
-                                    allowance_travelled_LL.visibility = View.VISIBLE
-                                    maximum_amount_allowance_Km_TV.text = "${configResponse.distance} K.M @ \u20B9 ${configResponse.rate}  per K.M"
-                                } else {
-                                    allowance_travelled_LL.visibility = View.GONE
-                                }
+                        if (!TextUtils.isEmpty(configResponse.distance) && configResponse.distance != "0.00" && (inputModel.travel_id == "1" ||
+                                    inputModel.travel_id == "2")) {
+                            allowance_travelled_LL.visibility = View.VISIBLE
+                            maximum_amount_allowance_Km_TV.text = "${configResponse.distance} K.M @ \u20B9 ${configResponse.rate}  per K.M"
+                        } else {
+                            allowance_travelled_LL.visibility = View.GONE
+                        }
 
 
-                            } else {
-                                allowance_amount_LL.visibility = View.GONE
-                                allowance_travelled_LL.visibility = View.GONE
-                                //  (mContext as DashboardActivity).showSnackMessage(configResponse.message!!)
-                                BaseActivity.isApiInitiated = false
-                                rate = ""
-                            }
+                    } else {
+                        allowance_amount_LL.visibility = View.GONE
+                        allowance_travelled_LL.visibility = View.GONE
+                        //  (mContext as DashboardActivity).showSnackMessage(configResponse.message!!)
+                        BaseActivity.isApiInitiated = false
+                        rate = ""
+                    }
 
-                        }, { error ->
-                            BaseActivity.isApiInitiated = false
-                            error.printStackTrace()
-                            progress_wheel.stopSpinning()
+                }, { error ->
+                    BaseActivity.isApiInitiated = false
+                    error.printStackTrace()
+                    progress_wheel.stopSpinning()
 //                            XLog.d("Fetch ReimbursementConfigApiResponse ERROR: " + error.localizedMessage)
-                            Timber.d("Fetch ReimbursementConfigApiResponse ERROR: " + error.localizedMessage)
-                            rate = ""
-                        })
+                    Timber.d("Fetch ReimbursementConfigApiResponse ERROR: " + error.localizedMessage)
+                    rate = ""
+                })
         )
     }
 
@@ -1969,39 +1969,39 @@ class ReimbursementFragment : BaseFragment(), DateAdapter.onPetSelectedListener,
         val repository = ApplyReimbursementRepoProvider.applyReimbursementConfigRepository()
         progress_wheel.spin()
         BaseActivity.compositeDisposable.add(
-                repository.applyReimbursement(reinbursementInput)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe({ result ->
+            repository.applyReimbursement(reinbursementInput)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({ result ->
 
-                            val configResponse = result as BaseResponse
+                    val configResponse = result as BaseResponse
 //                            XLog.d("Apply Reimbursement Api Response : " + "\n" + "Status====> " + configResponse.status + ", Message===> " + configResponse.message)
-                            Timber.d("Apply Reimbursement Api Response : " + "\n" + "Status====> " + configResponse.status + ", Message===> " + configResponse.message)
+                    Timber.d("Apply Reimbursement Api Response : " + "\n" + "Status====> " + configResponse.status + ", Message===> " + configResponse.message)
 
-                            if (configResponse.status == NetworkConstant.SUCCESS) {
-                                //if (imagePathArray.size > 0)
-                                if (!TextUtils.isEmpty(imagePath_1) || !TextUtils.isEmpty(imagePath_2) || !TextUtils.isEmpty(imagePath_3))
-                                    applyReimbursementImageApi(reinbursementInput)
-                                else {
-                                    progress_wheel.stopSpinning()
-                                    apiIsRunning = false
-                                    changeUi(reinbursementInput)
-                                    (mContext as DashboardActivity).showSnackMessage(configResponse.message!!)
-                                }
-                            } else {
-                                progress_wheel.stopSpinning()
-                                (mContext as DashboardActivity).showSnackMessage(configResponse.message!!)
-                                apiIsRunning = false
-                            }
-
-                        }, { error ->
-                            apiIsRunning = false
-                            error.printStackTrace()
+                    if (configResponse.status == NetworkConstant.SUCCESS) {
+                        //if (imagePathArray.size > 0)
+                        if (!TextUtils.isEmpty(imagePath_1) || !TextUtils.isEmpty(imagePath_2) || !TextUtils.isEmpty(imagePath_3))
+                            applyReimbursementImageApi(reinbursementInput)
+                        else {
                             progress_wheel.stopSpinning()
+                            apiIsRunning = false
+                            changeUi(reinbursementInput)
+                            (mContext as DashboardActivity).showSnackMessage(configResponse.message!!)
+                        }
+                    } else {
+                        progress_wheel.stopSpinning()
+                        (mContext as DashboardActivity).showSnackMessage(configResponse.message!!)
+                        apiIsRunning = false
+                    }
+
+                }, { error ->
+                    apiIsRunning = false
+                    error.printStackTrace()
+                    progress_wheel.stopSpinning()
 //                            XLog.d("Apply Reimbursement Api ERROR: " + error.localizedMessage)
-                            Timber.d("Apply Reimbursement Api ERROR: " + error.localizedMessage)
-                            (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
-                        })
+                    Timber.d("Apply Reimbursement Api ERROR: " + error.localizedMessage)
+                    (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
+                })
         )
     }
 
@@ -2027,37 +2027,37 @@ class ReimbursementFragment : BaseFragment(), DateAdapter.onPetSelectedListener,
 
         val repository = ApplyReimbursementRepoProvider.applyReimbursementConfigRepository()
         BaseActivity.compositeDisposable.add(
-                repository.applyReimbursementImageUpload(reinbursementInput, imagePathArray)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe({ result ->
-                            val configResponse = result as BaseResponse
+            repository.applyReimbursementImageUpload(reinbursementInput, imagePathArray)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({ result ->
+                    val configResponse = result as BaseResponse
 //                            XLog.d("Apply Reimbursement Api Response : " + "\n" + "Status====> " + configResponse.status + ", Message===> " + configResponse.message)
-                            Timber.d("Apply Reimbursement Api Response : " + "\n" + "Status====> " + configResponse.status + ", Message===> " + configResponse.message)
+                    Timber.d("Apply Reimbursement Api Response : " + "\n" + "Status====> " + configResponse.status + ", Message===> " + configResponse.message)
 
-                            progress_wheel.stopSpinning()
-                            if (configResponse.status == NetworkConstant.SUCCESS) {
-                                //(mContext as DashboardActivity).onBackPressed()
-                                changeUi(reinbursementInput)
-                                imagePath_1 = ""
-                                imagePath_2 = ""
-                                imagePath_3 = ""
-                            }
+                    progress_wheel.stopSpinning()
+                    if (configResponse.status == NetworkConstant.SUCCESS) {
+                        //(mContext as DashboardActivity).onBackPressed()
+                        changeUi(reinbursementInput)
+                        imagePath_1 = ""
+                        imagePath_2 = ""
+                        imagePath_3 = ""
+                    }
 
-                            //(mContext as DashboardActivity).showSnackMessage(configResponse.message!!)
-                            (mContext as DashboardActivity).showSnackMessage("Submitted Successfully.")
+                    //(mContext as DashboardActivity).showSnackMessage(configResponse.message!!)
+                    (mContext as DashboardActivity).showSnackMessage("Submitted Successfully.")
 
-                            apiIsRunning = false
+                    apiIsRunning = false
 
-                        }, { error ->
-                            apiIsRunning = false
-                            error.printStackTrace()
-                            progress_wheel.stopSpinning()
+                }, { error ->
+                    apiIsRunning = false
+                    error.printStackTrace()
+                    progress_wheel.stopSpinning()
 //                            XLog.d("Apply Reimbursement Api ERROR: " + error.localizedMessage)
-                            Timber.d("Apply Reimbursement Api ERROR: " + error.localizedMessage)
+                    Timber.d("Apply Reimbursement Api ERROR: " + error.localizedMessage)
 
-                            (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
-                        })
+                    (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
+                })
         )
     }
 
@@ -2075,48 +2075,48 @@ class ReimbursementFragment : BaseFragment(), DateAdapter.onPetSelectedListener,
 
         val repository = ApplyReimbursementRepoProvider.applyReimbursementConfigRepository()
         BaseActivity.compositeDisposable.add(
-                repository.deleteAppliedReimbursement(deletReinbursementInput)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe({ result ->
-                            val configResponse = result as BaseResponse
+            repository.deleteAppliedReimbursement(deletReinbursementInput)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({ result ->
+                    val configResponse = result as BaseResponse
 //                            XLog.d("Delete Reimbursement Api Response : " + "\n" + "Status====> " + configResponse.status + ", Message===> " + configResponse.message)
-                            Timber.d("Delete Reimbursement Api Response : " + "\n" + "Status====> " + configResponse.status + ", Message===> " + configResponse.message)
+                    Timber.d("Delete Reimbursement Api Response : " + "\n" + "Status====> " + configResponse.status + ", Message===> " + configResponse.message)
 
-                            progress_wheel.stopSpinning()
-                            if (configResponse.status == NetworkConstant.SUCCESS) {
+                    progress_wheel.stopSpinning()
+                    if (configResponse.status == NetworkConstant.SUCCESS) {
 
-                                reimbursmentTaList.removeAt(adapterPosition)
-                                reimbursementBottomAdapter?.notifyItemRemoved(adapterPosition)
+                        reimbursmentTaList.removeAt(adapterPosition)
+                        reimbursementBottomAdapter?.notifyItemRemoved(adapterPosition)
 
-                                var totalAmount = 0
-                                for (i in reimbursmentTaList.indices) {
-                                    totalAmount += reimbursmentTaList[i].expense_details[0].reimbursement_details[0].amount.toInt()
-                                }
+                        var totalAmount = 0
+                        for (i in reimbursmentTaList.indices) {
+                            totalAmount += reimbursmentTaList[i].expense_details[0].reimbursement_details[0].amount.toInt()
+                        }
 
-                                tv_total_amount.text = getString(R.string.rupee_symbol) + " " + totalAmount.toString()
+                        tv_total_amount.text = getString(R.string.rupee_symbol) + " " + totalAmount.toString()
 
-                                if (reimbursmentTaList.size == 0) {
-                                    clBottomSheet.visibility = View.GONE
+                        if (reimbursmentTaList.size == 0) {
+                            clBottomSheet.visibility = View.GONE
 
-                                    val layoutParams = nsv_apply_reimbursement.layoutParams as RelativeLayout.LayoutParams
-                                    layoutParams.setMargins(0, 0, 0, mContext.resources.getDimensionPixelOffset(R.dimen._5sdp));
-                                    nsv_apply_reimbursement.layoutParams = layoutParams
-                                }
-                            }
+                            val layoutParams = nsv_apply_reimbursement.layoutParams as RelativeLayout.LayoutParams
+                            layoutParams.setMargins(0, 0, 0, mContext.resources.getDimensionPixelOffset(R.dimen._5sdp));
+                            nsv_apply_reimbursement.layoutParams = layoutParams
+                        }
+                    }
 
-                            (mContext as DashboardActivity).showSnackMessage(configResponse.message!!)
+                    (mContext as DashboardActivity).showSnackMessage(configResponse.message!!)
 
-                            apiIsRunning = false
+                    apiIsRunning = false
 
-                        }, { error ->
-                            apiIsRunning = false
-                            error.printStackTrace()
-                            progress_wheel.stopSpinning()
+                }, { error ->
+                    apiIsRunning = false
+                    error.printStackTrace()
+                    progress_wheel.stopSpinning()
 //                            XLog.d("Delete Reimbursement Api ERROR: " + error.localizedMessage)
-                            Timber.d("Delete Reimbursement Api ERROR: " + error.localizedMessage)
-                            (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
-                        })
+                    Timber.d("Delete Reimbursement Api ERROR: " + error.localizedMessage)
+                    (mContext as DashboardActivity).showSnackMessage(getString(R.string.something_went_wrong))
+                })
         )
     }
 
@@ -2332,10 +2332,10 @@ class ReimbursementFragment : BaseFragment(), DateAdapter.onPetSelectedListener,
                     if (reimbursementResponse.status == NetworkConstant.SUCCESS) {
                         try{
                             progress_wheel.spin()
-                            var expenseDA   = reimbursementResponse.expense_list!!.filter { it.expense_type.equals("Dearness Allowance") }.firstOrNull()
+                            var expenseDA   = reimbursementResponse.expense_list!!.filter { it.expense_type.equals("Dearness Allowance",ignoreCase = true) }.firstOrNull()
                             var expenseDADtls: ReimbursementListDetailsModel? = expenseDA!!.expense_list_details?.filter { it.applied_date.equals(date.toString()) }?.firstOrNull()
                             if(expenseDADtls == null){
-                                var notexpenseDA = reimbursementResponse.expense_list!!.filter { !it.expense_type.equals("Dearness Allowance") }
+                                var notexpenseDA = reimbursementResponse.expense_list!!.filter { !it.expense_type.equals("Dearness Allowance",ignoreCase = true) }
                                 var notexpenseDADtls = notexpenseDA.filter { it.expense_list_details!!.size>0 }
                                 var notexpenseDADtlsDate :ArrayList<ReimbursementListDetailsModel> = ArrayList()
                                 if(notexpenseDADtls.size>0){
@@ -2350,7 +2350,7 @@ class ReimbursementFragment : BaseFragment(), DateAdapter.onPetSelectedListener,
 
                                 progress_wheel.stopSpinning()
                                 var exp=expense_type_TV.text
-                                if(notexpenseDADtlsDate.size>0 && expense_type_TV.text.equals("Dearness Allowance")){
+                                if(notexpenseDADtlsDate.size>0 && expense_type_TV.text.toString().equals("Dearness Allowance",ignoreCase = true)){
                                     openDialogPopup("Other Allowance was applied for the day. You are not eligible to apply Dearness Allowance.")
                                     //Toaster.msgShort(mContext,"Other Allowance was applied for the day. You are not eligible to apply Dearness Allowance.")
                                 }else{
@@ -2371,10 +2371,10 @@ class ReimbursementFragment : BaseFragment(), DateAdapter.onPetSelectedListener,
                         checkValidation()
                     }
                 }, { error ->
-                        BaseActivity.isApiInitiated = false
-                        error.printStackTrace()
-                        progress_wheel.stopSpinning()
-                    })
+                    BaseActivity.isApiInitiated = false
+                    error.printStackTrace()
+                    progress_wheel.stopSpinning()
+                })
         )
     }
     //End of Rev 2.0 ReimbursementFragment AppV 4.0.8 Suman    02/05/2023 mantis id 25979
