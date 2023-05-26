@@ -124,6 +124,7 @@ import kotlin.collections.ArrayList
 // 1.0 LogoutSyncFragment AppV 4.0.6 suman 12-01-2023 multiple contact updation
 // 2.0 LogoutSyncFragment AppV 4.0.6 saheli 20-01-2023  Shop duartion Issue mantis 25597
 // 3.0 LogoutSyncFragment AppV 4.0.7 saheli 21-01-2023  mantis 0025685
+//4.0 LogoutSyncFragment AppV 4.1.3 saheli 03-05-2023  mantis 0026013
 class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
 
     private lateinit var mContext: Context
@@ -1767,6 +1768,11 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
             shopDurationData.multi_contact_name = shopActivity.multi_contact_name
             shopDurationData.multi_contact_number = shopActivity.multi_contact_number
 
+            //Begin Rev 17 DashboardActivity AppV 4.0.8 Suman    24/04/2023 distanct+station calculation 25806
+            shopDurationData.distFromProfileAddrKms = shopActivity.distFromProfileAddrKms
+            shopDurationData.stationCode = shopActivity.stationCode
+            //End of Rev 17 DashboardActivity AppV 4.0.8 Suman    24/04/2023 distanct+station calculation 25806
+
             shopDataList.add(shopDurationData)
         }
         else {
@@ -1874,6 +1880,11 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
 
                 shopDurationData.multi_contact_name = shopActivity.multi_contact_name
                 shopDurationData.multi_contact_number = shopActivity.multi_contact_number
+
+                //Begin Rev 17 DashboardActivity AppV 4.0.8 Suman    24/04/2023 distanct+station calculation 25806
+                shopDurationData.distFromProfileAddrKms = shopActivity.distFromProfileAddrKms
+                shopDurationData.stationCode = shopActivity.stationCode
+                //End of Rev 17 DashboardActivity AppV 4.0.8 Suman    24/04/2023 distanct+station calculation 25806
 
                 shopDataList.add(shopDurationData)
             }
@@ -2899,11 +2910,14 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->
                     val gpsStatusResponse = result as BaseResponse
-                    Timber.d("SYNC GPS : " + "RESPONSE : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name
+                    Timber.d("SYNC GPS : " + "RESPONSE : ${gpsStatusResponse.status} " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name
                             + ",MESSAGE : " + gpsStatusResponse.message)
                     if (gpsStatusResponse.status == NetworkConstant.SUCCESS) {
-                        AppDatabase.getDBInstance()!!.gpsStatusDao().updateIsUploadedAccordingToId(true, list[i].id)
-
+                        // 4.0 LogoutSyncFragment mantis v 4.0.8 saheli 03-05-2023 0026013 work
+                        for (i in 0 until list.size) {
+                            AppDatabase.getDBInstance()!!.gpsStatusDao().updateIsUploadedAccordingToId(true, list[i].id)
+                        }
+                        //4.0 end 0026013
 
 //                        i++
 //                        if (i < list.size) {
@@ -3457,6 +3471,11 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                         shopDurationData.multi_contact_name = shopActivity.multi_contact_name
                         shopDurationData.multi_contact_number = shopActivity.multi_contact_number
 
+                        //Begin Rev 17 DashboardActivity AppV 4.0.8 Suman    24/04/2023 distanct+station calculation 25806
+                        shopDurationData.distFromProfileAddrKms = shopActivity.distFromProfileAddrKms
+                        shopDurationData.stationCode = shopActivity.stationCode
+                        //End of Rev 17 DashboardActivity AppV 4.0.8 Suman    24/04/2023 distanct+station calculation 25806
+
                         shopDataList.add(shopDurationData)
 
 
@@ -3562,6 +3581,10 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                         //New shop Create issue
                         shopDurationData.isnewShop = it.isnewShop!!
 
+                        //Begin Rev 17 DashboardActivity AppV 4.0.8 Suman    24/04/2023 distanct+station calculation 25806
+                        shopDurationData.distFromProfileAddrKms = it.distFromProfileAddrKms
+                        shopDurationData.stationCode = it.stationCode
+                        //End of Rev 17 DashboardActivity AppV 4.0.8 Suman    24/04/2023 distanct+station calculation 25806
 
                         shopDataList.add(shopDurationData)
 

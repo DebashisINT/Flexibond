@@ -316,7 +316,18 @@ class StockListFragment : BaseFragment(), View.OnClickListener {
                 if (!Pref.isAddAttendence)
                     (mContext as DashboardActivity).checkToShowAddAttendanceAlert()
                 else
-                    (mContext as DashboardActivity).loadFragment(FragType.OrderTypeListFragment, true, mAddShopDataObj?.shop_id!!)
+                (mContext as DashboardActivity).loadFragment(FragType.OrderTypeListFragment, true, mAddShopDataObj?.shop_id!!)
+              /*  {
+                    if(Pref.IsShowNewOrderCart){
+                        (mContext as DashboardActivity).loadFragment(FragType.OrderProductListFrag, true, mAddShopDataObj?.shop_id!!)
+                        progress_wheel.stopSpinning()
+                    }else{
+                        (mContext as DashboardActivity).loadFragment(FragType.OrderTypeListFragment, true, mAddShopDataObj?.shop_id!!)
+                        progress_wheel.stopSpinning()
+                    }
+                }*/
+
+
             }
 
             R.id.shop_detail_RL -> {

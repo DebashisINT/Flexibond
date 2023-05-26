@@ -11,6 +11,13 @@ import com.marcinmoskala.kotlinpreferences.PreferenceHolder
 // 3.0 Pref  AppV 4.0.7 Suman    10/03/2023 Pdf generation settings wise  mantis 25650
 // 4.0 Pref  AppV 4.0.7 Suman    23/03/2023 ShowApproxDistanceInNearbyShopList Show approx distance in nearby + shopmaster  mantis 0025742
 // 5.0 Pref  AppV 4.0.8 Saheli   06/04/2023 mantis 0025780 IsAssignedDDAvailableForAllUser Useds LoginActivity If this feature 'On' then Assigned DD [Assigned DD Table] shall be available in 'Shop Master'
+// Rev 6.0 Pref AppV 4.0.8 Suman    26/04/2023 mail repetation fix 25923
+// Rev 7.0 Pref AppV 4.0.8 Suman    02/05/2023 mantis id 25979
+//Rev 8.0 Pref AppV 4.0.8 Saheli    05/05/2023  mantis 0026023
+// Rev 9.0 Pref AppV 4.0.8 Saheli    12/05/2023  mantis 0026101
+// Rev 10.0 Pref AppV 4.0.8 Suman    16/05/2023  mantis 26119
+// Rev 11.0 Pref AppV 4.0.8 Suman    19/05/2023  mantis 26163
+
 object Pref : PreferenceHolder() {
     var text: String? by bindToPreferenceFieldNullable()
     var num: Int by bindToPreferenceField(0, "SomeIntKey")
@@ -859,4 +866,54 @@ object Pref : PreferenceHolder() {
     // 5.0 Pref  AppV 4.0.8 Saheli    06/04/2023 mantis 0025780 IsAssignedDDAvailableForAllUser Useds LoginActivity If this feature 'On' then Assigned DD [Assigned DD Table] shall be available in 'Shop Master'
     var IsAssignedDDAvailableForAllUserGlobal: Boolean by bindToPreferenceField(false, "IsAssignedDDAvailableForAllUser ")
     var IsAssignedDDAvailableForAllUser : Boolean by bindToPreferenceField(false, "IsAssignedDDAvailableForAllUser ")
+
+    //Begin Rev 17 DashboardActivity AppV 4.0.8 Suman    24/04/2023 distanct+station calculation 25806
+    var profile_latitude: String by bindToPreferenceField("", "profile_latitude")
+    var profile_longitude: String by bindToPreferenceField("", "profile_longitude")
+    //End of Rev 17 DashboardActivity AppV 4.0.8 Suman    24/04/2023 distanct+station calculation 25806
+
+    // 6.0 Pref  AppV 4.0.8 Saheli    20/04/2023 mantis 25860
+    var IsShowEmployeePerformanceGlobal: Boolean by bindToPreferenceField(false, "IsShowEmployeePerformance")
+    var IsShowEmployeePerformance : Boolean by bindToPreferenceField(false, "IsShowEmployeePerformance")
+
+    //Begin Rev 6.0 Pref AppV 4.0.8 Suman    26/04/2023 mail repetation fix 25923
+    var prevQutoNoForMail : String by bindToPreferenceField("", "prevQutoNoForMail")
+    //End Rev 6.0 Pref AppV 4.0.8 Suman    26/04/2023 mail repetation fix 25923
+
+    //Begin Rev 7.0 Pref AppV 4.0.8 Suman    02/05/2023 mantis id 25979
+    var IsAttendanceCheckedforExpense : Boolean by bindToPreferenceField(false, "IsAttendanceCheckedforExpense")
+    var IsShowLocalinExpense : Boolean by bindToPreferenceField(false, "IsShowLocalinExpense")
+    var IsShowOutStationinExpense : Boolean by bindToPreferenceField(false, "IsShowOutStationinExpense")
+    var IsSingleDayTAApplyRestriction : Boolean by bindToPreferenceField(false, "IsSingleDayTAApplyRestriction")
+    var IsTAAttachment1Mandatory : Boolean by bindToPreferenceField(false, "IsTAAttachment1Mandatory")
+    var IsTAAttachment2Mandatory : Boolean by bindToPreferenceField(false, "IsTAAttachment2Mandatory")
+
+    var NameforConveyanceAttachment1 : String by bindToPreferenceField("", "NameforConveyanceAttachment1")
+    var NameforConveyanceAttachment2 : String by bindToPreferenceField("", "NameforConveyanceAttachment2")
+
+    //End of Rev 7.0 Pref AppV 4.0.8 Suman    02/05/2023 mantis id 25979
+
+    //Begin Rev 8.0 Pref AppV 4.0.8 Saheli    05/05/2023  mantis 0026023
+    var IsTaskManagementAvailable: Boolean by bindToPreferenceField(false, "IsTaskManagementAvailable")
+    //end Rev 8.0 Pref AppV 4.0.8 Saheli    05/05/2023  mantis 0026023
+
+    var IsShowPrivacyPolicyInMenu: Boolean by bindToPreferenceField(false, "IsShowPrivacyPolicyInMenu")
+
+    //Begin Rev 9.0 Pref AppV 4.0.8 Saheli    12/05/2023  mantis 0026101
+    var IsAttachmentAvailableForCurrentStock : Boolean by bindToPreferenceField(false, "IsAttachmentAvailableForCurrentStock")
+    //end Rev 9.0 Pref AppV 4.0.8 Saheli    12/05/2023  mantis 0026101
+
+    //Begin Rev 10.0 Pref AppV 4.0.8 Suman    16/05/2023  mantis 26119
+    var IsShowReimbursementTypeInAttendance : Boolean by bindToPreferenceField(false, "IsShowReimbursementTypeInAttendance")
+    var selectedVisitStationID : String by bindToPreferenceField("", "selectedVisitStationID")
+    var selectedVisitStationName : String by bindToPreferenceField("", "selectedVisitStationName")
+    //End of Rev 10.0 Pref AppV 4.0.8 Suman    16/05/2023  mantis 26119
+
+    //Begin Rev 11.0 Pref AppV 4.0.8 Suman    19/05/2023  mantis 26163
+    var IsBeatPlanAvailable : Boolean by bindToPreferenceField(false, "IsBeatPlanAvailable")
+    //End of Rev 11.0 Pref AppV 4.0.8 Suman    19/05/2023  mantis 26163
+
 }
+
+
+

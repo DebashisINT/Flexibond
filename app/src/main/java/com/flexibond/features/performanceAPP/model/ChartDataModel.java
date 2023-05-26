@@ -26,7 +26,7 @@ public class ChartDataModel {
                                         .format("<b></b> {point.percentage:.1f} %"))
                                 .data(new Object[][] {
                                 {"Present"  ,attendP},
-                                {"Absent",absentP}
+                                {"Not Logged In",absentP}
                         })
                 }).colorsTheme(new String[]{"#0019b2","#f5862c"}); // sky,red
     }

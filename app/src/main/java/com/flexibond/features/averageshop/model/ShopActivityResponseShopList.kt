@@ -30,6 +30,9 @@ class ShopActivityResponseShopList {
     var approximate_1st_billing_value: Double? = 0.00
     var multi_contact_name: String? = null
     var multi_contact_number: String? = null
+
+    var distFromProfileAddrKms: String? = null
+    var stationCode: String? = null
 }
 
 //    "date": "2017-11-12",--------------yyyy-MM-dd

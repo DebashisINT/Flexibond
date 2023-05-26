@@ -6,6 +6,7 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
+import java.util.Date;
 import java.util.List;
 
 import static com.flexibond.app.AppConstant.SHOP_TABLE;
@@ -28,6 +29,9 @@ public interface AddShopDao {
 
     @Query("SELECT * FROM " + SHOP_TABLE)
     List<AddShopDBModelEntity> getAll();
+
+    @Query("SELECT * FROM " + SHOP_TABLE +" order by upper(shop_name)")
+    List<AddShopDBModelEntity> getOrderByalphabeticallyAll();
 
     @Query("SELECT * FROM " + SHOP_TABLE+" where isOwnshop=:isOwnshop")
     List<AddShopDBModelEntity> getAllOwn(Boolean isOwnshop);

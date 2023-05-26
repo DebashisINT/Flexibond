@@ -9,6 +9,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextUtils
@@ -29,8 +30,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.flexibond.R
+import com.flexibond.app.AppDatabase
 import com.flexibond.app.NetworkConstant
 import com.flexibond.app.Pref
+import com.flexibond.app.domain.ShopActivityEntity
+import com.flexibond.app.types.FragType
 import com.flexibond.app.utils.AppUtils
 import com.flexibond.app.utils.CustomTextWatcher
 import com.flexibond.app.utils.PermissionUtils
@@ -67,6 +71,8 @@ import java.util.*
 import kotlin.collections.ArrayList
 // Revision History
 // 1.0 ReimbursementNFrag AppV 4.0.7 Saheli    02/03/2023 Timber Log Implementation
+// 2.0 ReimbursementNFrag AppV 4.0.8 Suman    03/05/2023 Timber CUstomization mantis id 25995
+// 3.0 ReimbursementNFrag AppV 4.1.3 Suman    09/05/2023 Reimburstment submit btn visibility updation mantis id 26069
 class ReimbursementNFrag : BaseFragment(), DateAdapter.onPetSelectedListener, View.OnClickListener, TabLayout.OnTabSelectedListener, RadioGroup.OnCheckedChangeListener {
 
     private val expenseTypesArrayList: ArrayList<ReimbursementConfigExpenseTypeModel> = ArrayList()
@@ -79,7 +85,7 @@ class ReimbursementNFrag : BaseFragment(), DateAdapter.onPetSelectedListener, Vi
     var rvDateList: RecyclerView? = null
     var dateAdapter: DateAdapter? = null
 
-    val dateList: ArrayList<Date> = arrayListOf()
+    var dateList: ArrayList<Date> = arrayListOf()
     private val convenenceType: ArrayList<String> = arrayListOf()
     private val reinbursementInputArrayList: ArrayList<ApplyReimbursementInputModel> = arrayListOf()
 
@@ -194,6 +200,12 @@ class ReimbursementNFrag : BaseFragment(), DateAdapter.onPetSelectedListener, Vi
     private var isEditable = false
     private var isAttachmentMandatoryForLocal = false
     private var isAttachmentMandatoryForOutstation = false
+
+    //Begin 2.0 ReimbursementNFrag AppV 4.0.8 Suman    03/05/2023 Timber CUstomization mantis id 25995
+    private var isInstationForRevisit = false
+    private var isExstationForRevisit = false
+    private var isOutstationForRevisit = false
+    //End of 2.0 ReimbursementNFrag AppV 4.0.8 Suman    03/05/2023 Timber CUstomization mantis id 25995
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -525,15 +537,15 @@ class ReimbursementNFrag : BaseFragment(), DateAdapter.onPetSelectedListener, Vi
         val calendarToday = Calendar.getInstance(Locale.ENGLISH)
         calendarToday.add(Calendar.DATE, 0)
         val currentToday = calendarToday.time
-        dateList.add(currentToday)
+        //dateList.add(currentToday)
 
         val calendar = Calendar.getInstance(Locale.ENGLISH)
         calendar.add(Calendar.DATE, -1)
         val todayDate = calendar.time
         dateList.add(todayDate)
 
-        //selectedDate = todayDate
-        selectedDate = currentToday
+        selectedDate = todayDate
+        //selectedDate = currentToday
         val dateFormat = SimpleDateFormat("dd MMM")
         val formattedDate = dateFormat.format(selectedDate)
         date = AppUtils.getFormattedDateForApi(selectedDate!!)
@@ -549,12 +561,17 @@ class ReimbursementNFrag : BaseFragment(), DateAdapter.onPetSelectedListener, Vi
             dateList.add(nextDate)
         }
 
+        Handler().postDelayed(Runnable {
         dateAdapter?.refreshAdapter(dateList)
+        }, 1000)
 
-        if (!isEditable)
-            callReimbursementShopApi()
+            if (!isEditable)
+                callReimbursementShopApi()
 
 
+    Handler().postDelayed(Runnable {
+        checkStationStatusFromRevisit(date)
+    }, 500)
     }
 
 
@@ -660,6 +677,21 @@ class ReimbursementNFrag : BaseFragment(), DateAdapter.onPetSelectedListener, Vi
     override fun onTabUnselected(tab: TabLayout.Tab?) {}
     override fun onTabReselected(tab: TabLayout.Tab?) {}
     override fun onTabSelected(tab: TabLayout.Tab?) {
+
+        //Begin 2.0 ReimbursementNFrag AppV 4.0.8 Suman    03/05/2023 Timber CUstomization mantis id 25995
+        if(tab!!.text!!.equals("INSTATION")){
+            submit_button_TV.visibility=View.GONE
+        }else{
+            submit_button_TV.visibility=View.VISIBLE
+        }
+        if(tab!!.text!!.equals("EXSTATION") && isExstationForRevisit){
+            submit_button_TV.visibility=View.VISIBLE
+        }else if(tab!!.text!!.equals("Outstation") && isOutstationForRevisit){
+            submit_button_TV.visibility=View.VISIBLE
+        }else{
+            submit_button_TV.visibility=View.GONE
+        }
+        //End  2.0 ReimbursementNFrag AppV 4.0.8 Suman    03/05/2023 Timber CUstomization mantis id 25995
 
         expense_type_TV.text = ""
         mode_of_travel_type_TV.text = ""
@@ -1556,7 +1588,7 @@ class ReimbursementNFrag : BaseFragment(), DateAdapter.onPetSelectedListener, Vi
                             tv_to_loc.text = ""
                             mode_of_travel_type_TV.text = ""
                         }
-                        
+
                         submit_button_TV.visibility=View.VISIBLE
                         tv_upload_ticket.visibility=View.VISIBLE
                         rl_image.visibility=View.VISIBLE
@@ -1618,12 +1650,43 @@ class ReimbursementNFrag : BaseFragment(), DateAdapter.onPetSelectedListener, Vi
                             }
                         }
 
+
                         if(genericObj.expanse_id.equals("9")){
                             fetchConfigDetailsForAmt()
                             amount_EDT.isEnabled = false
                         }
                         else if (genericObj.expanse_id != "1")
                             fetchConfigDetails("")
+
+
+                        //begin 2.0 ReimbursementNFrag AppV 4.0.8 Suman    03/05/2023 Timber CUstomization mantis id 25995
+                        if(visitTypeId.equals("2") && isExstationForRevisit){
+                            submit_button_TV.visibility=View.VISIBLE
+                        }else if(visitTypeId.equals("3") && isOutstationForRevisit){
+                            submit_button_TV.visibility=View.VISIBLE
+                        }else{
+                            submit_button_TV.visibility=View.GONE
+                        }
+                        /*if(genericObj.expanse_type.equals("Allowance")){
+                            submit_button_TV.visibility=View.GONE
+                        }
+                        if(visitTypeId.equals("1")){
+                            submit_button_TV.visibility=View.GONE
+                        }*/
+                        //End of 2.0 ReimbursementNFrag AppV 4.0.8 Suman    03/05/2023 Timber CUstomization mantis id 25995
+
+
+                        //Begin 3.0 ReimbursementNFrag AppV 4.1.3 Suman    09/05/2023 Reimburstment submit btn visibility updation mantis id 26069
+                        if(visitTypeId.equals("2") && isExstationForRevisit){
+                            submit_button_TV.visibility=View.VISIBLE
+                        }else if(visitTypeId.equals("3") && isOutstationForRevisit){
+                            submit_button_TV.visibility=View.VISIBLE
+                        }else if (visitTypeId.equals("1") && isInstationForRevisit){
+                            submit_button_TV.visibility=View.VISIBLE
+                        }else{
+                            submit_button_TV.visibility=View.GONE
+                        }
+                        //End of 3.0 ReimbursementNFrag AppV 4.1.3 Suman    09/05/2023 Reimburstment submit btn visibility updation mantis id 26069
                     }
                     is ReimbursementConfigFuelTypeModel -> {
                         textView.text = genericObj.fuel_type
@@ -1919,6 +1982,12 @@ class ReimbursementNFrag : BaseFragment(), DateAdapter.onPetSelectedListener, Vi
         reinbursementInput.date = date //AppUtils.getCurrentDateFormatInTa(date)
         reinbursementInput.visit_type_id = visitTypeId
         //reinbursementInput.expense_details = state_id
+
+        //server select * from FTS_Visit_Location
+        //1	Local
+        //2	Outstation
+        //3	In Station
+        //4	Ex Station
 
         if(visitTypeId.equals("1"))
              reinbursementInput.visit_type_id = "3"
@@ -2300,4 +2369,38 @@ class ReimbursementNFrag : BaseFragment(), DateAdapter.onPetSelectedListener, Vi
         super.onPause()
         conveyancePopupWindow?.dismiss()
     }
+
+    //Begin 2.0 ReimbursementNFrag AppV 4.0.8 Suman    03/05/2023 Timber CUstomization mantis id 25995
+    private fun checkStationStatusFromRevisit(checkDate:String){
+        var shopActivityList = AppDatabase.getDBInstance()!!.shopActivityDao().getTotalShopVisitedForADay(checkDate) as ArrayList<ShopActivityEntity>
+        if(shopActivityList.size>0){
+            var stationCodeList = shopActivityList.map { it.stationCode!!.toInt() }
+            if(stationCodeList.contains(2)){
+                //tabLayout.removeTabAt(0)
+                //tabLayout.removeTabAt(0)
+                isInstationForRevisit = false
+                isExstationForRevisit = false
+                isOutstationForRevisit = true
+            }else if(stationCodeList.contains(1)){
+                //tabLayout.removeTabAt(0)
+                //tabLayout.removeTabAt(1)
+                isInstationForRevisit = false
+                isExstationForRevisit = true
+                isOutstationForRevisit = false
+            }else if(stationCodeList.contains(0)){
+                //tabLayout.removeTabAt(1)
+                //tabLayout.removeTabAt(1)
+                isInstationForRevisit = true
+                isExstationForRevisit = false
+                isOutstationForRevisit = false
+            }
+        }else{
+            isInstationForRevisit = false
+            isExstationForRevisit = false
+            isOutstationForRevisit = false
+        }
+    }
+    //End of 2.0 ReimbursementNFrag AppV 4.0.8 Suman    03/05/2023 Timber CUstomization mantis id 25995
+
+
 }

@@ -27,7 +27,6 @@ import com.flexibond.app.Pref
 import com.flexibond.app.uiaction.DisplayAlert
 import com.flexibond.app.utils.AppUtils
 import com.flexibond.app.utils.FileLoggingTree
-import com.flexibond.app.utils.FileLoggingTree.fileDelete
 import com.flexibond.app.utils.PermissionUtils
 import com.flexibond.app.utils.Toaster
 import com.flexibond.base.presentation.BaseActivity
@@ -120,6 +119,7 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
     email.putExtra(Intent.EXTRA_TEXT, "msg")
     //email.type = "message/rfc822"
     startActivity(Intent.createChooser(email, "Send mail..."))*/
+
 
     val receiver = ComponentName(this, AlarmBootReceiver::class.java)
         packageManager.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
@@ -510,7 +510,7 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
                 //startActivity(intent)
                 Pref.AutostartPermissionStatus = true
                 startActivityForResult(intent,401)
-            }else{
+            }else{7u
                 goTONextActi()
             }
         } catch (e: java.lang.Exception) {
@@ -554,7 +554,7 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
                             override fun onNewLocationAvailable(location: Location) {
                                 Pref.latitude = location.latitude.toString()
                                 Pref.longitude = location.longitude.toString()
-
+                                Timber.d("Splash onNewLocationAvailable ${Pref.latitude} ${Pref.longitude}")
                                 progress_wheel.stopSpinning()
 
                                 startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
@@ -565,6 +565,7 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
                 }
                 catch (ex:Exception){
                     ex.printStackTrace()
+                    Timber.d("Splash onNewLocationAvailable ex ${ex.message}")
                     progress_wheel.stopSpinning()
                     startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
                     overridePendingTransition(R.anim.fade_in, R.anim.fade_out)

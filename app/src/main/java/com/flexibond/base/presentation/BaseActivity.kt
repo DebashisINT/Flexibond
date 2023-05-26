@@ -731,7 +731,11 @@ open class BaseActivity : AppCompatActivity(), GpsStatusDetector.GpsStatusDetect
                     Timber.d("GPS_STATUS : " + "RESPONSE : " + "\n" + "Time : " + AppUtils.getCurrentDateTime() + ", USER :" + Pref.user_name
                             + ",MESSAGE : " + gpsStatusResponse.message)
                     if (gpsStatusResponse.status == NetworkConstant.SUCCESS) {
-                        AppDatabase.getDBInstance()!!.gpsStatusDao().updateIsUploadedAccordingToId(true, list[i].id)
+                        // mantis 0026013 work
+                        for (i in 0 until list.size) {
+                            AppDatabase.getDBInstance()!!.gpsStatusDao().updateIsUploadedAccordingToId(true, list[i].id)
+                        }
+                        //4.0 end 0026013
                     }
                     getProgressInstance().dismissDialog()
                     checkToCallLocationSync()
@@ -1550,32 +1554,11 @@ val revisitStatusList : MutableList<ShopRevisitStatusRequestData> = ArrayList()
             shopDurationData.multi_contact_name = shopActivity.multi_contact_name
             shopDurationData.multi_contact_number = shopActivity.multi_contact_number
 
+            shopDurationData.distFromProfileAddrKms = shopActivity.distFromProfileAddrKms
+            shopDurationData.stationCode = shopActivity.stationCode
 
             shopDataList.add(shopDurationData)
 
-        /*    XLog.d("========SYNC ALL VISITED SHOP DATA (AVERAGE SHOP)=====")
-            XLog.d("SHOP ID======> " + shopDurationData.shop_id)
-            XLog.d("SPENT DURATION======> " + shopDurationData.spent_duration)
-            XLog.d("VISIT DATE=========> " + shopDurationData.visited_date)
-            XLog.d("VISIT DATE TIME==========> " + shopDurationData.visited_date)
-            XLog.d("TOTAL VISIT COUNT========> " + shopDurationData.total_visit_count)
-            XLog.d("DISTANCE TRAVELLED========> " + shopDurationData.distance_travelled)
-            XLog.d("FEEDBACK========> " + shopDurationData.feedback)
-            XLog.d("isFirstShopVisited========> " + shopDurationData.isFirstShopVisited)
-            XLog.d("distanceFromHomeLoc========> " + shopDurationData.distanceFromHomeLoc)
-            XLog.d("next_visit_date========> " + shopDurationData.next_visit_date)
-            XLog.d("early_revisit_reason========> " + shopDurationData.early_revisit_reason)
-            XLog.d("device_model========> " + shopDurationData.device_model)
-            XLog.d("android_version========> " + shopDurationData.android_version)
-            XLog.d("battery========> " + shopDurationData.battery)
-            XLog.d("net_status========> " + shopDurationData.net_status)
-            XLog.d("net_type========> " + shopDurationData.net_type)
-            XLog.d("in_time========> " + shopDurationData.in_time)
-            XLog.d("out_time========> " + shopDurationData.out_time)
-            XLog.d("start_timestamp========> " + shopDurationData.start_timestamp)
-            XLog.d("in_location========> " + shopDurationData.in_location)
-            XLog.d("out_location========> " + shopDurationData.out_location)
-            XLog.d("=======================================================")*/
 
             Timber.d("========SYNC ALL VISITED SHOP DATA (AVERAGE SHOP)=====")
             Timber.d("SHOP ID======> " + shopDurationData.shop_id)

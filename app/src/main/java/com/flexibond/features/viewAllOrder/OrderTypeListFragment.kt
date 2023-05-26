@@ -170,7 +170,7 @@ class OrderTypeListFragment : BaseFragment(), View.OnClickListener {
 
     private fun getProductRateListOfflineApi(isFromOnAttach: Boolean) {
         val repository = ProductListRepoProvider.productListProvider()
-        progress_wheel.spin()
+        //progress_wheel.spin()
         BaseActivity.compositeDisposable.add(
             repository.getProductRateOfflineListNew()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -210,7 +210,7 @@ class OrderTypeListFragment : BaseFragment(), View.OnClickListener {
                                     productRateListDb =
                                         AppDatabase.getDBInstance()?.productRateDao()
                                             ?.getAll() as ArrayList<ProductRateEntity>?
-                                    progress_wheel.stopSpinning()
+                                    //progress_wheel.stopSpinning()
 
                                     if (!isFromOnAttach)
                                         (mContext as DashboardActivity).showSnackMessage(
@@ -220,7 +220,7 @@ class OrderTypeListFragment : BaseFragment(), View.OnClickListener {
                                 }
                             }
                         } else {
-                            progress_wheel.stopSpinning()
+                            //progress_wheel.stopSpinning()
 
                             if (!isFromOnAttach)
                                 (mContext as DashboardActivity).showSnackMessage(
@@ -229,7 +229,7 @@ class OrderTypeListFragment : BaseFragment(), View.OnClickListener {
                                 )
                         }
                     } else {
-                        progress_wheel.stopSpinning()
+                        //progress_wheel.stopSpinning()
 
                         if (!isFromOnAttach)
                             (mContext as DashboardActivity).showSnackMessage(
@@ -241,7 +241,7 @@ class OrderTypeListFragment : BaseFragment(), View.OnClickListener {
                 }, { error ->
                     error.printStackTrace()
                     BaseActivity.isApiInitiated = false
-                    progress_wheel.stopSpinning()
+                    //progress_wheel.stopSpinning()
 
                     if (!isFromOnAttach)
                         (mContext as DashboardActivity).showSnackMessage(
@@ -481,6 +481,7 @@ class OrderTypeListFragment : BaseFragment(), View.OnClickListener {
     }
 
     private fun initView(view: View) {
+        progress_wheel=view.findViewById(R.id.progress_wheel)
         iv_frag_order_type_list_new_mic = view.findViewById(R.id.iv_frag_order_type_list_new_mic)  // 4.0 OrderTypeListFragment AppV 4.0.7  voice search mantis 0025683
         iv_search_frag_order_type_list = view.findViewById(R.id.iv_search_frag_order_type_list)
         //cv_search =  view.findViewById(R.id.cv_search)

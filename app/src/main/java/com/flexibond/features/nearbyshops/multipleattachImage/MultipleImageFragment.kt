@@ -14,18 +14,15 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.provider.MediaStore.Images.Media.getBitmap
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.ContextCompat
 import com.flexibond.R
-import com.flexibond.app.AppDatabase
 import com.flexibond.app.NetworkConstant
 import com.flexibond.app.Pref
 import com.flexibond.app.domain.AddShopDBModelEntity
@@ -36,15 +33,10 @@ import com.flexibond.base.BaseResponse
 import com.flexibond.base.presentation.BaseActivity
 import com.flexibond.base.presentation.BaseFragment
 import com.flexibond.features.addshop.api.AddShopRepositoryProvider
-import com.flexibond.features.addshop.model.assigntopplist.AddShopUploadImg
 import com.flexibond.features.addshop.model.assigntopplist.AddshopImageMultiReqbody1
 import com.flexibond.features.addshop.model.imageListResponse
-import com.flexibond.features.beatCustom.BeatGetStatusModel
-import com.flexibond.features.beatCustom.api.GetBeatRegProvider
 import com.flexibond.features.dashboard.presentation.DashboardActivity
-import com.flexibond.features.marketing.model.MarketingDetailImageData
 import com.flexibond.widgets.AppCustomTextView
-
 import com.pnikosis.materialishprogress.ProgressWheel
 import com.squareup.picasso.Cache
 import com.squareup.picasso.MemoryPolicy
@@ -435,7 +427,6 @@ class MultipleImageFragment: BaseFragment(),
         }
         pictureDialog.show()
     }
-
     fun onRequestPermission(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         permissionUtils?.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }

@@ -1,10 +1,14 @@
 package com.flexibond.features.performanceAPP.model
 
+import com.flexibond.features.performanceAPP.PartyWiseDataModel
 import com.github.aachartmodel.aainfographics.aachartcreator.AAChartModel
 import com.github.aachartmodel.aainfographics.aachartcreator.AAChartType
 import com.github.aachartmodel.aainfographics.aachartcreator.AASeriesElement
 import com.github.aachartmodel.aainfographics.aaoptionsmodel.AADataLabels
 
+/**
+ * Created by Saheli on 10-04-2023 v 4.0.8 mantis 0025860.
+ */
 class ChartDataModelNew {
     companion object{
 
@@ -29,40 +33,46 @@ class ChartDataModelNew {
                             .format("<b></b> {point.percentage:.1f} %"))
                         .data(arrayOf(
                             arrayOf("Present",   attendP),
-                            arrayOf("Absent", absentP)
+                            arrayOf("Not Logged In", absentP)
                         ))))
         }
-        fun configurePolarColumnChart(): AAChartModel {
+        fun configurePolarColumnChart(totalOrdervalue:Double,totalOrderCount:Double,avgOrdervalue:Double,avgOrdercount:Int): AAChartModel {
             return AAChartModel()
                 .chartType(AAChartType.Column)
                 .polar(false)
                 .dataLabelsEnabled(true)
                 .legendEnabled(false)
                 .yAxisTitle("")
-                .colorsTheme(arrayOf("#0019b2", "#f5862c","#E7310A", "#E4E40E"))
-                .categories(arrayOf("January", "February","March","April"))
+                .colorsTheme(arrayOf("#158650", "#0a69ab","#b5740e", "#b12408"))
+                .categories(arrayOf("Total<br>Order<br>Values", "Total<br>Order<br>Count","Avg<br>Order<br>Value","Avg<br>Order<br>Count"))
                 .series(arrayOf(
                     AASeriesElement()
                         .name("")
                         .colorByPoint(true)
-                        .data(arrayOf(1000, 1500,2000,3000))
+                        .data(arrayOf(totalOrdervalue, totalOrderCount,avgOrdervalue,avgOrdercount))
                 ))
         }
 
-        fun configurePolarBarChart(): AAChartModel {
+        fun configurePolarBarChart(nameL: ArrayList<String>,valueL: ArrayList<String>): AAChartModel {
+
+            var arrOfName = Array(nameL.size) {nameL[it].toString()}
+            var arrOfValue = Array(nameL.size) {valueL[it].toDouble()}
+
+
             return AAChartModel()
                 .chartType(AAChartType.Bar)
                 .polar(false)
                 .dataLabelsEnabled(true)
                 .legendEnabled(false)
                 .yAxisTitle("")
-                .colorsTheme(arrayOf("#0019b2", "#f5862c","#E7310A", "#E4E40E"))
-                .categories(arrayOf("January", "February","March","April"))
+                .colorsTheme(arrayOf("#879e1a", "#2150a0","#a61e73", "#E70EAF", "#131313"))
+                .categories(arrOfName)
                 .series(arrayOf(
                     AASeriesElement()
                         .name("")
                         .colorByPoint(true)
-                        .data(arrayOf(1000, 1500,2000,3000))
+                        .data(arrOfValue as Array<Any>)
+                        .size(20)
                 ))
         }
     }

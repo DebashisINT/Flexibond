@@ -150,4 +150,7 @@ public interface AppConstant {
     String PRODUCT_ONLINE_RATE_TEMP_TABLE = "product_online_rate_temp_table";
 
 
+    String TASK_ACTIVITY = "task_activity";
+
+
 }

@@ -52,6 +52,9 @@ public class CustomStatic {
 
     public static Boolean IsViewLeadFromInProcess=false;
     public static Boolean IsViewLeadAddUpdate=false;
+
+    public static Boolean IsViewTaskFromInProcess=false;
+    public static Boolean IsViewTaskAddUpdate=false;
     public static String ShopFeedBachHisUserId="";
 
     public static Boolean IsCollectionViewFromTeam = false;

@@ -428,6 +428,8 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
             shopDurationData.multi_contact_name = shopActivity.multi_contact_name
             shopDurationData.multi_contact_number = shopActivity.multi_contact_number
 
+            shopDurationData.distFromProfileAddrKms = shopActivity.distFromProfileAddrKms
+            shopDurationData.stationCode = shopActivity.stationCode
 
             shopDataList.add(shopDurationData)
 
@@ -911,6 +913,11 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
             // 1.0 AverageShopFragment AppV 4.0.6  multiple contact Data added on Api called
             shopDurationData.multi_contact_name = shopActivity.multi_contact_name
             shopDurationData.multi_contact_number = shopActivity.multi_contact_number
+
+            //Begin Rev 17 DashboardActivity AppV 4.0.8 Suman    24/04/2023 distanct+station calculation 25806
+            shopDurationData.distFromProfileAddrKms = shopActivity.distFromProfileAddrKms
+            shopDurationData.stationCode = shopActivity.stationCode
+            //End of Rev 17 DashboardActivity AppV 4.0.8 Suman    24/04/2023 distanct+station calculation 25806
 
             shopDataList.add(shopDurationData)
 
@@ -1804,6 +1811,11 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
                     shopDurationData.multi_contact_name = shopActivity.multi_contact_name
                     shopDurationData.multi_contact_number = shopActivity.multi_contact_number
 
+                    //Begin Rev 17 DashboardActivity AppV 4.0.8 Suman    24/04/2023 distanct+station calculation 25806
+                    shopDurationData.distFromProfileAddrKms = shopActivity.distFromProfileAddrKms
+                    shopDurationData.stationCode = shopActivity.stationCode
+                    //End of Rev 17 DashboardActivity AppV 4.0.8 Suman    24/04/2023 distanct+station calculation 25806
+
                     shopDataList.add(shopDurationData)
                 }
             }
@@ -2232,6 +2244,12 @@ class AverageShopFragment : BaseFragment(), DatePickerListener, View.OnClickList
         // 1.0 AverageShopFragment AppV 4.0.6  multiple contact Data added on Api called
         shopDurationData.multi_contact_name = shopActivity.multi_contact_name
         shopDurationData.multi_contact_number = shopActivity.multi_contact_number
+
+        //Begin Rev 17 DashboardActivity AppV 4.0.8 Suman    24/04/2023 distanct+station calculation 25806
+        shopDurationData.distFromProfileAddrKms = shopActivity.distFromProfileAddrKms
+        shopDurationData.stationCode = shopActivity.stationCode
+        //End of Rev 17 DashboardActivity AppV 4.0.8 Suman    24/04/2023 distanct+station calculation 25806
+
         shopDataList.add(shopDurationData)
 
         if (shopDataList.isEmpty()) {

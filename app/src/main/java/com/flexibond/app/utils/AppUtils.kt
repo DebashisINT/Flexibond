@@ -571,6 +571,15 @@ class AppUtils {
             return formattedDate.toString()
         }
 
+        fun getCurrentDate_DD_MMM_YYYY(): String {
+            val c = Calendar.getInstance(Locale.ENGLISH)
+            System.out.println("Current time => " + c.time)
+
+            val df = SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH)
+            val formattedDate = df.format(c.time)
+            return formattedDate.toString()
+        }
+
         fun getCurrentDateyymmdd(): String {
             val c = Calendar.getInstance(Locale.ENGLISH)
             System.out.println("Current time => " + c.time)
@@ -1304,6 +1313,18 @@ class AppUtils {
                 return getCurrentDate()
             }
         }
+        fun convertPartyNotVisitedFormat(date: String): String {
+            try {
+                val f = SimpleDateFormat("yyyy-mm-dd", Locale.ENGLISH)
+                val d = f.parse(date)
+                val date_ = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)//10/02/2023
+                return date_.format(d)
+//            System.out.println("Time: " + time.format(d))
+            } catch (e: ParseException) {
+                e.printStackTrace()
+                return getCurrentDate()
+            }
+        }
 
         /**
          * Purpose: internet checking
@@ -1672,6 +1693,7 @@ class AppUtils {
             return null
         }
 
+
         fun getTimeStampFromDateOnly(dateString: String): Long {
             val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
             var convertedDate = Date()
@@ -1905,6 +1927,30 @@ class AppUtils {
 // set DATE to 1, so first date of previous month
             aCalendar.set(Calendar.DATE, 1)
             val df = SimpleDateFormat("yyyy/MM/dd", Locale.ENGLISH)
+            val formattedDate = df.format(aCalendar.time)
+            return formattedDate.toString()
+        }
+
+        fun getFirstDateOfLastMonth_DD_MMM_YY(): String {
+            val aCalendar = Calendar.getInstance(Locale.ENGLISH)
+// add -1 month to current month
+            aCalendar.add(Calendar.MONTH, -1)
+// set DATE to 1, so first date of previous month
+            aCalendar.set(Calendar.DATE, 1)
+            //val df = SimpleDateFormat("yyyy/MM/dd", Locale.ENGLISH)
+            val df = SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH)
+            val formattedDate = df.format(aCalendar.time)
+            return formattedDate.toString()
+        }
+
+        fun getFirstDateOfThisMonth_DD_MMM_YY(): String {
+            val aCalendar = Calendar.getInstance(Locale.ENGLISH)
+// add -1 month to current month
+            //aCalendar.add(Calendar.MONTH, 1)
+// set DATE to 1, so first date of previous month
+            aCalendar.set(Calendar.DATE, 1)
+            //val df = SimpleDateFormat("yyyy/MM/dd", Locale.ENGLISH)
+            val df = SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH)
             val formattedDate = df.format(aCalendar.time)
             return formattedDate.toString()
         }

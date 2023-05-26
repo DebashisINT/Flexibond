@@ -1563,15 +1563,19 @@
     <string name="project_name" translatable="false">Project Name</string>
     <string name="colors" translatable="false">Color</string>
     <string name="source" translatable="false">Source :\u0020</string>
+    <string name="prioritty" translatable="false">Priority :\u0020</string>
     <string name="times" translatable="false">Time    :\u0020</string>
+    <string name="due_times" translatable="false">Due Time    :\u0020</string>
     <string name="emails" translatable="false">Email    :\u0020</string>
     <string name="dates" translatable="false">Date :\u0020</string>
+    <string name="due_dates" translatable="false">Due Date :\u0020</string>
     <string name="contact_persons" translatable="false">Contact Person :\u0020</string>
     <string name="product_req" translatable="false">Product Req        :\u0020</string>
     <string name="qtys" translatable="false">Qty :\u0020</string>
     <string name="order_values" translatable="false">Order Values      :\u0020</string>
     <string name="uom" translatable="false">UOM                        :\u0020</string>
     <string name="enquiry_dtls" translatable="false">Enquiry details   :\u0020</string>
+    <string name="task_dtls" translatable="false">Task Details   :\u0020</string>
     <string name="statuss" translatable="false">Status                 :\u0020</string>
     <string name="camera_back" translatable="false">Back Camera :\u0020 </string>
     <string name="camera_front" translatable="false">Front Camera :\u0020 </string>

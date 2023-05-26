@@ -48,6 +48,8 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.system.measureTimeMillis
 
+// 4.0 OrderProductListFrag AppV 4.0.8 Suman    12/04/2023 Adapter list generation update 0025876
+
 class OrderProductListFrag : BaseFragment(), View.OnClickListener {
 
     private lateinit var mContext: Context
@@ -382,7 +384,8 @@ class OrderProductListFrag : BaseFragment(), View.OnClickListener {
                 submitedQty = "-1"
                 submitedRate = productL.get(i).rate
 
-                if(Pref.isRateOnline){
+                // 4.0 OrderProductListFrag AppV 4.0.8 Suman    12/04/2023 Adapter list generation update 0025876
+                /*if(Pref.isRateOnline){
                     if((AppDatabase.getDBInstance()?.productOnlineRateTempDao()?.getAll() as ArrayList<ProductOnlineRateTempEntity>).size>0){
                         var secObj = AppDatabase.getDBInstance()?.productOnlineRateTempDao()?.getObjByProductID(productL.get(i).product_id!!)?.firstOrNull()
                         stock_amount = if(secObj != null) secObj.stock_amount.toString() else "0"
@@ -390,7 +393,7 @@ class OrderProductListFrag : BaseFragment(), View.OnClickListener {
                         isStockShow = if(secObj != null) secObj.isStockShow else false
                         isRateShow = if(secObj != null) secObj.isRateShow else false
                     }
-                }
+                }*/
             }
 
             productQtyRateSubmit.add(obj)

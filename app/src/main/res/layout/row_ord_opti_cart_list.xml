@@ -220,8 +220,8 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
                     android:layout_marginLeft="@dimen/_3sdp"
+                    android:layout_weight="1"
                     app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -232,9 +232,9 @@
                         android:gravity="center|start|top"
                         android:hint="Rate"
                         android:imeOptions="actionNext"
-                        android:textSize="@dimen/_10sdp"
                         android:inputType="numberDecimal"
-                        android:textColor="@color/bill_blue" />
+                        android:textColor="@color/bill_blue"
+                        android:textSize="@dimen/_10sdp" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 

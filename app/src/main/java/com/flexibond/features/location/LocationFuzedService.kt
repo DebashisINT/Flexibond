@@ -90,6 +90,10 @@ import kotlin.collections.ArrayList
 // 5.0 LocationFuzedService AppV 4.0.6 saheli 01-02-2023 mantis 25637
 // 6.0 LocationFuzedService AppV 4.0.7 Saheli   02/03/2023 Timber Log Implementation
 // 7.0 LocationFuzedService AppV 4.0.7 Suman   06/03/2023 Location name Unknown rectification 25715
+// 8.0 LocationFuzedService AppV 4.0.7 Suman   18/03/2023 Location lat-long updation
+// Rev 9.0 LocationFUzedService AppV 4.0.8 Suman    24/04/2023 battery_net_data optimization 0025903
+// 10.0 SystemEventReceiver AppV 4.1.3 Saheli    26/04/2023 mantis 0025932 Log file update in service classes for GPS on off time.
+// 11.0 SystemEventReceiver AppV 4.1.3 Suman    03/05/2023 Monitor Broadcast update mantis 26011
 
 class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener,
         OnCompleteListener<Void>, GpsStatus.Listener {
@@ -152,6 +156,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
     }
 
     override fun onCreate() {
+        Timber.d("service_tag onCreate")
         super.onCreate()
 //        XLog.d("onCreate" + " , " + " Time :" + AppUtils.getCurrentDateTime())
         Timber.d("onCreate" + " , " + " Time :" + AppUtils.getCurrentDateTime())
@@ -234,6 +239,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
     @SuppressLint("InvalidWakeLockTag")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Timber.d("service_tag onStartCommand")
         super.onStartCommand(intent, flags, startId)
 //        XLog.d("onStartCommand" + " , " + " Time :" + AppUtils.getCurrentDateTime())
         Timber.d("onStartCommand" + " , " + " Time :" + AppUtils.getCurrentDateTime())
@@ -270,8 +276,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
             var pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
 
 
-            var icon = BitmapFactory.decodeResource(resources,
-                    R.drawable.ic_add)
+            var icon = BitmapFactory.decodeResource(resources, R.drawable.ic_add)
 
             /*var notification = NotificationCompat.Builder(this)
                     .setContentTitle("Tracking System Activated")
@@ -308,8 +313,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                         .setTicker("")
                         .setContentText("")
                         .setSmallIcon(R.drawable.ic_notifications_icon)
-                        .setLargeIcon(
-                                Bitmap.createScaledBitmap(icon, 128, 128, false))
+                        .setLargeIcon(Bitmap.createScaledBitmap(icon, 128, 128, false))
                         .setContentIntent(pendingIntent)
                         .setOngoing(true)
                         .setChannelId(channelId)
@@ -321,7 +325,8 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                 Timber.d("LocationFuzedService startForeground1 : Time :" + AppUtils.getCurrentDateTime())
                 startForeground(AppConstant.FOREGROUND_SERVICE, notification)
 
-            } else {
+            }
+            else {
                 val notification = NotificationCompat.Builder(this)
                         .setContentTitle(notificationTitle)
                         .setTicker("")
@@ -342,6 +347,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
             gpsReceiver = GpsReceiver(object : LocationCallBack {
                 override fun onLocationTriggered(status: Boolean) {
                     //Location state changed
+                    Timber.d("LocationFuzedService onLocationTriggered " + status + "," + " Time :" + AppUtils.getCurrentDateTime())
                     if (gpsStatus != status) {
                         gpsStatus = status
 //                        Log.e(TAG, "GPS STATUS: " + status)
@@ -360,10 +366,24 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                             if (monitorNotiID != 0) {
                                 Pref.isLocFuzedBroadPlaying = false
                                 if (MonitorBroadcast.player != null) {
-                                    MonitorBroadcast.player.stop()
-                                    MonitorBroadcast.player = null
-                                    MonitorBroadcast.vibrator.cancel()
-                                    MonitorBroadcast.vibrator = null
+                                    try{
+                                        MonitorBroadcast.player.stop()
+                                        MonitorBroadcast.player = null
+                                    }catch (ex:Exception){
+                                        //Begin 11.0 SystemEventReceiver AppV 4.1.3 Suman    03/05/2023 Monitor Broadcast update mantis 26011
+                                        ex.printStackTrace()
+                                        MonitorBroadcast.player = null
+                                        //End 11.0 SystemEventReceiver AppV 4.1.3 Suman    03/05/2023 Monitor Broadcast update mantis 26011
+                                    }
+                                    try{
+                                        MonitorBroadcast.vibrator.cancel()
+                                        MonitorBroadcast.vibrator = null
+                                    }catch (ex:Exception){
+                                        ex.printStackTrace()
+                                        //Begin 11.0 SystemEventReceiver AppV 4.1.3 Suman    03/05/2023 Monitor Broadcast update mantis 26011
+                                        MonitorBroadcast.vibrator = null
+                                        //End 11.0 SystemEventReceiver AppV 4.1.3 Suman    03/05/2023 Monitor Broadcast update mantis 26011
+                                    }
                                 }
                                 var notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
                                 notificationManager.cancel(monitorNotiID)
@@ -385,6 +405,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                 if (!TextUtils.isEmpty(Pref.user_id)){
                     registerReceiver(gpsReceiver, IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION))
                     println("loc_ex  gpsReceiver registered success" );
+                    Timber.d("loc_ex  gpsReceiver registered success" )
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -416,7 +437,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
     }
 
     private fun calculategpsStatus(gpsStatus: Boolean) {
-
+        Timber.d("service_tag calculategpsStatus $gpsStatus")
         if (!AppUtils.isOnReceived) {
             AppUtils.isOnReceived = true
 
@@ -425,23 +446,34 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                 if (!AppUtils.isGpsOffCalled) {
                     AppUtils.isGpsOffCalled = true
                     Log.e("GpsLocationReceiver", "===========GPS is disabled=============")
+                    // 10.0 SystemEventReceiver AppV 4.1.3 mantis 0025932 Log file update in service classes for GPS on off time.
+                    Timber.d("GpsLocationReceiver", "===========GPS is disabled=============")
+                    // 10.0 rev end
                     AppUtils.gpsOffTime = dateFormat.parse(/*"18:14:55"*/AppUtils.getCurrentTime()).time
                     AppUtils.gpsDisabledTime = AppUtils.getCurrentTimeWithMeredian()
                     Log.e("GpsLocationReceiver", "gpsOffTime------------------> " + AppUtils.getTimeInHourMinuteFormat(AppUtils.gpsOffTime))
-
+                    // 10.0 SystemEventReceiver AppV 4.1.3 mantis 0025932 Log file update in service classes for GPS on off time.
+                    Timber.d("GpsLocationReceiver", "gpsOffTime------------------> " + AppUtils.getTimeInHourMinuteFormat(AppUtils.gpsOffTime)+"gpsDisabledTime"+AppUtils.gpsDisabledTime)
+                    // 10.0 rev end
                     val local_intent = Intent()
                     local_intent.action = AppUtils.gpsDisabledAction
                     sendBroadcast(local_intent)
                 }
-            } else {
+            }
+            else {
                 //Toast.makeText(context, "GPS is enabled!", Toast.LENGTH_LONG).show()
                 if (AppUtils.isGpsOffCalled) {
                     AppUtils.isGpsOffCalled = false
                     Log.e("GpsLocationReceiver", "===========GPS is enabled================")
+                    // 10.0 SystemEventReceiver AppV 4.1.3 mantis 0025932 Log file update in service classes for GPS on off time.
+                    Timber.d("GpsLocationReceiver", "===========GPS is enabled================")
+                    // 10.0 rev end
                     AppUtils.gpsOnTime = dateFormat.parse(AppUtils.getCurrentTime()).time
                     AppUtils.gpsEnabledTime = AppUtils.getCurrentTimeWithMeredian()
                     Log.e("GpsLocationReceiver", "gpsOnTime---------------------> " + AppUtils.getTimeInHourMinuteFormat(AppUtils.gpsOnTime))
-
+                    // 10.0 SystemEventReceiver AppV 4.1.3 mantis 0025932 Log file update in service classes for GPS on off time.
+                    Timber.d("GpsLocationReceiver", "gpsOnTime---------------------> " + AppUtils.getTimeInHourMinuteFormat(AppUtils.gpsOnTime)+"gpsEnabledTime"+AppUtils.gpsEnabledTime)
+                    // 10.0 rev end
                     val local_intent = Intent()
                     local_intent.action = AppUtils.gpsEnabledAction
                     sendBroadcast(local_intent)
@@ -455,6 +487,9 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                     performanceEntity.date = AppUtils.getCurrentDateForShopActi()
                     performanceEntity.gps_off_duration = (AppUtils.gpsOnTime - AppUtils.gpsOffTime).toString()
                     Log.e("GpsLocationReceiver", "duration----------------> " + AppUtils.getTimeInHourMinuteFormat(AppUtils.gpsOnTime - AppUtils.gpsOffTime))
+                    // 10.0 SystemEventReceiver AppV 4.1.3 mantis 0025932 Log file update in service classes for GPS on off time.
+                    Timber.d("GpsLocationReceiver", "duration----------------> " + AppUtils.getTimeInHourMinuteFormat(AppUtils.gpsOnTime - AppUtils.gpsOffTime))
+                    // 10.0 rev end
                     AppDatabase.getDBInstance()!!.performanceDao().insert(performanceEntity)
                     saveGPSStatus((AppUtils.gpsOnTime - AppUtils.gpsOffTime).toString())
                     AppUtils.gpsOnTime = 0
@@ -465,6 +500,9 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                     if ((AppUtils.gpsOnTime - AppUtils.gpsOffTime) > 0) {
                         AppDatabase.getDBInstance()!!.performanceDao().updateGPSoffDuration((AppUtils.gpsOnTime - AppUtils.gpsOffTime).toString(), AppUtils.getCurrentDateForShopActi())
                         Log.e("GpsLocationReceiver", "duration----------> " + AppUtils.getTimeInHourMinuteFormat(AppUtils.gpsOnTime - AppUtils.gpsOffTime))
+                        // 10.0 SystemEventReceiver AppV 4.1.3 mantis 0025932 Log file update in service classes for GPS on off time.
+                        Timber.d("GpsLocationReceiver", "duration----------> " + AppUtils.getTimeInHourMinuteFormat(AppUtils.gpsOnTime - AppUtils.gpsOffTime))
+                        // 10.0 rev end
                         saveGPSStatus((AppUtils.gpsOnTime - AppUtils.gpsOffTime).toString())
                         AppUtils.gpsOnTime = 0
                         AppUtils.gpsOffTime = 0
@@ -474,6 +512,9 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                         val duration = AppUtils.gpsOnTime - AppUtils.gpsOffTime
                         val totalDuration = performance.gps_off_duration?.toLong()!! + duration
                         Log.e("GpsLocationReceiver", "duration-------> " + AppUtils.getTimeInHourMinuteFormat(totalDuration))
+                        // 10.0 SystemEventReceiver AppV 4.1.3 mantis 0025932 Log file update in service classes for GPS on off time.
+                        Timber.d("GpsLocationReceiver", "duration-------> " + AppUtils.getTimeInHourMinuteFormat(totalDuration))
+                        // 10.0 rev end
                         AppDatabase.getDBInstance()!!.performanceDao().updateGPSoffDuration(totalDuration.toString(), AppUtils.getCurrentDateForShopActi())
                         saveGPSStatus(duration.toString())
                         AppUtils.gpsOnTime = 0
@@ -486,6 +527,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
     }
 
     private fun saveGPSStatus(duration: String) {
+        Timber.d("service_tag saveGPSStatus")
         val gpsStatus = GpsStatusEntity()
         val random = Random()
         val m = random.nextInt(9999 - 1000) + 1000
@@ -564,6 +606,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
     @SuppressLint("MissingPermission")
     override fun onConnected(@Nullable bundle: Bundle?) {
+        Timber.d("service_tag onConnected")
         Log.e(TAG, "onConnected: ")
         val lastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleAPIClient!!)
         if (lastLocation != null && lastLocation.latitude != null && lastLocation.latitude != 0.0) {
@@ -575,7 +618,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
     }
 
     private fun requestLocationUpdates() {
-
+        Timber.d("service_tag requestLocationUpdates")
         Log.e(TAG, "RequestLocationUpdates: ")
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -601,16 +644,17 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onLocationChanged(location: Location) {
-
+        Timber.d("service_tag onLocationChanged")
         //return
 
         try {
             if (location != null) {
+                // 8.0 LocationFuzedService AppV 4.0.7 Suman   18/03/2023 Location lat-long updation
                 AppUtils.mLocation = location
                 Pref.current_latitude = location.latitude.toString()
                 Pref.current_longitude = location.longitude.toString()
                 //XLog.d("onLocationChanged : loc_update : lat - ${Pref.current_latitude.toString()} long - ${Pref.current_longitude.toString()}" + AppUtils.getCurrentDateTime())
-                Timber.d("onLocationChanged : loc_update : lat - ${Pref.current_latitude.toString()} long - ${Pref.current_longitude.toString()}" + AppUtils.getCurrentDateTime())
+                Timber.d("onLocationChanged : loc_update : lat - ${Pref.current_latitude.toString()} long - ${Pref.current_longitude.toString()} " + AppUtils.getCurrentDateTime())
             }
         } catch (ex: Exception) {
             ex.printStackTrace()
@@ -1300,24 +1344,31 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
         val megTotal = bytesTotal / (1024 * 1024)
         println("phone_storage : FREE SPACE : " + megAvailable.toString() + " TOTAL SPACE : " + megTotal.toString() + " Time :" + AppUtils.getCurrentDateTime());
 
-        val batNetEntity = BatteryNetStatusEntity()
-        AppDatabase.getDBInstance()?.batteryNetDao()?.insert(batNetEntity.apply {
-            AppUtils.changeLanguage(this@LocationFuzedService, "en")
-            bat_net_id = Pref.user_id + "_batNet_" + System.currentTimeMillis()
-            changeLocale()
-            date_time = AppUtils.getCurrentISODateTime()
-            date = AppUtils.getCurrentDateForShopActi()
-            bat_status = AppUtils.getBatteryStatus(this@LocationFuzedService)
-            bat_level = AppUtils.getBatteryPercentage(this@LocationFuzedService).toString()
-            net_type = AppUtils.getNetworkType(this@LocationFuzedService)
-            mob_net_type = AppUtils.mobNetType(this@LocationFuzedService)
-            device_model = AppUtils.getDeviceName()
-            android_version = Build.VERSION.SDK_INT.toString()
-            Available_Storage = megAvailable.toString() + "mb"
-            Total_Storage = megTotal.toString() + "mb"
-            isUploaded = false
-            Power_Saver_Status = Pref.PowerSaverStatus
-        })
+        // Begin Rev 9.0 LocationFUzedService AppV 4.0.8 Suman    24/04/2023 battery_net_data optimization 0025903
+        try{
+            val batNetEntity = BatteryNetStatusEntity()
+            AppDatabase.getDBInstance()?.batteryNetDao()?.insert(batNetEntity.apply {
+                AppUtils.changeLanguage(this@LocationFuzedService, "en")
+                bat_net_id = Pref.user_id + "_batNet_" + System.currentTimeMillis()
+                changeLocale()
+                date_time = AppUtils.getCurrentISODateTime()
+                date = AppUtils.getCurrentDateForShopActi()
+                bat_status = AppUtils.getBatteryStatus(this@LocationFuzedService)
+                bat_level = AppUtils.getBatteryPercentage(this@LocationFuzedService).toString()
+                net_type = AppUtils.getNetworkType(this@LocationFuzedService)
+                mob_net_type = AppUtils.mobNetType(this@LocationFuzedService)
+                device_model = AppUtils.getDeviceName()
+                android_version = Build.VERSION.SDK_INT.toString()
+                Available_Storage = megAvailable.toString() + "mb"
+                Total_Storage = megTotal.toString() + "mb"
+                isUploaded = false
+                Power_Saver_Status = Pref.PowerSaverStatus
+            })
+        }catch (ex:Exception){
+            ex.printStackTrace()
+        }
+
+        //End of Rev 9.0 LocationFUzedService AppV 4.0.8 Suman    24/04/2023 battery_net_data optimization 0025903
     }
 
 
@@ -1371,42 +1422,50 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
         Timber.d("powerSaverStatus==========> " + Pref.PowerSaverStatus)
         Timber.d("==============================================================")
 
-        val repository = LocationRepoProvider.provideLocationRepository()
-        compositeDisposable.add(
+
+        // Begin Rev 9.0 LocationFUzedService AppV 4.0.8 Suman    24/04/2023 battery_net_data optimization 0025903
+        try{
+            val repository = LocationRepoProvider.provideLocationRepository()
+            compositeDisposable.add(
                 repository.appInfo(appInfoInput)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
 //                        .timeout(60 * 1, TimeUnit.SECONDS)
-                        .subscribe({ result ->
-                            val response = result as BaseResponse
+                    .subscribe({ result ->
+                        val response = result as BaseResponse
 //                            XLog.d("App Info : RESPONSE : " + response.status + ":" + response.message)
-                            Timber.d("App Info : RESPONSE : " + response.status + ":" + response.message)
-                            AppUtils.isAppInfoUpdating = false
+                        Timber.d("App Info : RESPONSE : " + response.status + ":" + response.message)
+                        AppUtils.isAppInfoUpdating = false
 
-                            if (response.status == NetworkConstant.SUCCESS) {
-                                unSyncData.forEach {
-                                    AppDatabase.getDBInstance()?.batteryNetDao()?.updateIsUploadedAccordingToId(true, it.id)
-                                }
+                        if (response.status == NetworkConstant.SUCCESS) {
+                            unSyncData.forEach {
+                                AppDatabase.getDBInstance()?.batteryNetDao()?.updateIsUploadedAccordingToId(true, it.id)
                             }
+                        }
 
-                        }, { error ->
-                            AppUtils.isAppInfoUpdating = false
-                            if (error == null) {
+                    }, { error ->
+                        AppUtils.isAppInfoUpdating = false
+                        if (error == null) {
 //                                XLog.d("App Info : ERROR : " + "UNEXPECTED ERROR IN LOCATION ACTIVITY API")
-                                Timber.d("App Info : ERROR : " + "UNEXPECTED ERROR IN LOCATION ACTIVITY API")
-                            } else {
+                            Timber.d("App Info : ERROR : " + "UNEXPECTED ERROR IN LOCATION ACTIVITY API")
+                        } else {
 //                                XLog.d("App Info : ERROR : " + error.localizedMessage)
-                                Timber.d("App Info : ERROR : " + error.localizedMessage)
-                                error.printStackTrace()
-                            }
-                        })
-        )
+                            Timber.d("App Info : ERROR : " + error.localizedMessage)
+                            error.printStackTrace()
+                        }
+                    })
+            )
+        }catch (ex:Exception){
+            ex.printStackTrace()
+        }
+        // End of Rev 9.0 LocationFUzedService AppV 4.0.8 Suman    24/04/2023 battery_net_data optimization 0025903
+
+
     }
 
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun showNotification() {
-
 
         if (!Pref.isShowCurrentLocNotifiaction)
             return
@@ -1419,6 +1478,8 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
         val notification = NotificationUtils(getString(R.string.app_name), "", "", "")
         val body = "Thanks for being active. Your current location detected as: " + LocationWizard.getLocationName(this, Pref.current_latitude.toDouble(), Pref.current_longitude.toDouble())
         notification.sendLocNotification(this, body)
+
+        Timber.d("service_tag showNotification")
     }
 
 
@@ -2726,7 +2787,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
         AppDatabase.getDBInstance()!!.userLocationDataDao().insertAll(location)
 //        XLog.d("Shop to shop distance (At accurate loc save time)====> " + Pref.totalS2SDistance)
-        Timber.d("Shop to shop distance (At accurate loc save time)====> " + Pref.totalS2SDistance)
+        Timber.d("Shop to shop distance (At accurate loc save time)====> " + Pref.totalS2SDistance + " "+location.time)
 //        XLog.d(text)
         Timber.d(text)
 
@@ -3043,6 +3104,11 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                         shopDurationData.multi_contact_name = shopActivity.multi_contact_name
                         shopDurationData.multi_contact_number = shopActivity.multi_contact_number
 
+                        //Begin Rev 17 DashboardActivity AppV 4.0.8 Suman    24/04/2023 distanct+station calculation 25806
+                        shopDurationData.distFromProfileAddrKms = shopActivity.distFromProfileAddrKms
+                        shopDurationData.stationCode = shopActivity.stationCode
+                        //End of Rev 17 DashboardActivity AppV 4.0.8 Suman    24/04/2023 distanct+station calculation 25806
+
                         shopDataList.add(shopDurationData)
 
 
@@ -3057,30 +3123,6 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                             revisitStatusList.add(revisitStatusObj)
                         }
 
-
-
-                     /*   XLog.d("====SYNC VISITED SHOP DATA (LOCATION FUZED SERVICE)====")
-                        XLog.d("SHOP ID======> " + shopDurationData.shop_id)
-                        XLog.d("SPENT DURATION======> " + shopDurationData.spent_duration)
-                        XLog.d("VISIT DATE=========> " + shopDurationData.visited_date)
-                        XLog.d("VISIT DATE TIME==========> " + shopDurationData.visited_date)
-                        XLog.d("TOTAL VISIT COUNT========> " + shopDurationData.total_visit_count)
-                        XLog.d("DISTANCE TRAVELLED========> " + shopDurationData.distance_travelled)
-                        XLog.d("FEEDBACK========> " + shopDurationData.feedback)
-                        XLog.d("isFirstShopVisited========> " + shopDurationData.isFirstShopVisited)
-                        XLog.d("distanceFromHomeLoc========> " + shopDurationData.distanceFromHomeLoc)
-                        XLog.d("next_visit_date========> " + shopDurationData.next_visit_date)
-                        XLog.d("device_model========> " + shopDurationData.device_model)
-                        XLog.d("android_version========> " + shopDurationData.android_version)
-                        XLog.d("battery========> " + shopDurationData.battery)
-                        XLog.d("net_status========> " + shopDurationData.net_status)
-                        XLog.d("net_type========> " + shopDurationData.net_type)
-                        XLog.d("in_time========> " + shopDurationData.in_time)
-                        XLog.d("out_time========> " + shopDurationData.out_time)
-                        XLog.d("start_timestamp========> " + shopDurationData.start_timestamp)
-                        XLog.d("in_location========> " + shopDurationData.in_location)
-                        XLog.d("out_location========> " + shopDurationData.out_location)
-                        XLog.d("========================================================")*/
 
                         Timber.d("====SYNC VISITED SHOP DATA (LOCATION FUZED SERVICE)====")
                         Timber.d("SHOP ID======> " + shopDurationData.shop_id)
@@ -3188,6 +3230,11 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                          // 4.0 LocationFuzedService AppV 4.0.6  multiple contact Data added on Api called
                         shopDurationData.multi_contact_name = it.multi_contact_name
                         shopDurationData.multi_contact_number = it.multi_contact_number
+
+                        //Begin Rev 17 DashboardActivity AppV 4.0.8 Suman    24/04/2023 distanct+station calculation 25806
+                        shopDurationData.distFromProfileAddrKms = it.distFromProfileAddrKms
+                        shopDurationData.stationCode = it.stationCode
+                        //End of Rev 17 DashboardActivity AppV 4.0.8 Suman    24/04/2023 distanct+station calculation 25806
 
                         shopDataList.add(shopDurationData)
 
@@ -4101,18 +4148,22 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
     override fun onDestroy() {
         try{
+            Timber.d("service_tag onDestroy")
             if (gpsReceiver != null)
                 unregisterReceiver(gpsReceiver)
             println("loc_ex  gpsReceiver success" );
+            Timber.d("loc_ex  gpsReceiver success" )
         }catch (ex:Exception){
             ex.printStackTrace()
             println("loc_ex  gpsReceiver ${ex.printStackTrace()}" );
+            Timber.d("loc_ex  gpsReceiver ${ex.printStackTrace()}" )
         }
         try{
             unregisterReceiver(eventReceiver)
         }catch (ex:Exception){
             ex.printStackTrace()
             println("loc_ex  eventReceiver ${ex.printStackTrace()}" );
+            Timber.d("loc_ex  eventReceiver ${ex.printStackTrace()}" );
         }
 
 

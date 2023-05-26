@@ -13,6 +13,7 @@ import android.widget.RelativeLayout
 import com.flexibond.R
 import com.flexibond.app.AppDatabase
 import com.flexibond.app.NetworkConstant
+import com.flexibond.app.SearchListener
 import com.flexibond.app.types.FragType
 import com.flexibond.app.utils.AppUtils
 import com.flexibond.base.presentation.BaseActivity
@@ -21,10 +22,13 @@ import com.flexibond.features.dashboard.presentation.DashboardActivity
 import com.flexibond.features.newcollection.model.CollectionShopListDataModel
 import com.flexibond.features.newcollection.model.CollectionShopListResponseModel
 import com.flexibond.features.newcollection.newcollectionlistapi.NewCollectionListRepoProvider
+import com.flexibond.features.photoReg.adapter.AdapterUserList
 import com.flexibond.widgets.AppCustomTextView
 import com.pnikosis.materialishprogress.ProgressWheel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+
+// Rev 1.0 CollectionShopListFragment Suman 04/05/2023 Search option for shops  mantis id - 26026
 
 class CollectionShopListFragment : BaseFragment() {
 
@@ -37,6 +41,9 @@ class CollectionShopListFragment : BaseFragment() {
 
     private var isToday = false
     private var date = ""
+
+    private var amountL: ArrayList<CollectionShopListDataModel> = ArrayList()
+    private var adapter: CollectionShopAdapter? = null
 
     companion object {
         fun newInstance(isToday: Any): CollectionShopListFragment {
@@ -71,6 +78,20 @@ class CollectionShopListFragment : BaseFragment() {
 
         getList()
 
+        // Begin Rev 1.0 CollectionShopListFragment Suman 04/05/2023 Search option for shops  mantis id - 26026
+        (mContext as DashboardActivity).setSearchListener(object : SearchListener {
+            override fun onSearchQueryListener(query: String) {
+                if (query.isBlank()) {
+                    amountL?.let {
+                        adapter?.refreshList(it)
+                    }
+                } else {
+                    adapter?.filter?.filter(query)
+                }
+            }
+        })
+        //End of Rev 1.0 CollectionShopListFragment Suman 04/05/2023 Search option for shops  mantis id - 26026
+
         return view
     }
 
@@ -103,7 +124,13 @@ class CollectionShopListFragment : BaseFragment() {
                             progress_wheel.stopSpinning()
                             val response = result as CollectionShopListResponseModel
                             if (response.status == NetworkConstant.SUCCESS) {
-                                initAdapter(response.amount_list)
+                                try{
+                                    amountL= response.amount_list!!
+                                    initAdapter(response.amount_list)
+                                }catch (ex:Exception){
+                                    ex.printStackTrace()
+                                }
+
                             }
                             else
                                 (mContext as DashboardActivity).showSnackMessage(response.message!!)
@@ -118,10 +145,20 @@ class CollectionShopListFragment : BaseFragment() {
 
     private fun initAdapter(amountList: ArrayList<CollectionShopListDataModel>?) {
         tv_no_data_available.visibility = View.GONE
-        rv_collection_shop_list.adapter = CollectionShopAdapter(mContext, amountList) {
+        /*rv_collection_shop_list.adapter = CollectionShopAdapter(mContext, amountList) {
+            val shop = AppDatabase.getDBInstance()?.addShopEntryDao()?.getShopByIdN(it.shop_id)
+            if (shop != null)
+                (mContext as DashboardActivity).loadFragment(FragType.CollectionDetailsFragment, true, shop)
+        }*/
+
+        //Begin Rev 1.0 CollectionShopListFragment Suman 04/05/2023 Search option for shops  mantis id - 26026
+        adapter = CollectionShopAdapter(mContext, amountL) {
             val shop = AppDatabase.getDBInstance()?.addShopEntryDao()?.getShopByIdN(it.shop_id)
             if (shop != null)
                 (mContext as DashboardActivity).loadFragment(FragType.CollectionDetailsFragment, true, shop)
         }
+        rv_collection_shop_list.adapter = adapter
+        //End of Rev 1.0 CollectionShopListFragment Suman 04/05/2023 Search option for shops  mantis id - 26026
+
     }
 }

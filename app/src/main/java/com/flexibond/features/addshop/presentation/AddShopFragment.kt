@@ -111,6 +111,7 @@ import kotlin.collections.ArrayList
 // 3.0 AddShopFragment AppV 4.0.6 saheli 20-01-2023  Shop duartion Issue mantis 25597
 // 4.0 AddShopFragment AppV 4.0.6 Suman 18-01-2023 extracontact dob added
 // 5.0 AddShopFragment AppV 4.0.7 saheli 20-02-2023  add feedback voice added mantis 0025684
+// 6.0 AddShopFragment AppV 4.1.3 Suman 18-05-2023  mantis 26162
 
 
 
@@ -2086,7 +2087,8 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
                                 }
                             })
             )
-        } else {
+        }
+        else {
             val repository = AddShopRepositoryProvider.provideAddShopRepository()
             BaseActivity.compositeDisposable.add(
                     repository.addShopWithImage(addShop, shop_imgPath, doc_degree, mContext)
@@ -3004,6 +3006,48 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         shopActivityEntity.updated_on= AppUtils.getCurrentDateForShopActi()
 
         //shopActivityEntity.feedback =  feedbackValue
+
+        //Begin Rev 17 DashboardActivity AppV 4.0.8 Suman    24/04/2023 distanct+station calculation 25806
+        var profileAddr = Location("")
+        var shopAddr = Location("")
+        var dist:Double=0.0
+        try{
+            profileAddr.latitude = Pref.profile_latitude.toDouble()
+            profileAddr.longitude = Pref.profile_longitude.toDouble()
+            var shopObj = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(shopActivityEntity.shopid)
+            shopAddr.latitude = shopObj.shopLat.toDouble()
+            shopAddr.longitude = shopObj.shopLong.toDouble()
+            var dist = profileAddr.distanceTo(shopAddr) / 1000 //km
+            shopActivityEntity.distFromProfileAddrKms = String.format("%.2f",dist)
+            //In Station- 0
+            //Ex Station- 1
+            //Out Station- 2
+            if(dist <= 25.0){
+                shopActivityEntity.stationCode = "0"
+            }else if(dist >25 && dist <80.0){
+                shopActivityEntity.stationCode = "1"
+            }else if(dist >= 85.0){
+                shopActivityEntity.stationCode = "2"
+            }
+
+            //Begin 6.0 AddShopFragment AppV 4.1.3 Suman 18-05-2023  mantis 26162
+            if(Pref.IsShowReimbursementTypeInAttendance && Pref.isExpenseFeatureAvailable){
+                if(Pref.selectedVisitStationName.contains("in",ignoreCase = true)){
+                    shopActivityEntity.stationCode = "0"
+                }else if(Pref.selectedVisitStationName.contains("ex",ignoreCase = true)){
+                    shopActivityEntity.stationCode = "1"
+                }else if(Pref.selectedVisitStationName.contains("out",ignoreCase = true)){
+                    shopActivityEntity.stationCode = "2"
+                }
+            }
+            //End of 6.0 AddShopFragment AppV 4.1.3 Suman 18-05-2023  mantis 26162
+
+            Timber.d("dist_cal ${shopActivityEntity.distFromProfileAddrKms}   loc1 ${profileAddr.latitude} ${profileAddr.longitude}  loc2  ${shopAddr.latitude} ${shopAddr.longitude}")
+        }catch (ex:Exception){
+            ex.printStackTrace()
+            Timber.d("dist_cal ex ${ex.message}")
+        }
+        //End of Rev 17 DashboardActivity AppV 4.0.8 Suman    24/04/2023 distanct+station calculation 25806
 
         AppDatabase.getDBInstance()!!.shopActivityDao().insertAll(shopActivityEntity)
 
@@ -4183,14 +4227,25 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
         }
     }
     // 5.0 AddShopFragment AppV 4.0.7  add feedback voice added mantis 0025684 start
+    /*private fun startVoiceInput() {
+        val intent: Intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+        //intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,"hi")
+        //intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,Locale.ENGLISH)
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,"en-US")
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Hello, How can I help you?")
+        try {
+            startActivityForResult(intent, 7009)
+        } catch (a: ActivityNotFoundException) {
+            a.printStackTrace()
+        }
+    }*/
     private fun startVoiceInput() {
         val intent: Intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-        intent.putExtra(
-            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
-        )
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,"en-US")
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, "en-US")
         //intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,"hi")
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,Locale.ENGLISH)
+        //intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,Locale.ENGLISH)
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Hello, How can I help you?")
         try {
             startActivityForResult(intent, 7009)
@@ -6537,7 +6592,8 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
             assignToPP.pp_name = addShopData.shop_name
             assignToPP.pp_phn_no = addShopData.owner_contact_no
             AppDatabase.getDBInstance()?.ppListDao()?.insert(assignToPP)
-        } else if (!TextUtils.isEmpty(addShopData.type) && (addShopData.type == "4" || addShopData.type == "7")) {
+        }
+        else if (!TextUtils.isEmpty(addShopData.type) && (addShopData.type == "4" || addShopData.type == "7")) {
             val assignToPP = AssignToDDEntity()
             assignToPP.dd_id = addShopData.shop_id
             assignToPP.dd_name = addShopData.shop_name
@@ -6545,7 +6601,8 @@ class AddShopFragment : BaseFragment(), View.OnClickListener {
             //assignToPP.pp_id = addShopData.assigned_to_pp_id
             assignToPP.type_id = addShopData.dealer_id
             AppDatabase.getDBInstance()?.ddListDao()?.insert(assignToPP)
-        } else if (!TextUtils.isEmpty(addShopData.type) && addShopData.type == "1") {
+        }
+        else if (!TextUtils.isEmpty(addShopData.type) && addShopData.type == "1") {
             val assignToShop = AssignToShopEntity()
             AppDatabase.getDBInstance()?.assignToShopDao()?.insert(assignToShop.apply {
                 assigned_to_shop_id = addShopData.shop_id

@@ -236,6 +236,8 @@ import com.flexibond.features.task.presentation.AddTaskFragment
 import com.flexibond.features.task.presentation.CalenderTaskFragment
 import com.flexibond.features.task.presentation.EditTaskFragment
 import com.flexibond.features.task.presentation.TaskListFragment
+import com.flexibond.features.taskManagement.TaskManagementFrag
+import com.flexibond.features.taskManagement.ViewTaskManagementFrag
 import com.flexibond.features.timesheet.presentation.AddTimeSheetFragment
 import com.flexibond.features.timesheet.presentation.EditTimeSheetFragment
 import com.flexibond.features.timesheet.presentation.TimeSheetListFragment
@@ -259,7 +261,6 @@ import com.flexibond.mappackage.MapActivityWithoutPath
 import com.flexibond.mappackage.SendBrod
 import com.flexibond.widgets.AppCustomEditText
 import com.flexibond.widgets.AppCustomTextView
-
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.tasks.OnCompleteListener
@@ -291,6 +292,10 @@ import java.io.*
 import java.util.*
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
+import android.R.attr.name
+import com.flexibond.app.NewFileUtils.browsePDFDocuments
+import com.flexibond.features.stockAddCurrentStock.model.MultipleImageFileUploadonStock
+import com.themechangeapp.pickimage.PermissionHelper.Companion.REQUEST_CODE_DOCUMENT_PDF
 
 
 /*
@@ -312,8 +317,14 @@ import java.util.concurrent.TimeUnit
 // 12.0 DashboardActivity AppV 4.0.7 saheli 24-03-2023 room main thread optimizetion location db insertion in dashboardActivity revisitShop(image: String) mantis 0025753
 // 13.0 DashboardActivity AppV 4.0.7 Suman 31-03-2023 quotation auto mail app kill work mantis 25766
 // 14.0 DashboardActivity AppV 4.0.8 saheli 05-04-2023 mantis 0025783 In-app privacy policy working in menu & Login
-
-
+// 15.0 DashboardActivity AppV 4.0.8 Suman    19/04/2023 Dashboard Onresume updation for language 0025874
+// 16.0 DashboardActivity AppV 4.0.8 saheli    20/04/2023 mantis  25860 performnace module
+// Rev 17 DashboardActivity AppV 4.0.8 Suman    24/04/2023 distanct+station calculation 25806
+// Rev 18 DashboardActivity AppV 4.0.8 Suman    28/04/2023 worker manager updation 25973
+// Rev 19.0 DashboardActivity AppV 4.0.8 saheli    05/05/2023 0026023: A new Menu named as ‘Task Management’ should be implemented in the menu bar.
+// REv 20.0 DashboardActivity AppV 4.0.8 saheli    08/05/2023 0026024 :under the 'Assigned Lead' page
+// Rev 21.0 DashboardActivity AppV 4.0.8 saheli    12/05/2023 mantis 26101
+// Rev 22.0 DashboardActivity AppV 4.1.3 Suman 18-05-2023  mantis 26162
 class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, OnCompleteListener<Void>, GpsStatusDetector.GpsStatusDetectorCallBack {
     override fun onComplete(task: Task<Void>) {
         mPendingGeofenceTask = PendingGeofenceTask.NONE;
@@ -363,11 +374,13 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             //println("fcm_token " + token.toString());
             Timber.d("token : " + token.toString())
         })
-        println("load_frag " + mFragType.toString() + "     " + Pref.user_id.toString()+" "+Pref.GPSAlertGlobal.toString());
+        println("load_frag " + mFragType.toString() + "     " + Pref.user_id.toString()+" "+Pref.IsBeatPlanAvailable +" "+Pref.IsShowReimbursementTypeInAttendance);
 
         //val distance = LocationWizard.getDistance(22.4339117,	87.3366233, 22.52156	,87.3279733)
-
+        //Pref.isExpenseFeatureAvailable = false
+        Timber.d("dash_frag ends ${AppUtils.getCurrentDateTime()} ${Pref.current_latitude} ${Pref.current_latitude}")
         //AppDatabase.getDBInstance()!!.userLocationDataDao().updateUnknownLocationTest(AppUtils.getCurrentDateForShopActi(),"Unknown",false)
+
         if (addToStack) {
             mTransaction.add(R.id.frame_layout_container, getFragInstance(mFragType, initializeObject, true)!!, mFragType.toString())
             mTransaction.addToBackStack(mFragType.toString()).commitAllowingStateLoss()
@@ -499,6 +512,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
     private lateinit var menuBeatTV: AppCustomTextView// 5.0 DashboardActivity AppV 4.0.6  MenuBeatFrag
     private lateinit var tv_pending_out_loc_menu: AppCustomTextView
     private lateinit var assignedLead: AppCustomTextView
+    private lateinit var taskManagement: AppCustomTextView // Rev 19.0 DashboardActivity AppV 4.0.8 saheli mantis 0026023
     private lateinit var surveyMenu: AppCustomTextView
     private lateinit var shareLogs: AppCustomTextView
     private lateinit var reimbursement_tv: AppCustomTextView
@@ -843,10 +857,10 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                         notification.sendLeadActivityNotification(this, body)
                     }
 
-                    val taskList = AppDatabase.getDBInstance()?.taskDao()?.getTaskDateWise(AppUtils.getCurrentDateForShopActi())
+                    val taskList = AppDatabase.getDBInstance()?.taskManagementDao()?.getAll(AppUtils.getCurrentDateForShopActi())
                     taskList?.forEach {
                         val notification = NotificationUtils(getString(R.string.app_name), "", "", "")
-                        val body = "Your task " + it.task_name + " due today."
+                        val body = "Your task " + it.task_details + " due today."
                         notification.sendTaskDueNotification(this, body)
                     }
 
@@ -859,7 +873,8 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
         if (isTermsAndConditionsPopShow) {
             callTermsAndConditionsdApi()
-        } else {
+        }
+        else {
             if (!Pref.isSeenTermsConditions){
                 showTermsConditionsPopup()
             }
@@ -1026,6 +1041,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     })
         }
 
+
         Handler().postDelayed(Runnable {
         if(!isWorkerRunning("workerTag")){
             val constraint = Constraints.Builder()
@@ -1042,7 +1058,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
         }, 1000)
 
     }
-
+    //Start of Rev 18 DashboardActivity AppV 4.0.8 Suman    28/04/2023 worker manager updation 25973
     fun isWorkerRunning(tag:String):Boolean{
         val workInstance = WorkManager.getInstance(this)
         val status: ListenableFuture<List<WorkInfo>> = WorkManager.getInstance(this).getWorkInfosByTag(tag)
@@ -1062,6 +1078,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             return false
         }
     }
+    //End of Rev 18 DashboardActivity AppV 4.0.8 Suman    28/04/2023 worker manager updation 25973
 
     fun checkToShowHomeLocationAlert() {
         if (!Pref.isHomeLocAvailable && Pref.IsShowHomeLocationMapGlobal && Pref.IsShowHomeLocationMap) {
@@ -1256,6 +1273,12 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                                 if (getFragment() != null && getFragment() !is LeadFrag)
                                     loadFragment(FragType.LeadFrag, false, "")
                             }
+                            // begin rev 19.0 mantis 0026023
+                            else if (intent.getStringExtra("TYPE").equals("ACTIVITYDUETASK", ignoreCase = true)) {
+                                if (getFragment() != null && getFragment() !is TaskManagementFrag)
+                                    loadFragment(FragType.TaskManagementFrag, false, "")
+                            }
+                            // end rev 19.0 mantis 0026023
                             else if (intent.getStringExtra("TYPE").equals("TASK", ignoreCase = true)) {
                                 if (getFragment() != null && getFragment() !is TaskListFragment)
                                     loadFragment(FragType.TaskListFragment, false, "")
@@ -1428,6 +1451,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             checkLocationMode()
         val networkIntentFilter = IntentFilter()
         networkIntentFilter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION)
+        Timber.d("DashActi registerReceiver gpsReceiver")
         registerReceiver(gpsReceiver, networkIntentFilter);
 
         registerReceiver(broadcastReceiver, filter)
@@ -1464,8 +1488,11 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     /*if (signal?.isCanceled!!) {
                         signal.cancel()
                     }*/
+
+                    // 15.0 DashboardActivity AppV 4.0.8 Suman    19/04/2023 Dashboard Onresume updation for language 0025874
                     AppUtils.changeLanguage(this@DashboardActivity, "en")
                     Log.e("DashboardActivity", "============Fingerprint accepted=============")
+                    // End of Rev 15.0
 
                     if (AppUtils.isRevisit!!) {
                         if (fingerprintDialog != null && fingerprintDialog?.isVisible!!) {
@@ -1491,9 +1518,10 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 override fun onError(msg: String) {
                     Log.e("DashboardActivity", "Fingerprint error=====> $msg")
 
+                    // Rev 15.0
                     if (!Locale.getDefault().language.equals("en", ignoreCase = true))
                         return
-
+                    // End of Rev 15.0
                     when {
                         msg.equals("Fingerprint operation cancelled.", ignoreCase = true) -> {
                         }
@@ -1686,6 +1714,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
     val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
+            Timber.d("DashActi broadcastReceiver gps status GpsDisableFragment  ${AppUtils.gpsDisabledAction}")
             if (intent.action == AppUtils.gpsDisabledAction) {
                 isGpsDisabled = true
                 loadFragment(FragType.GpsDisableFragment, true, "")
@@ -1735,6 +1764,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
         unregisterReceiver(broadcastReceiver)
 
+        Timber.d("DashActi onDestroy")
         if (gpsReceiver != null)
             unregisterReceiver(gpsReceiver)
 
@@ -1764,9 +1794,9 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
         // 13.0 DashboardActivity AppV 4.0.7 Suman 31-03-2023 quotation auto mail app kill work mantis 25766
         Timber.d("quto_mail ondestroy receiver...")
-        /*if (fcmReceiver_quotation_approval != null)
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(fcmReceiver_quotation_approval)*/
-
+       /* if (fcmReceiver_quotation_approval != null)
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(fcmReceiver_quotation_approval)
+*/
 
         if (collectionAlertReceiver != null)
             LocalBroadcastManager.getInstance(this).unregisterReceiver(collectionAlertReceiver)
@@ -2062,6 +2092,8 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
         menuBeatTV = findViewById<AppCustomTextView>(R.id.menu_beat_TV)// 5.0 DashboardActivity AppV 4.0.6  MenuBeatFrag
         tv_pending_out_loc_menu = findViewById<AppCustomTextView>(R.id.tv_pending_out_loc_menu)
         assignedLead = findViewById<AppCustomTextView>(R.id.assigned_lead_TV)
+        taskManagement = findViewById<AppCustomTextView>(R.id.task_management_TV)// Rev 19.0 DashboardActivity AppV 4.0.8 saheli mantis 0026023
+
         surveyMenu = findViewById<AppCustomTextView>(R.id.assigned_survey_TV)
 
         textArrayList.add(home_TV)
@@ -2145,6 +2177,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
         menuBeatTV.setOnClickListener(this)// 5.0 DashboardActivity AppV 4.0.6  MenuBeatFrag
         tv_pending_out_loc_menu.setOnClickListener(this)
         assignedLead.setOnClickListener(this)
+        taskManagement.setOnClickListener(this)// Rev 19.0 DashboardActivity AppV 4.0.8 saheli mantis 0026023
         surveyMenu.setOnClickListener(this)
         shareLogs.setOnClickListener(this)
         reimbursement_tv.setOnClickListener(this)
@@ -2636,6 +2669,11 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
         }else{
             anydesk_info_TV.visibility=View.GONE
         }
+        if(Pref.IsShowPrivacyPolicyInMenu){
+            privacy_policy_tv_menu.visibility = View.VISIBLE
+        }else{
+            privacy_policy_tv_menu.visibility = View.GONE
+        }
         if(Pref.IsShowMenuPermission_Info){
             permission_info_TV.visibility=View.VISIBLE
         }else{
@@ -2705,11 +2743,31 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             assignedLead.visibility=View.GONE
         }
 
+        // Rev 19.0 DashboardActivity AppV 4.0.8 saheli mantis 0026023
+        if(Pref.IsTaskManagementAvailable){
+            taskManagement.visibility=View.VISIBLE
+        }else{
+            taskManagement.visibility=View.GONE
+        }
+        // end rev 19.0 DashboardActivity AppV 4.0.8 saheli mantis 0026023
+
         if(Pref.IsMenuSurveyEnabled){
             surveyMenu.visibility=View.VISIBLE
         }else{
             surveyMenu.visibility=View.GONE
         }
+        // 16.0 DashboardActivity AppV 4.0.8 saheli  mantis  25860 performnace module
+        if(Pref.IsShowEmployeePerformanceGlobal){
+            if(Pref.IsShowEmployeePerformance) {
+                tv_performance_teamMenu.visibility = View.VISIBLE
+            }
+            else{
+                tv_performance_teamMenu.visibility = View.GONE
+            }
+        }else{
+            tv_performance_teamMenu.visibility=View.GONE
+        }
+        // end rev 16.0  mantis  25860
         // 1.0  AppV 4.0.6
         if(Pref.ShowAutoRevisitInAppMenu)
             tb_auto_revisit_menu.visibility = View.VISIBLE
@@ -3286,6 +3344,14 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 else
                     loadFragment(FragType.LeadFrag, false, "")
             }
+            //Rev 19.0 DashboardActivity AppV 4.0.8 saheli mantis 0026023
+            R.id.task_management_TV -> {
+                if (!Pref.isAddAttendence)
+                    (mContext as DashboardActivity).checkToShowAddAttendanceAlert()
+                else
+                    loadFragment(FragType.TaskManagementFrag, false, "")
+            }
+            // end Rev 19.0 DashboardActivity AppV 4.0.8 saheli mantis 0026023
             R.id.assigned_survey_TV -> {
 
                 if (!Pref.isAddAttendence)
@@ -3325,6 +3391,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     // 5.0 NearByShopsListFragment AppV 4.0.6 Suman 03-02-2023 updateModifiedShop + sendModifiedShopList  for shop update mantis 25624
                     //getCurrentFragType() == FragType.NearByShopsListFragment -> (getFragment() as NearByShopsListFragment).refreshShopList()
                     getCurrentFragType() == FragType.NearByShopsListFragment -> (getFragment() as NearByShopsListFragment).checkModifiedShop()
+                    // End of rev 5.0
                     getCurrentFragType() == FragType.OrderTypeListFragment -> (getFragment() as OrderTypeListFragment).refreshProductList()
                     getCurrentFragType() == FragType.ReturnTypeListFragment -> (getFragment() as ReturnTypeListFragment).refreshProductList()
                     getCurrentFragType() == FragType.NewOrderListFragment -> (getFragment() as NewOrderListFragment).refreshOrderList()
@@ -4158,6 +4225,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     mFragment = PerformanceAppFragment()
                 }
                 setTopBarTitle("Performance")
+                setTopBarVisibility(TopBarConfig.BACK)
             }
 
             FragType.SearchLocationFragment -> {
@@ -4451,11 +4519,29 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 setTopBarVisibility(TopBarConfig.HOME)
                 setTopBarVisibility(TopBarConfig.LEADFR)
             }
+            // start REv 20.0 DashboardActivity AppV 4.0.8 saheli mantis 0026024 :under the 'Assigned Lead' page
+            FragType.TaskManagementFrag -> {
+                if (enableFragGeneration) {
+                    mFragment = TaskManagementFrag()
+                }
+                setTopBarTitle("Task Management")
+                setTopBarVisibility(TopBarConfig.HOME)
+                setTopBarVisibility(TopBarConfig.LEADFR)
+            }
+            // end REv 20.0 DashboardActivity AppV 4.0.8 saheli mantis 0026024 :under the 'Assigned Lead' page
+
             FragType.ViewLeadFrag -> {
                 if (enableFragGeneration) {
                     mFragment = ViewLeadFrag.getInstance(initializeObject)
                 }
                 setTopBarTitle("Activity Details")
+                setTopBarVisibility(TopBarConfig.BACK)
+            }
+            FragType.ViewTaskManagementFrag -> {
+                if (enableFragGeneration) {
+                    mFragment = ViewTaskManagementFrag.getInstance(initializeObject)
+                }
+                setTopBarTitle("Task Details")
                 setTopBarVisibility(TopBarConfig.BACK)
             }
             FragType.SurveyFrag -> {
@@ -5193,6 +5279,17 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 setTopBarTitle("Add $dynamicScreen")
                 setTopBarVisibility(TopBarConfig.BACK)
             }
+            // Rev 21.0 DashboardActivity AppV 4.0.8 saheli    15/05/2023 mantis 26103
+            FragType.MultipleImageFileUploadonStock -> {
+                if (enableFragGeneration) {
+                    mFragment = MultipleImageFileUploadonStock.getInstance(initializeObject)
+                }
+                setTopBarTitle("Attach document")
+                setTopBarVisibility(TopBarConfig.BACK)
+            }
+            // end Rev 21.0 DashboardActivity AppV 4.0.8 saheli    15/05/2023 mantis 26103
+
+
             FragType.AllDynamicListFragment -> {
                 if (enableFragGeneration) {
                     mFragment = AllDynamicListFragment()
@@ -5283,7 +5380,8 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     mFragment = CollectionShopListFragment.newInstance(initializeObject)
                 }
                 setTopBarTitle(getString(R.string.collection_details))
-                setTopBarVisibility(TopBarConfig.BACK)
+                //setTopBarVisibility(TopBarConfig.BACK)
+                setTopBarVisibility(TopBarConfig.PHOTOREG)
             }
             FragType.ChemistActivityListFragment -> {
                 if (enableFragGeneration) {
@@ -7498,7 +7596,6 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 isConfirmed = false
             }
         } else if (getFragment() != null && getFragment() is AddAttendanceFragment) {
-
             if(Pref.IsPendingColl && Pref.ShowZeroCollectioninAlert){
                 SendBrod.sendBrodColl(this)
                 tv_noti_count.visibility=View.VISIBLE
@@ -7927,7 +8024,15 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             if (getFragment() != null && getFragment() is LeadFrag && CustomStatic.IsViewLeadAddUpdate){
                 (getFragment() as LeadFrag).updateView()
             }
-        }else if(getFragment() != null && getFragment() is CollectionPendingDtlsFrag){
+        }
+        // mantis 26028
+        else if(getFragment() != null && getFragment() is ViewTaskManagementFrag){
+            super.onBackPressed()
+            if (getFragment() != null && getFragment() is TaskManagementFrag && CustomStatic.IsViewTaskAddUpdate){
+                (getFragment() as TaskManagementFrag).updateView()
+            }
+        }
+        else if(getFragment() != null && getFragment() is CollectionPendingDtlsFrag){
             super.onBackPressed()
             if (getFragment() != null && getFragment() is CollectionNotiViewPagerFrag1)
                 (getFragment() as CollectionNotiViewPagerFrag1).updateView()
@@ -8444,6 +8549,19 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
                     }
                 }
+                // start Rev 21.0 DashboardActivity AppV 4.0.8 saheli    12/05/2023 mantis 26101
+                else if (getCurrentFragType() == FragType.MultipleImageFileUploadonStock) {
+                    // request for camera image
+                    getCameraImage(data)
+                    if (!TextUtils.isEmpty(filePath)) {
+//                        AppUtils.getCompressImage(filePath.toString())
+                        AppUtils.getCompressOldImage(filePath.toString(),this)
+                        println("stock_img set img 5 hit")
+                        (getFragment() as MultipleImageFileUploadonStock).setImagecapture(filePath)
+
+                    }
+                }
+                //end Rev 21.0 DashboardActivity AppV 4.0.8 saheli    12/05/2023 mantis 26101
                 else if (getCurrentFragType() == FragType.MyProfileFragment /*&& FTStorageUtils.IMG_URI != null*/) {
                     /*AppUtils.getCompressContentImage(FTStorageUtils.IMG_URI, this)
                     (getFragment() as MyProfileFragment).setImage(FTStorageUtils.IMG_URI)*/
@@ -9245,7 +9363,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 //
             }
             else if (requestCode == PermissionHelper.REQUEST_CODE_STORAGE) {
-                if(getCurrentFragType() == FragType.MultipleImageFragment) {
+                if (getCurrentFragType() == FragType.MultipleImageFragment) {
                     /*AppUtils.getCompressImage(data!!.data.toString())
                     var newUri = data.data!!
                     //new image compress
@@ -9264,6 +9382,15 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     (getFragment() as MultipleImageFragment).setImageFromPath(filePath)
 
                 }
+                // start Rev 21.0 DashboardActivity AppV 4.0.8 saheli    12/05/2023 mantis 26101
+                if(getCurrentFragType() == FragType.MultipleImageFileUploadonStock) {
+                    getGalleryImage(this, data)
+                    println("stock_img set img 1 hit")
+                    (getFragment() as MultipleImageFileUploadonStock).setImageFromPath(filePath)
+
+                }
+                // Rev 21.0 DashboardActivity AppV 4.0.8 saheli    12/05/2023 mantis 26101
+
                 else if (getCurrentFragType() == FragType.MyProfileFragment) {
                     //AppUtils.getCompressContentImage(data!!.data, this)
 
@@ -9583,6 +9710,59 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                     e.printStackTrace()
                 }
             }
+
+            // Rev 21.0 DashboardActivity AppV 4.0.8 saheli    12/05/2023 mantis 26101
+            else if (requestCode == REQUEST_CODE_DOCUMENT_PDF){
+                try {
+                    if (data != null && data.data != null) {
+                        filePath = NewFileUtils.getRealPath(this@DashboardActivity, data.data)
+
+                        if (filePath.contains("_.*_")) {
+                            showSnackMessage("Invalid file path")
+                            return
+                        }
+
+                        if (filePath.contains("google")) {
+                            showSnackMessage("Can not select document from google drive")
+                            return
+                        }
+
+                        val file = File(filePath)
+
+                        val extension = getExtension(file)
+
+                        try {
+                            Log.e("Dashboard", "extension======> $extension")
+                        } catch (e: java.lang.Exception) {
+                            e.printStackTrace()
+                        }
+
+                        if (extension.contains("pdf") || extension.contains("jpg") || extension.contains("jpeg") || extension.contains("png")) {
+                            if (extension.contains("jpg") || extension.contains("jpeg") || extension.contains("png")) {
+                                if (getCurrentFragType() == FragType.MultipleImageFileUploadonStock) {
+                                    getGalleryImage(this, data)
+                                    println("stock_img set img 2 hit")
+                                    (getFragment() as MultipleImageFileUploadonStock).setImage(File(filePath))
+                                }
+                                else {
+                                    CropImage.activity(data.data)
+                                        .setAspectRatio(40, 21)
+                                        .start(this)
+                                }
+                            } else {
+                                when {
+                                    getCurrentFragType() == FragType.MultipleImageFileUploadonStock -> addPDFPic(file.length())
+                                }
+                            }
+                        } else
+                            showSnackMessage("File is corrupted. Can not choose file.")
+                    }
+                } catch (e: java.lang.Exception) {
+                    e.printStackTrace()
+                }
+
+            }
+            // end Rev 21.0 DashboardActivity AppV 4.0.8 saheli    12/05/2023 mantis 26101
             /*else if (requestCode == PermissionHelper.REQUEST_CODE_GET_FILE) {
                 val selectedImageUri = data?.data
                 //OI FILE Manager
@@ -10070,6 +10250,48 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
             mShopActivityEntity.multi_contact_name = revisit_extraContName
             mShopActivityEntity.multi_contact_number = revisit_extraContPh
+
+            //Begin Rev 17 DashboardActivity AppV 4.0.8 Suman    24/04/2023 distanct+station calculation 25806
+            var profileAddr = Location("")
+            var shopAddr = Location("")
+            var dist:Double=0.0
+            try{
+                profileAddr.latitude = Pref.profile_latitude.toDouble()
+                profileAddr.longitude = Pref.profile_longitude.toDouble()
+                var shopObj = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(mShopActivityEntity.shopid)
+                shopAddr.latitude = shopObj.shopLat.toDouble()
+                shopAddr.longitude = shopObj.shopLong.toDouble()
+                var dist = profileAddr.distanceTo(shopAddr) / 1000 //km
+                mShopActivityEntity.distFromProfileAddrKms = String.format("%.2f",dist)
+                //In Station- 0
+                //Ex Station- 1
+                //Out Station- 2
+                if(dist <= 25.0){
+                    mShopActivityEntity.stationCode = "0"
+                }else if(dist >25 && dist <80.0){
+                    mShopActivityEntity.stationCode = "1"
+                }else if(dist >= 85.0){
+                    mShopActivityEntity.stationCode = "2"
+                }
+
+                //Begin Rev 22.0 DashboardActivity AppV 4.1.3 Suman 18-05-2023  mantis 26162
+                if(Pref.IsShowReimbursementTypeInAttendance && Pref.isExpenseFeatureAvailable){
+                    if(Pref.selectedVisitStationName.contains("in",ignoreCase = true)){
+                        mShopActivityEntity.stationCode = "0"
+                    }else if(Pref.selectedVisitStationName.contains("ex",ignoreCase = true)){
+                        mShopActivityEntity.stationCode = "1"
+                    }else if(Pref.selectedVisitStationName.contains("out",ignoreCase = true)){
+                        mShopActivityEntity.stationCode = "2"
+                    }
+                }
+                //End of Rev 22.0 DashboardActivity AppV 4.1.3 Suman 18-05-2023  mantis 26162
+
+                Timber.d("dist_cal ${mShopActivityEntity.distFromProfileAddrKms}   loc1 ${profileAddr.latitude} ${profileAddr.longitude}  loc2  ${shopAddr.latitude} ${shopAddr.longitude}")
+            }catch (ex:Exception){
+                ex.printStackTrace()
+                Timber.d("dist_cal ex ${ex.message}")
+            }
+            //End of Rev 17 DashboardActivity AppV 4.0.8 Suman    24/04/2023 distanct+station calculation 25806
 
             AppDatabase.getDBInstance()!!.shopActivityDao().insertAll(mShopActivityEntity)
 
@@ -10642,6 +10864,23 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
         }
     }
 
+    // Rev 21.0 DashboardActivity AppV 4.0.8 saheli    12/05/2023 mantis 26101
+    private fun addPDFPic(fileSize: Long) {
+//        val fileSizeInKB = fileSize / 1024
+        val fileSizeInMb = fileSize.toDouble() /(1024*1024)
+        Log.e("Dashboard", "image file size after compression==========> $fileSizeInMb MB")
+
+        if (!TextUtils.isEmpty("5")) {
+            if (fileSizeInMb <= 5.toInt()) {
+                val file = File(filePath)
+                println("stock_img set img 4 hit")
+                (getFragment() as MultipleImageFileUploadonStock).setImage(file)
+            } else
+                showSnackMessage("More than " + 5 + " MB file is not allowed")
+        }
+    }
+    // end Rev 21.0 DashboardActivity AppV 4.0.8 saheli    12/05/2023 mantis 26101
+
     private fun addActivityFormCroppedImg(fileSize: Long, resultUri: Uri) {
         val fileSizeInKB = fileSize / 1024
         Log.e("Dashboard", "image file size after compression==========> $fileSizeInKB KB")
@@ -10776,7 +11015,6 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                 showSnackMessage("More than " + Pref.maxFileSize + " KB file is not allowed")
         }
     }
-
     private fun updatePhotoAadhaarDocument(fileSize: Long) {
         val fileSizeInKB = fileSize / 1024
         Log.e("Dashboard", "image file size after compression==========> $fileSizeInKB KB")
@@ -11895,6 +12133,16 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
         browseDocuments(this@DashboardActivity, REQUEST_CODE_DOCUMENT)
     }
+    // rev start 21.0 AppV 4.0.8 saheli    12/05/2023 mantis 26101
+    fun openPDFFileManager() {
+//        val intent = Intent(Intent.ACTION_GET_CONTENT)
+//        intent.type = "*/*"
+//        startActivityForResult(intent, REQUEST_CODE_DOCUMENT)
+
+        browsePDFDocuments(this@DashboardActivity, REQUEST_CODE_DOCUMENT_PDF)
+    }
+    // end rev start 21.0 AppV 4.0.8 saheli    12/05/2023 mantis 26101
+
 
     fun takePhotoFromCamera(selectPicture: Int) {
 
@@ -12022,6 +12270,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
     fun fetchActivityList() {
         if (!Pref.isLocationActivitySynced) {
+            Timber.d("fetchActivityList")
             val fetchLocReq = FetchLocationRequest()
             fetchLocReq.user_id = Pref.user_id
             fetchLocReq.session_token = Pref.session_token
@@ -12210,6 +12459,13 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
 
 
     fun shouldFetchLocationActivity(): Boolean {
+        Timber.d("Dash_Acti_loc ${AppDatabase.getDBInstance()!!.userLocationDataDao().all.size}")
+        try{
+            Timber.d("Dash_Acti_loc  ${AppDatabase.getDBInstance()!!.userLocationDataDao().all.get(0).locationName}")
+        }catch (ex:Exception){
+            ex.printStackTrace()
+            Timber.d("Dash_Acti_loc ex")
+        }
         return (AppDatabase.getDBInstance()!!.userLocationDataDao().all.size == 0)
     }
 
@@ -12612,7 +12868,14 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             logo.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.shake))
             // 8.0 DashboardActivity AppV 4.0.6 Suman 23-01-2023  Auto mail from notification flow of quotation 25614
             Timber.d("quto_mail auto mail block receiver...")
-            getQutoDtlsBeforePDF(CustomStatic.QutoNoFromNoti)
+            //Begin Rev 3.0 MyFirebaseMessagingService AppV 4.0.8 Suman    26/04/2023 mail repetation fix 25923
+            //getQutoDtlsBeforePDF(CustomStatic.QutoNoFromNoti)
+            if(Pref.prevQutoNoForMail.equals(CustomStatic.QutoNoFromNoti)){
+                return
+            }else{
+                getQutoDtlsBeforePDF(CustomStatic.QutoNoFromNoti)
+            }
+            //End of Rev 3.0 MyFirebaseMessagingService AppV 4.0.8 Suman    26/04/2023 mail repetation fix 25923
         }
     }
 
@@ -12620,6 +12883,10 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
     // 8.0 DashboardActivity AppV 4.0.6 Suman 23-01-2023  Auto mail from notification flow of quotation 25614
     private fun getQutoDtlsBeforePDF(quto_no: String){
         try{
+            //Begin Rev 3.0 MyFirebaseMessagingService AppV 4.0.8 Suman    26/04/2023 mail repetation fix 25923
+            Pref.prevQutoNoForMail = quto_no
+            //End of Rev 3.0 MyFirebaseMessagingService AppV 4.0.8 Suman    26/04/2023 mail repetation fix 25923
+
             val repository = GetQuotRegProvider.provideSaveButton()
             BaseActivity.compositeDisposable.add(
                 repository.viewDetailsQuot(quto_no!!)
@@ -13235,7 +13502,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             var m = Mail()
             var toArr = arrayOf("")
             m = Mail("suman.bachar@indusnet.co.in", "dqridqtwsqxatmyt")
-            toArr = arrayOf("suman.bachar@indusnet.co.in")
+            toArr = arrayOf("suman.bachar@indusnet.co.in","suman.roy@indusnet.co.in")
             /*if(Pref.IsShowQuotationFooterforEurobond){
                 m = Mail("eurobondacp02@gmail.com", "nuqfrpmdjyckkukl")
                 toArr = arrayOf("sales1@eurobondacp.com", "sales@eurobondacp.com")
@@ -13246,7 +13513,10 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
             Timber.d("quto_mail auto mail sending...")
             m.setTo(toArr)
             m.setFrom("TEAM");
-            m.setSubject("Quotation for ${ViewAllQuotListFragment.shop_name} created on dated ${addQuotEditResult.save_date_time!!.split(" ").get(0)}.")
+            //Begin Rev 3.0 MyFirebaseMessagingService AppV 4.0.8 Suman    26/04/2023 mail repetation fix 25923
+            //m.setSubject("Quotation for ${ViewAllQuotListFragment.shop_name} created on dated ${addQuotEditResult.save_date_time!!.split(" ").get(0)}.")
+            m.setSubject("Quotation for ${addQuotEditResult.shop_name} created on dated ${addQuotEditResult.save_date_time!!.split(" ").get(0)}.")
+            //End of Rev 3.0 MyFirebaseMessagingService AppV 4.0.8 Suman    26/04/2023 mail repetation fix 25923
             m.setBody("Hello Team,  \n Please find attached Quotation No. ${addQuotEditResult.quotation_number} Dated ${addQuotEditResult.save_date_time!!.split(" ").get(0)} for ${ViewAllQuotListFragment.shop_name} \n\n\n Regards \n${Pref.user_name}.")
             doAsync {
                 try{
@@ -14034,6 +14304,9 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                                 shopDurationData.multi_contact_name = shopActivity.multi_contact_name
                                 shopDurationData.multi_contact_number = shopActivity.multi_contact_number
 
+                                shopDurationData.distFromProfileAddrKms = shopActivity.distFromProfileAddrKms
+                                shopDurationData.stationCode = shopActivity.stationCode
+
                                 shopDataList.add(shopDurationData)
 
                                 //////////////////////////
@@ -14147,6 +14420,9 @@ class DashboardActivity : BaseActivity(), View.OnClickListener, BaseNavigation, 
                                 // 4.0 DashboardActivity AppV 4.0.6  multiple contact Data added on Api called
                                 shopDurationData.multi_contact_name = it.multi_contact_name
                                 shopDurationData.multi_contact_number = it.multi_contact_number
+
+                                shopDurationData.distFromProfileAddrKms = it.distFromProfileAddrKms
+                                shopDurationData.stationCode = it.stationCode
 
                                 shopDataList.add(shopDurationData)
 

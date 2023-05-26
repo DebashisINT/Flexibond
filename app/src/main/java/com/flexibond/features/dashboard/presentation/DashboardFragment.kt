@@ -146,6 +146,12 @@ import java.util.*
 // 8.0 DashboardFragment  AppV 4.0.6 Saheli    01/02/2023  mantis 25637
 // 9.0 DashboardFragment  AppV 4.0.7 Saheli    15/02/2023  mantis 0025673  screen recoreder gradle & finction update
 // 10.0  DashboardFragment AppV 4.0.8 Saheli    06/04/2023  IsAssignedDDAvailableForAllUser Useds LoginActivity If this feature 'On' then Assigned DD [Assigned DD Table] shall be available in 'Shop Master' work 0025780 mantis
+// 11.0  DashboardFragment AppV 4.0.8 Saheli    20/04/2023  25860
+// Rev 12.0 DashboardFragment AppV 4.0.8 Suman    24/04/2023 Beat api fetch updation 0025898
+// 12.0  dashboardFrag AppV 4.0.8 Saheli    08/05/2023  26023
+// 13.0  DashboardFragment AppV 4.0.8 Saheli    12/05/2023 0026101
+// 14.0  DashboardFragment AppV 4.0.8 Suman    19/05/2023 26163
+
 class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListener, View.OnTouchListener {
 
     var dX = 0f
@@ -396,6 +402,13 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
 
                 shopActivityEntity.agency_name=date_list[i].shop_list!![j].agency_name
                 shopActivityEntity.pros_id=date_list[i].shop_list!![j].pros_id
+
+                try{
+                    shopActivityEntity.distFromProfileAddrKms = date_list[i].shop_list!![j].distFromProfileAddrKms.toString()
+                    shopActivityEntity.stationCode = date_list[i].shop_list!![j].stationCode.toString()
+                }catch (ex:Exception){
+                    ex.printStackTrace()
+                }
 
                 AppDatabase.getDBInstance()!!.shopActivityDao().insertAll(shopActivityEntity)
             }
@@ -2964,6 +2977,7 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
         getProductRateListApi()
     }
 
+
     private fun getProductRateListApi() {
         if(Pref.isOrderShow){
             Timber.d("api_call_dash  getProductRateListApi()")
@@ -3011,7 +3025,10 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
     }
 
     private fun getBeatListApi() {
-        if(Pref.isShowBeatGroup){
+        // Begin Rev 12.0 DashboardFragment AppV 4.0.8 Suman    24/04/2023 Beat api fetch updation 0025898
+        if(Pref.IsBeatAvailable){
+        //if(Pref.isShowBeatGroup){
+            // End of Rev 12.0 DashboardFragment AppV 4.0.8 Suman    24/04/2023 Beat api fetch updation 0025898
             Timber.d("api_call_dash  beatList()")
             val repository = TypeListRepoProvider.provideTypeListRepository()
             progress_wheel.spin()
@@ -4477,12 +4494,14 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                     Pref.IsContactPersonRequiredinQuotation = response.getconfigure!![i].Value == "1"
                                                 }
                                             }
+                                            //end rev 3.0
                                             // 5.0 DashboardFragment  AppV 4.0.6  IsAllowShopStatusUpdate
                                             else if (response.getconfigure!![i].Key.equals("IsAllowShopStatusUpdate", ignoreCase = true)) {
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.IsAllowShopStatusUpdate = response.getconfigure!![i].Value == "1"
                                                 }
                                             }
+                                            //end rev 5.0
                                             else if (response.getconfigure!![i].Key.equals("IsShowBeatInMenu", ignoreCase = true)) {
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.IsShowBeatInMenu = response.getconfigure!![i].Value == "1"
@@ -4495,6 +4514,15 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                     Pref.IsAssignedDDAvailableForAllUser = response.getconfigure?.get(i)?.Value == "1"
                                                 }
                                             }
+                                            //end rev 10.0
+
+                                              else if (response.getconfigure?.get(i)?.Key.equals("IsShowEmployeePerformance", ignoreCase = true)) {//11.0 DashboradFrag  AppV 4.0.8 mantis 25860
+                                                Pref.IsShowEmployeePerformance = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsShowEmployeePerformance = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+                                            //end rev 11.0
                                         }
                                     }
                                 } catch (e: Exception) {
@@ -4834,10 +4862,51 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                 // 4.0 Pref  AppV 4.0.7 Suman    23/03/2023 ShowApproxDistanceInNearbyShopList Show approx distance in nearby + shopmaster  mantis 0025742
                                 if (configResponse.ShowApproxDistanceInNearbyShopList != null)
                                     Pref.ShowApproxDistanceInNearbyShopList = configResponse.ShowApproxDistanceInNearbyShopList!!
-
-                                if (configResponse.IsAssignedDDAvailableForAllUser != null)//10.0 dashboardFrag  AppV 4.0.8  mantis 0025780
+                                //10.0 dashboardFrag  AppV 4.0.8  mantis 0025780
+                                if (configResponse.IsAssignedDDAvailableForAllUser != null)
                                     Pref.IsAssignedDDAvailableForAllUserGlobal = configResponse.IsAssignedDDAvailableForAllUser!!
+                                //11.0 dashboardFrag  AppV 4.0.8  mantis 25860
+                                if (configResponse.IsShowEmployeePerformance != null)
+                                    Pref.IsShowEmployeePerformanceGlobal = configResponse.IsShowEmployeePerformance!!
+                                // end rev 11.0
 
+                                // 12.0  dashboardFrag AppV 4.0.8 Saheli    08/05/2023  26023
+                                if (configResponse.IsTaskManagementAvailable != null)
+                                    Pref.IsTaskManagementAvailable = configResponse.IsTaskManagementAvailable!!
+                                // end rev 12.0
+
+                                if (configResponse.IsShowPrivacyPolicyInMenu != null)
+                                    Pref.IsShowPrivacyPolicyInMenu = configResponse.IsShowPrivacyPolicyInMenu!!
+
+                                if (configResponse.IsAttendanceCheckedforExpense != null)
+                                    Pref.IsAttendanceCheckedforExpense = configResponse.IsAttendanceCheckedforExpense!!
+                                if (configResponse.IsShowLocalinExpense != null)
+                                    Pref.IsShowLocalinExpense = configResponse.IsShowLocalinExpense!!
+                                if (configResponse.IsShowOutStationinExpense != null)
+                                    Pref.IsShowOutStationinExpense = configResponse.IsShowOutStationinExpense!!
+                                if (configResponse.IsSingleDayTAApplyRestriction != null)
+                                    Pref.IsSingleDayTAApplyRestriction = configResponse.IsSingleDayTAApplyRestriction!!
+                                if (configResponse.IsTAAttachment1Mandatory != null)
+                                    Pref.IsTAAttachment1Mandatory = configResponse.IsTAAttachment1Mandatory!!
+                                if (configResponse.IsTAAttachment2Mandatory != null)
+                                    Pref.IsTAAttachment2Mandatory = configResponse.IsTAAttachment2Mandatory!!
+                                if (configResponse.NameforConveyanceAttachment1 != null)
+                                    Pref.NameforConveyanceAttachment1 = configResponse.NameforConveyanceAttachment1!!
+                                if (configResponse.NameforConveyanceAttachment2 != null)
+                                    Pref.NameforConveyanceAttachment2 = configResponse.NameforConveyanceAttachment2!!
+
+                                // 13.0  dashboardFrag AppV 4.0.8 Saheli    12/05/2023  0026101
+                                if (configResponse.IsAttachmentAvailableForCurrentStock != null)
+                                    Pref.IsAttachmentAvailableForCurrentStock = configResponse.IsAttachmentAvailableForCurrentStock!!
+                                // end rev 13.0
+
+                                if (configResponse.IsShowReimbursementTypeInAttendance != null)
+                                    Pref.IsShowReimbursementTypeInAttendance = configResponse.IsShowReimbursementTypeInAttendance!!
+
+                                //Begin 14.0  DashboardFragment AppV 4.0.8 Suman    19/05/2023 26163
+                                if (configResponse.IsBeatPlanAvailable != null)
+                                    Pref.IsBeatPlanAvailable = configResponse.IsBeatPlanAvailable!!
+                                //End of 14.0  DashboardFragment AppV 4.0.8 Suman    19/05/2023 26163
                             }
                             BaseActivity.isApiInitiated = false
                             /*API_Optimization 02-03-2022*/

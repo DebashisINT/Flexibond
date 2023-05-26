@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.text.InputFilter
 import androidx.annotation.RequiresApi
 import com.google.android.material.textfield.TextInputLayout
 import androidx.fragment.app.DialogFragment
@@ -41,6 +42,7 @@ import com.flexibond.app.utils.FTStorageUtils
 import com.flexibond.app.utils.PermissionUtils
 import com.flexibond.app.utils.Toaster
 import com.flexibond.base.presentation.BaseActivity
+import com.flexibond.features.DecimalDigitsInputFilter
 import com.flexibond.features.dashboard.presentation.DashboardActivity
 import com.flexibond.features.newcollection.model.PaymentModeResponseModel
 import com.flexibond.features.newcollection.newcollectionlistapi.NewCollectionListRepoProvider
@@ -64,6 +66,8 @@ import java.util.*
 /**
  * Created by Saikat on 26-10-2018.
  */
+// Rev 1.0 AddCollectionDialog Suman 04/05/2023 Decimal place for amount  mantis id - 26030
+
 class AddCollectionDialog : DialogFragment(), View.OnClickListener {
 
     private lateinit var mContext: Context
@@ -176,6 +180,9 @@ class AddCollectionDialog : DialogFragment(), View.OnClickListener {
 
     private fun initView(v: View?) {
         et_collection = v?.findViewById(R.id.et_collection)!!
+        //Begin Rev 1.0 AddCollectionDialog Suman 04/05/2023 Decimal place for amount  mantis id - 26030
+        et_collection.filters=(arrayOf<InputFilter>(DecimalDigitsInputFilter(10, 2)))
+        //End of Rev 1.0 AddCollectionDialog Suman 04/05/2023 Decimal place for amount  mantis id - 26030
         shop_name_TV = v.findViewById(R.id.shop_name_TV)
         iv_close_icon = v.findViewById(R.id.iv_close_icon)
         add_TV = v.findViewById(R.id.add_TV)

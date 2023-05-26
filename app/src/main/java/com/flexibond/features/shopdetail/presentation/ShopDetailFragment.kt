@@ -1440,7 +1440,8 @@ class ShopDetailFragment : BaseFragment(), View.OnClickListener {
                 showRevisitActionDialog()
             }
 
-        } else {
+        }
+        else {
             disabledEntry()
 
             if (AppUtils.isShopAdded) {

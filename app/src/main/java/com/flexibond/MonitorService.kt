@@ -32,6 +32,10 @@ import java.util.*
 //Revision History
 // 1.0 MonitorService  AppV 4.0.6  Saheli    11/01/2023 GPS_SERVICE_STATUS & NETWORK_STATUS
 // 2.0 NewAlarmReceiver AppV 4.0.7 Saheli    03/03/2023 Timber Log Implementation
+// 3.0 MonitorService AppV 4.0.8 Suman    18/04/2023 onDestroy updation 0025875
+// 4.0 MonitorService AppV 4.1.3 Saheli    26/04/2023 mantis 0025932 Log file update in service classes for GPS on off time.
+// 5.0 MonitorService AppV 4.1.3 Suman    07/04/2023 mantis 26046 monitor broadcast restrictuin with Xiomi for normal flow.
+
 class MonitorService:Service() {
     private val monitorNotiID = 201
     private var monitorBroadcast : MonitorBroadcast? = null
@@ -68,6 +72,7 @@ class MonitorService:Service() {
             }
         }
         timer!!.schedule(task, 0, 8000)
+        //timer!!.schedule(task, 0, 50000)
 
         // 15 mins is 60000 * 15
 
@@ -83,9 +88,15 @@ class MonitorService:Service() {
         Log.e("abc", "startabc")
         monitorBroadcast = MonitorBroadcast()
 
+        //Begin 5.0 MonitorService AppV 4.1.3 Suman    07/04/2023 mantis 26046 monitor broadcast restrictuin with Xiomi for normal flow.
+        var manu = Build.MANUFACTURER.toUpperCase(Locale.getDefault())
+        //End of 5.0 MonitorService AppV 4.1.3 Suman    07/04/2023 mantis 26046 monitor broadcast restrictuin with Xiomi for normal flow.
         var powerMode: String = ""
         val powerManager = this.getSystemService(POWER_SERVICE) as PowerManager
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+        //Begin 5.0 MonitorService AppV 4.1.3 Suman    07/04/2023 mantis 26046 monitor broadcast restrictuin with Xiomi for normal flow.
+        //if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP && !manu.equals("XIAOMI")) {
+            //End of 5.0 MonitorService AppV 4.1.3 Suman    07/04/2023 mantis 26046 monitor broadcast restrictuin with Xiomi for normal flow.
             if (powerManager.isPowerSaveMode) {
                 Pref.PowerSaverStatus = "On"
                 powerMode = "Power Save Mode ON"
@@ -174,7 +185,6 @@ class MonitorService:Service() {
         }
 
 
-        var manu = Build.MANUFACTURER.toUpperCase(Locale.getDefault())
         if (manu.equals("XIAOMI")) {
             if (isPowerSaveModeCompat(this)) {
 
@@ -310,11 +320,16 @@ class MonitorService:Service() {
     }
 
     override fun onDestroy() {
-        println("monitor_s onDestroy")
-        super.onDestroy()
-        stopForeground(true)
-        stopSelf()
-        timer!!.cancel()
+        try{
+            println("monitor_s onDestroy")
+            super.onDestroy()
+            // 3.0 MonitorService AppV 4.0.8 Suman    18/04/2023 onDestroy updation 0025875
+            stopForeground(true)
+            stopSelf()
+            timer!!.cancel()
+        }catch (ex:Exception){
+            ex.printStackTrace()
+        }
     }
 
     @SuppressLint("NewApi")
@@ -404,10 +419,15 @@ class MonitorService:Service() {
                 if (!AppUtils.isGpsOffCalled) {
                     AppUtils.isGpsOffCalled = true
                     Log.e("GpsLocationReceiver", "===========GPS is disabled=============")
+                    //4.0 MonitorService AppV 4.1.3  mantis 0025932 Log file update in service classes for GPS on off time.
+                    Timber.d("GpsLocationReceiver", "===========GPS is disabled=============")
+                    //4.0 end rev
                     AppUtils.gpsOffTime = dateFormat.parse(/*"18:14:55"*/AppUtils.getCurrentTime()).time
                     AppUtils.gpsDisabledTime = AppUtils.getCurrentTimeWithMeredian()
-                    Log.e("GpsLocationReceiver", "gpsOffTime------------------> " + AppUtils.getTimeInHourMinuteFormat(AppUtils.gpsOffTime))
-
+                    Log.e("GpsLocationReceiver", "gpsOffTime------------------> " + AppUtils.getTimeInHourMinuteFormat(AppUtils.gpsOffTime)+"gpsOff" +AppUtils.gpsDisabledTime)
+                    //4.0 MonitorService AppV 4.1.3  mantis 0025932 Log file update in service classes for GPS on off time.
+                    Timber.d("GpsLocationReceiver", "gpsOffTime------------------> " + AppUtils.getTimeInHourMinuteFormat(AppUtils.gpsOffTime))
+                    //4.0 end rev
                     /*val local_intent = Intent()
                     local_intent.action = AppUtils.gpsDisabledAction
                     sendBroadcast(local_intent)*/
@@ -418,6 +438,9 @@ class MonitorService:Service() {
                     Log.e("GpsLocationReceiver", "===========GPS is enabled================")
                     AppUtils.gpsOnTime = dateFormat.parse(AppUtils.getCurrentTime()).time
                     AppUtils.gpsEnabledTime = AppUtils.getCurrentTimeWithMeredian()
+                    //4.0 MonitorService AppV 4.1.3  mantis 0025932 Log file update in service classes for GPS on off time.
+                    Timber.d("GpsLocationReceiver", "gpsOnTime---------------------> " + AppUtils.getTimeInHourMinuteFormat(AppUtils.gpsOnTime)+"gpsOn" +AppUtils.gpsEnabledTime)
+                    //4.0 end rev
                     Log.e("GpsLocationReceiver", "gpsOnTime---------------------> " + AppUtils.getTimeInHourMinuteFormat(AppUtils.gpsOnTime))
 
                     /*val local_intent = Intent()
@@ -433,6 +456,9 @@ class MonitorService:Service() {
                     performanceEntity.date = AppUtils.getCurrentDateForShopActi()
                     performanceEntity.gps_off_duration = (AppUtils.gpsOnTime - AppUtils.gpsOffTime).toString()
                     Log.e("GpsLocationReceiver", "duration----------------> " + AppUtils.getTimeInHourMinuteFormat(AppUtils.gpsOnTime - AppUtils.gpsOffTime))
+                    //4.0 MonitorService AppV 4.1.3  mantis 0025932 Log file update in service classes for GPS on off time.
+                    Timber.d("GpsLocationReceiver", "duration----------------> " + AppUtils.getTimeInHourMinuteFormat(AppUtils.gpsOnTime - AppUtils.gpsOffTime))
+                    //4.0 end rev
                     AppDatabase.getDBInstance()!!.performanceDao().insert(performanceEntity)
                     saveGPSStatus((AppUtils.gpsOnTime - AppUtils.gpsOffTime).toString())
                     AppUtils.gpsOnTime = 0
@@ -443,6 +469,9 @@ class MonitorService:Service() {
                     if ((AppUtils.gpsOnTime - AppUtils.gpsOffTime) > 0) {
                         AppDatabase.getDBInstance()!!.performanceDao().updateGPSoffDuration((AppUtils.gpsOnTime - AppUtils.gpsOffTime).toString(), AppUtils.getCurrentDateForShopActi())
                         Log.e("GpsLocationReceiver", "duration----------> " + AppUtils.getTimeInHourMinuteFormat(AppUtils.gpsOnTime - AppUtils.gpsOffTime))
+                        //4.0 MonitorService AppV 4.1.3  mantis 0025932 Log file update in service classes for GPS on off time.
+                        Timber.d("GpsLocationReceiver", "duration----------> " + AppUtils.getTimeInHourMinuteFormat(AppUtils.gpsOnTime - AppUtils.gpsOffTime))
+                        //4.0 end rev
                         saveGPSStatus((AppUtils.gpsOnTime - AppUtils.gpsOffTime).toString())
                         AppUtils.gpsOnTime = 0
                         AppUtils.gpsOffTime = 0
@@ -452,6 +481,9 @@ class MonitorService:Service() {
                         val duration = AppUtils.gpsOnTime - AppUtils.gpsOffTime
                         val totalDuration = performance.gps_off_duration?.toLong()!! + duration
                         Log.e("GpsLocationReceiver", "duration-------> " + AppUtils.getTimeInHourMinuteFormat(totalDuration))
+                        //4.0 MonitorService AppV 4.1.3  mantis 0025932 Log file update in service classes for GPS on off time.
+                        Timber.d("GpsLocationReceiver", "duration-------> " + AppUtils.getTimeInHourMinuteFormat(totalDuration))
+                        //4.0 end rev
                         AppDatabase.getDBInstance()!!.performanceDao().updateGPSoffDuration(totalDuration.toString(), AppUtils.getCurrentDateForShopActi())
                         saveGPSStatus(duration.toString())
                         AppUtils.gpsOnTime = 0

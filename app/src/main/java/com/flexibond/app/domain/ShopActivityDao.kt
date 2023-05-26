@@ -234,5 +234,4 @@ interface ShopActivityDao {
 
     @Query("update shop_activity set isnewShop=:isnewShop,isUploaded=:isUploaded where shopid=:shopId and date=:date")
     fun updateTest(isnewShop: Boolean, shopId: String, date: String,isUploaded: Boolean)
-
 }

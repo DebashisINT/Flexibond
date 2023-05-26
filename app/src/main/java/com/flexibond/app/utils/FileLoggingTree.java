@@ -2,6 +2,8 @@ package com.flexibond.app.utils;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import static java.sql.DriverManager.println;
+
 import android.content.Context;
 import android.os.Environment;
 import android.text.Html;
@@ -31,6 +33,7 @@ public class FileLoggingTree extends Timber.DebugTree {
         @Override
         protected void log(int priority, String tag, String message, Throwable t) {
                 try {
+                        println("log_tag ");
                         String path = "Log";
                         String fileNameTimeStamp = new SimpleDateFormat("dd-MM-yyyy",
                                 Locale.getDefault()).format(new Date());
@@ -114,6 +117,18 @@ public class FileLoggingTree extends Timber.DebugTree {
 //                File file = new File(context.getApplicationContext().getFilesDir(), fileName);
 
                 File file = new File("/data/user/0/com.flexibond/files", fileName);
+
+                //get file size
+                long sizeInBytes = file.length();
+                long sizeInMb = sizeInBytes / (1024 * 1024); //transform in MB
+                long sizeInKb = sizeInBytes / 1024 ; //transform in MB
+                println("log_tag "+sizeInMb);
+                //delete file
+                if(sizeInMb>25){
+                        file.delete();
+                        file = new File("/data/user/0/com.flexibond/files", fileName);
+                }
+
                 try {
                         if(context==null){
                                 FileOutputStream fos = context.getApplicationContext().openFileOutput(fileName, MODE_PRIVATE);
@@ -137,7 +152,7 @@ public class FileLoggingTree extends Timber.DebugTree {
                 return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
         }
 
-        private static boolean isFileLessThan10MB(File file) {
+        private static boolean isFileLessThan30MB(File file) {
                 int maxFileSize = 10 * 1024 * 1024;
                 Long l = file.length();
                 String fileSize = l.toString();

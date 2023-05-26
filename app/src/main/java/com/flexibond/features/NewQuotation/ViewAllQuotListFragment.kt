@@ -59,6 +59,7 @@ import java.io.IOException
 // 1.0 ViewAllQuotListFragment  AppV 4.0.6  Saheli    09/01/2023 Pdf template work
 // 2.0 ViewAllQuotListFragment  AppV 4.0.6  Saheli    23/01/2023 Pdf template function modification work
 // 3.0 ViewAllQuotListFragment  AppV 4.0.7  Suman    14/02/2023 pdf pincode dynamic and rate+qty+color position handle mantis 25670
+// 4.0 ViewAllQuotListFragment  AppV 4.0.8  Saheli    16/05/2023 pdf remark field mantis 26139
 class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
 
     private lateinit var mContext: Context
@@ -730,6 +731,15 @@ class ViewAllQuotListFragment : BaseFragment(), View.OnClickListener {
             product_tolerance_of_coating.alignment = Element.ALIGN_LEFT
             product_tolerance_of_coating.spacingAfter = 6f
             document.add(product_tolerance_of_coating)
+
+            // rev 4.0 ViewAllQuotListFragment  AppV 4.0.8  Saheli    16/05/2023 pdf remark field mantis 26139
+
+            val remarks = Paragraph("Remarks                                              :     " + addQuotEditResult.Remarks, font2Big)
+            remarks.alignment = Element.ALIGN_LEFT
+            remarks.spacingAfter = 6f
+            document.add(remarks)
+
+            // end 4.0 rev mantis 26139 PDF remarks field added saheli v 4.0.8 16-05-2023
 
 
             val end = Paragraph("Anticipating healthy business relation with your esteemed organization.", grayFront)

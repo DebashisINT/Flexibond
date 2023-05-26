@@ -66,7 +66,6 @@
     <uses-permission android:name="android.permission.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
-
     <queries>
         <intent>
             <action android:name="android.media.action.IMAGE_CAPTURE" />
@@ -170,7 +169,7 @@
             android:name=".features.location.LocationFuzedService"
             android:enabled="true"
             android:foregroundServiceType="location"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.LOCATIONSERVICE" />
             </intent-filter>

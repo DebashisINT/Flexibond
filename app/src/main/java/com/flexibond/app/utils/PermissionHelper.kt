@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat
 /**
  * Created by Pratishruti on 15-09-2017.
  */
+// Rev 1.0 PermissionHelper AppV 4.0.8 saheli    12/05/2023 mantis 26101
 class PermissionHelper {
 
     companion object {
@@ -19,6 +20,9 @@ class PermissionHelper {
         val TAG_LOCATION_RESULTCODE = 1001
 
         var REQUEST_CODE_DOCUMENT = 105
+        // start rev 1.0 PermissionHelper AppV 4.0.8 saheli    12/05/2023 mantis 26101
+        var REQUEST_CODE_DOCUMENT_PDF = 109
+        // end rev 1.0 PermissionHelper AppV 4.0.8 saheli    12/05/2023 mantis 26101
         var REQUEST_CODE_AUDIO = 123
         var REQUEST_CODE_GET_FILE = 111
         var REQUEST_CODE_EXO_PLAYER = 99

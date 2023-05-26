@@ -15,6 +15,8 @@ import com.flexibond.features.lead.model.LeadActivityEntity
 import com.flexibond.features.location.UserLocationDataDao
 import com.flexibond.features.location.UserLocationDataEntity
 import com.flexibond.features.login.*
+import com.flexibond.features.taskManagement.model.TaskManagementDao
+import com.flexibond.features.taskManagement.model.TaskManagmentEntity
 
 
 /*
@@ -63,8 +65,8 @@ import com.flexibond.features.login.*
         NewOrderGenderEntity::class, NewOrderProductEntity::class, NewOrderColorEntity::class, NewOrderSizeEntity::class, NewOrderScrOrderEntity::class, ProspectEntity::class,
         QuestionEntity::class, QuestionSubmitEntity::class, AddShopSecondaryImgEntity::class, ReturnDetailsEntity::class, ReturnProductListEntity::class, UserWiseLeaveListEntity::class, ShopFeedbackEntity::class, ShopFeedbackTempEntity::class, LeadActivityEntity::class,
         ShopDtlsTeamEntity::class, CollDtlsTeamEntity::class, BillDtlsTeamEntity::class, OrderDtlsTeamEntity::class,
-        TeamAllShopDBModelEntity::class, DistWiseOrderTblEntity::class, NewGpsStatusEntity::class,ShopExtraContactEntity::class,ProductOnlineRateTempEntity::class),
-        version = 2, exportSchema = false)
+        TeamAllShopDBModelEntity::class, DistWiseOrderTblEntity::class, NewGpsStatusEntity::class,ShopExtraContactEntity::class,ProductOnlineRateTempEntity::class, TaskManagmentEntity::class),
+        version = 3, exportSchema = false)
 @TypeConverters(DateConverter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun addShopEntryDao(): AddShopDao
@@ -203,6 +205,9 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun productOnlineRateTempDao(): ProductOnlineRateTempDao
 
 
+    abstract fun taskManagementDao(): TaskManagementDao
+
+
     companion object {
         var INSTANCE: AppDatabase? = null
 
@@ -212,7 +217,7 @@ abstract class AppDatabase : RoomDatabase() {
                         // allow queries on the main thread.
                         // Don't do this on a real app! See PersistenceBasicSample for an example.
                         .allowMainThreadQueries()
-                        .addMigrations(MIGRATION_1_2 )
+                        .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
 //                        .fallbackToDestructiveMigration()
                         .build()
             }
@@ -226,6 +231,7 @@ abstract class AppDatabase : RoomDatabase() {
         fun destroyInstance() {
             INSTANCE = null
         }
+
         val MIGRATION_1_2: Migration = object : Migration(1, 2) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("ALTER TABLE shop_detail ADD COLUMN shopStatusUpdate TEXT DEFAULT '1' ")
@@ -238,6 +244,17 @@ abstract class AppDatabase : RoomDatabase() {
                 database.execSQL("alter table order_product_list ADD COLUMN order_discount TEXT")
                 database.execSQL("create TABLE shop_extra_contact (id INTEGER NOT NULL PRIMARY KEY , shop_id TEXT , contact_serial TEXT, contact_name TEXT , contact_number TEXT , contact_email TEXT , contact_doa TEXT ,contact_dob TEXT , isUploaded INTEGER NOT NULL DEFAULT 0) ")
                 database.execSQL("create TABLE product_online_rate_temp_table  (id INTEGER NOT NULL PRIMARY KEY , product_id  TEXT , rate TEXT, stock_amount TEXT , stock_unit TEXT , isStockShow INTEGER NOT NULL DEFAULT 0 , isRateShow INTEGER NOT NULL DEFAULT 0) ")
+            }
+        }
+
+        val MIGRATION_2_3: Migration = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("alter table shop_activity ADD COLUMN distFromProfileAddrKms TEXT")
+                database.execSQL("alter table shop_activity ADD COLUMN stationCode TEXT")
+
+                database.execSQL("CREATE TABLE task_activity (id INTEGER NOT NULL PRIMARY KEY, task_status_id TEXT, task_date TEXT, task_time TEXT, task_status TEXT, " +
+                        "task_details TEXT, other_remarks TEXT,task_next_date TEXT)")
+
             }
         }
 

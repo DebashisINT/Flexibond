@@ -48,6 +48,8 @@ import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 
+// Rev 1.0 OrderProductCartFrag AppV 4.0.8 Suman    21/04/2023 IsAllowZeroRateOrder updation 25879
+
 class OrderProductCartFrag : BaseFragment(), View.OnClickListener{
 
     private lateinit var mContext: Context
@@ -213,7 +215,9 @@ class OrderProductCartFrag : BaseFragment(), View.OnClickListener{
                         ToasterMiddle.msgShort(mContext,"Please enter valid quantity.")
                         return
                     }
-                    else if(!isValidRate){
+                    // Rev 1.0 OrderProductCartFrag AppV 4.0.8 Suman    21/04/2023 IsAllowZeroRateOrder updation 25879
+                    else if(!isValidRate && !Pref.IsAllowZeroRateOrder){
+                        // End of Rev 1.0
                         progrwss_wheel.stopSpinning()
                         ToasterMiddle.msgShort(mContext,"Please enter valid Rate.")
                         return
@@ -226,7 +230,9 @@ class OrderProductCartFrag : BaseFragment(), View.OnClickListener{
 
     private fun saveOrder(){
         Handler().postDelayed(Runnable {
-            if(tv_totalAmt.text.toString().toDouble() !=0.0){
+            // Rev 1.0 OrderProductCartFrag AppV 4.0.8 Suman    21/04/2023 IsAllowZeroRateOrder updation 25879
+            if(tv_totalAmt.text.toString().toDouble() !=0.0 || Pref.IsAllowZeroRateOrder){
+                //End of Rev 1.0
                 val orderListDetails = OrderDetailsListEntity()
                 orderListDetails.amount = tv_totalAmt.text.toString()
                 orderListDetails.description = ""

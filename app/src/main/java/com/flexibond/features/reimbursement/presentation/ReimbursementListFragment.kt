@@ -296,7 +296,8 @@ class ReimbursementListFragment : BaseFragment(), View.OnClickListener {
                             }
                             BaseActivity.isApiInitiated = false
 
-                        }, { error ->
+                        },
+                            { error ->
                             BaseActivity.isApiInitiated = false
                             error.printStackTrace()
                             progress_wheel.stopSpinning()
@@ -510,8 +511,10 @@ class ReimbursementListFragment : BaseFragment(), View.OnClickListener {
     }
 
     private fun showDeleteAlert(adapterPosition: Int, expense_list_details: ArrayList<ReimbursementListDetailsModel>?) {
-
-        CommonDialog.getInstance("Delete Alert", "Do you really want to delete this TA?", getString(R.string.cancel), getString(R.string.ok), object : CommonDialogClickListener {
+        //Begin 100.0  AppV 4.1.3 Sumaan 10/05/2023 Reimbursement bug fixing & updation mantis id -- 26075
+        //CommonDialog.getInstance("Delete Alert", "Do you really want to delete this TA?", getString(R.string.cancel), getString(R.string.ok), object : CommonDialogClickListener {
+        CommonDialog.getInstance("Delete Alert", "Do you really want to delete this document?", getString(R.string.cancel), getString(R.string.ok), object : CommonDialogClickListener {
+            //End of 100.0  AppV 4.1.3 Sumaan 10/05/2023 Reimbursement bug fixing & updation mantis id -- 26075
             override fun onLeftClick() {
             }
 

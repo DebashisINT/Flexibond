@@ -40,6 +40,8 @@ import timber.log.Timber
  * Created by Saikat on 20-09-2018.
  */
 // MyFirebaseMessagingService V 4.0.6 saheli 27-01-2023 For new firebase update MyFirebaseInstanceIDService is obsolated and override function onNewToken introduced
+// 2.0 MyFirebaseMessagingService AppV 4.0.8 Suman    19/04/2023 thread safe for token updation 0025873
+// Rev 3.0 MyFirebaseMessagingService AppV 4.0.8 Suman    26/04/2023 mail repetation fix 25923
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     private var messageDetails = ""
@@ -57,7 +59,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             }
 
             Timber.e("MyFirebaseInstanceIDService : \nDevice Token=====> $token")
-
+            // 2.0 MyFirebaseMessagingService AppV 4.0.8 Suman    19/04/2023 thread safe for token updation 0025873
             uiThread {
 
                 if (!TextUtils.isEmpty(Pref.user_id)) {
@@ -84,7 +86,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         super.onMessageReceived(remoteMessage)
 
         println("Refreshed token onMessageReceived");
-        Timber.e("FirebaseMessageService : ============Push has come============")
+        Timber.e("FirebaseMessageService : ============Push has come============ ${AppUtils.getCurrentDateTime()}")
+
 
         if (TextUtils.isEmpty(Pref.user_id)) {
             Timber.e("FirebaseMessageService : ============Logged out scenario============")
@@ -157,7 +160,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 intent.action = "FCM_ACTION_RECEIVER_LEAVE_STATUS"
                 LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
             }else if(remoteMessage?.data?.get("type").equals("flag_status_quotation_approval")){
-                Timber.d("quto_mail FCM class...")
+                Timber.d("quto_mail FCM class... ${AppUtils.getCurrentDateTime()}")
                 //notification.sendFCMNotificaitonQuotationapprova(applicationContext, remoteMessage)
                 notification.sendFCMNotificaitonQuotationapprova1(applicationContext, remoteMessage)
                 val intent = Intent()

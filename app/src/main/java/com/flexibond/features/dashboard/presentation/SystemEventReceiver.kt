@@ -22,6 +22,8 @@ import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
+// Revision History
+// 1.0 SystemEventReceiver AppV 4.1.3 Saheli    26/04/2023 mantis 0025932 Log file update in service classes for GPS on off time.
 class SystemEventReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -69,10 +71,15 @@ class SystemEventReceiver : BroadcastReceiver() {
                 if (!AppUtils.isGpsOffCalled) {
                     AppUtils.isGpsOffCalled = true
                     Log.e("GpsLocationReceiver", "===========GPS is disabled=============")
+                    // 1.0 SystemEventReceiver AppV 4.1.3 mantis 0025932 Log file update in service classes for GPS on off time.
+                    Timber.d("GpsLocationReceiver", "===========GPS is disabled=============")
+                    // 1.0 rev end.
                     AppUtils.gpsOffTime = dateFormat.parse(/*"18:14:55"*/AppUtils.getCurrentTime()).time
                     AppUtils.gpsDisabledTime = AppUtils.getCurrentTimeWithMeredian()
                     Log.e("GpsLocationReceiver", "gpsOffTime------------------> " + AppUtils.getTimeInHourMinuteFormat(AppUtils.gpsOffTime))
-
+                    // 1.0 SystemEventReceiver AppV 4.1.3 mantis 0025932 Log file update in service classes for GPS on off time.
+                    Timber.d("GpsLocationReceiver", "gpsOffTime------------------> " + AppUtils.getTimeInHourMinuteFormat(AppUtils.gpsOffTime)+"gpsoff"+AppUtils.gpsOffTime)
+                    // 1.0 rev end.
                     /*val local_intent = Intent()
                     local_intent.action = AppUtils.gpsDisabledAction
                     sendBroadcast(local_intent)*/
@@ -81,10 +88,15 @@ class SystemEventReceiver : BroadcastReceiver() {
                 if (AppUtils.isGpsOffCalled) {
                     AppUtils.isGpsOffCalled = false
                     Log.e("GpsLocationReceiver", "===========GPS is enabled================")
+                    // 1.0 SystemEventReceiver AppV 4.1.3 mantis 0025932 Log file update in service classes for GPS on off time.
+                    Timber.d("GpsLocationReceiver", "===========GPS is enabled================")
+                    // 1.0 rev end.
                     AppUtils.gpsOnTime = dateFormat.parse(AppUtils.getCurrentTime()).time
                     AppUtils.gpsEnabledTime = AppUtils.getCurrentTimeWithMeredian()
                     Log.e("GpsLocationReceiver", "gpsOnTime---------------------> " + AppUtils.getTimeInHourMinuteFormat(AppUtils.gpsOnTime))
-
+                    // 1.0 SystemEventReceiver AppV 4.1.3 mantis 0025932 Log file update in service classes for GPS on off time.
+                    Timber.d("GpsLocationReceiver", "gpsOnTime---------------------> " + AppUtils.getTimeInHourMinuteFormat(AppUtils.gpsOnTime)+"gpsOnTime"+AppUtils.gpsOnTime)
+                    // 1.0 rev end.
                     /*val local_intent = Intent()
                     local_intent.action = AppUtils.gpsEnabledAction
                     sendBroadcast(local_intent)*/
@@ -98,6 +110,9 @@ class SystemEventReceiver : BroadcastReceiver() {
                     performanceEntity.date = AppUtils.getCurrentDateForShopActi()
                     performanceEntity.gps_off_duration = (AppUtils.gpsOnTime - AppUtils.gpsOffTime).toString()
                     Log.e("GpsLocationReceiver", "duration----------------> " + AppUtils.getTimeInHourMinuteFormat(AppUtils.gpsOnTime - AppUtils.gpsOffTime))
+                    // 1.0 SystemEventReceiver AppV 4.1.3 mantis 0025932 Log file update in service classes for GPS on off time.
+                    Timber.d("GpsLocationReceiver", "duration----------------> " + AppUtils.getTimeInHourMinuteFormat(AppUtils.gpsOnTime - AppUtils.gpsOffTime))
+                    // 1.0 rev end.
                     AppDatabase.getDBInstance()!!.performanceDao().insert(performanceEntity)
                     saveGPSStatus((AppUtils.gpsOnTime - AppUtils.gpsOffTime).toString())
                     AppUtils.gpsOnTime = 0
@@ -108,6 +123,9 @@ class SystemEventReceiver : BroadcastReceiver() {
                     if ((AppUtils.gpsOnTime - AppUtils.gpsOffTime) > 0) {
                         AppDatabase.getDBInstance()!!.performanceDao().updateGPSoffDuration((AppUtils.gpsOnTime - AppUtils.gpsOffTime).toString(), AppUtils.getCurrentDateForShopActi())
                         Log.e("GpsLocationReceiver", "duration----------> " + AppUtils.getTimeInHourMinuteFormat(AppUtils.gpsOnTime - AppUtils.gpsOffTime))
+                        // 1.0 SystemEventReceiver AppV 4.1.3 mantis 0025932 Log file update in service classes for GPS on off time.
+                        Timber.d("GpsLocationReceiver", "duration----------> " + AppUtils.getTimeInHourMinuteFormat(AppUtils.gpsOnTime - AppUtils.gpsOffTime))
+                        // 1.0 rev end.
                         saveGPSStatus((AppUtils.gpsOnTime - AppUtils.gpsOffTime).toString())
                         AppUtils.gpsOnTime = 0
                         AppUtils.gpsOffTime = 0
@@ -117,6 +135,9 @@ class SystemEventReceiver : BroadcastReceiver() {
                         val duration = AppUtils.gpsOnTime - AppUtils.gpsOffTime
                         val totalDuration = performance.gps_off_duration?.toLong()!! + duration
                         Log.e("GpsLocationReceiver", "duration-------> " + AppUtils.getTimeInHourMinuteFormat(totalDuration))
+                        // 1.0 SystemEventReceiver AppV 4.1.3 mantis 0025932 Log file update in service classes for GPS on off time.
+                        Timber.d("GpsLocationReceiver", "duration-------> " + AppUtils.getTimeInHourMinuteFormat(totalDuration))
+                        // 1.0 rev end.
                         AppDatabase.getDBInstance()!!.performanceDao().updateGPSoffDuration(totalDuration.toString(), AppUtils.getCurrentDateForShopActi())
                         saveGPSStatus(duration.toString())
                         AppUtils.gpsOnTime = 0

@@ -863,6 +863,7 @@ class AddCollectionWithOrderDialog : DialogFragment(), View.OnClickListener {
     }
 
     fun setImage(file: File) {
+        println("AddColl_D setImage hit")
         dataPath = file.absolutePath
 
         val extension = NewFileUtils.getExtension(file)

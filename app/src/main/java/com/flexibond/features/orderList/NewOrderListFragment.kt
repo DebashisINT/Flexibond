@@ -77,6 +77,7 @@ import java.util.*
 // 1.0 NewOrderListFragment AppV 4.0.6 saheli 12-01-2023 multiple contact Data added on Api called
 // 2.0 NewOrderListFragment AppV 4.0.6 saheli 20-01-2023 Pdf module updation mantis 25595
 // 3.0 NewOrderListFragment AppV 4.0.6 saheli 20-01-2023  mantis 25601
+// 4.0 NewOrderListFragment AppV 4.1.3 Suman 05-05-2023 attachement for IsCollectionOrderWise opened dialog mantis 26037
 class NewOrderListFragment : BaseFragment() {
 
     private lateinit var mContext: Context
@@ -3305,7 +3306,15 @@ class NewOrderListFragment : BaseFragment() {
     }
 
     fun setImage(file: File) {
-        collectionDialog?.setImage(file)
+        //collectionDialog?.setImage(file)
+
+        //Begin 4.0 NewOrderListFragment AppV 4.1.3 Suman 05-05-2023 attachement for IsCollectionOrderWise opened dialog mantis 26037
+        if(Pref.IsCollectionOrderWise){
+            collectionDialog1?.setImage(file)
+        }else{
+            collectionDialog?.setImage(file)
+        }
+        //End of 4.0 NewOrderListFragment AppV 4.1.3 Suman 05-05-2023 attachement for IsCollectionOrderWise opened dialog mantis 26037
     }
 
     /*private fun convertIntoWords(str: Double, language: String, Country: String): String? {

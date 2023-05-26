@@ -42,6 +42,10 @@ class ShopDurationRequestData {
     var IsShopUpdate: Boolean? = null
     var shopid: String? = null
 
+    var distFromProfileAddrKms: String? = null
+    var stationCode: String? = null
+
+
 
 //    "visited_date": "yyyy-MM-dd",
 //    "visited_time": "yyyy-MM-dd HH:mm:ss",

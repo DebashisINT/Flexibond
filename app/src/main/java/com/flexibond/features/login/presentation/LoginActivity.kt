@@ -49,6 +49,9 @@ import com.flexibond.features.activities.api.ActivityRepoProvider
 import com.flexibond.features.activities.model.*
 import com.flexibond.features.addAttendence.FingerprintDialog
 import com.flexibond.features.addAttendence.SelfieDialog
+import com.flexibond.features.addAttendence.api.routeapi.RouteRepoProvider
+import com.flexibond.features.addAttendence.model.ReimbListModel
+import com.flexibond.features.addAttendence.model.VisitLocationListResponse
 import com.flexibond.features.addshop.api.AddShopRepositoryProvider
 import com.flexibond.features.addshop.api.areaList.AreaListRepoProvider
 import com.flexibond.features.addshop.api.assignToPPList.AssignToPPListRepoProvider
@@ -110,6 +113,10 @@ import com.flexibond.features.newcollection.newcollectionlistapi.NewCollectionLi
 import com.flexibond.features.orderList.api.neworderlistapi.NewOrderListRepoProvider
 import com.flexibond.features.orderList.model.NewOrderListResponseModel
 import com.flexibond.features.orderList.model.ReturnListResponseModel
+import com.flexibond.features.orderhistory.activitiesapi.LocationFetchRepositoryProvider
+import com.flexibond.features.orderhistory.model.FetchLocationRequest
+import com.flexibond.features.orderhistory.model.FetchLocationResponse
+import com.flexibond.features.orderhistory.model.LocationData
 import com.flexibond.features.privacypolicy.PrivacypolicyWebviewFrag
 import com.flexibond.features.quotation.api.QuotationRepoProvider
 import com.flexibond.features.quotation.model.BSListResponseModel
@@ -165,6 +172,13 @@ import java.util.concurrent.ExecutionException
 // 9.0  LoginActivity AppV 4.0.7 Saheli    10/03/2023  loader functionlity work 0025667 mantis
 // 11.0  LoginActivity AppV 4.0.7 Saheli    05/04/2023  mantis 0025783 In-app privacy policy working in menu & Login
 // 10.0  LoginActivity AppV 4.0.8 Saheli    06/04/2023  IsAssignedDDAvailableForAllUser Useds LoginActivity If this feature 'On' then Assigned DD [Assigned DD Table] shall be available in 'Shop Master' work 0025780 mantis
+// 11.0  LoginActivity AppV 4.0.8 Saheli    20/04/2023  25860
+// 12.0  LoginActivity AppV 4.0.8 Saheli    08/05/2023  26023
+// 13.0  LoginActivity AppV 4.1.3 Suman    08/05/2023  26047
+// 15.0  LoginActivity AppV 4.1.3 Suman    11/05/2023  26099
+// 14.0  LoginActivity AppV 4.0.3 Saheli    08/05/2023  0026101
+// 15.0  LoginActivity AppV 4.1.3 Suman    17/05/2023  26119
+// 16.0  LoginActivity AppV 4.1.3 Suman    19/05/2023  26163
 
 class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
@@ -278,6 +292,8 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
         WorkManager.getInstance(this).cancelAllWork()
         WorkManager.getInstance(this).cancelAllWorkByTag("workerTag")
+
+
     }
 
     fun isWorkerRunning(tag:String):Boolean{
@@ -634,6 +650,49 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
                                 if (configResponse.IsAssignedDDAvailableForAllUser != null)//10.0 LoginActivity  AppV 4.0.8  mantis 0025780
                                     Pref.IsAssignedDDAvailableForAllUserGlobal = configResponse.IsAssignedDDAvailableForAllUser!!
+                                // end rev 10.0
+                                if (configResponse.IsShowEmployeePerformance != null)//11.0 LoginActivity  AppV 4.0.8  mantis 25860
+                                    Pref.IsShowEmployeePerformanceGlobal = configResponse.IsShowEmployeePerformance!!
+                                // end rev 11.0
+
+                                // 12.0  LoginActivity AppV 4.0.8 Saheli    08/05/2023  26023
+                                if (configResponse.IsTaskManagementAvailable != null)
+                                    Pref.IsTaskManagementAvailable = configResponse.IsTaskManagementAvailable!!
+                                // end rev 12.0
+
+                                if (configResponse.IsShowPrivacyPolicyInMenu != null)
+                                    Pref.IsShowPrivacyPolicyInMenu = configResponse.IsShowPrivacyPolicyInMenu!!
+
+                                if (configResponse.IsAttendanceCheckedforExpense != null)
+                                    Pref.IsAttendanceCheckedforExpense = configResponse.IsAttendanceCheckedforExpense!!
+                                if (configResponse.IsShowLocalinExpense != null)
+                                    Pref.IsShowLocalinExpense = configResponse.IsShowLocalinExpense!!
+                                if (configResponse.IsShowOutStationinExpense != null)
+                                    Pref.IsShowOutStationinExpense = configResponse.IsShowOutStationinExpense!!
+                                if (configResponse.IsSingleDayTAApplyRestriction != null)
+                                    Pref.IsSingleDayTAApplyRestriction = configResponse.IsSingleDayTAApplyRestriction!!
+                                if (configResponse.IsTAAttachment1Mandatory != null)
+                                    Pref.IsTAAttachment1Mandatory = configResponse.IsTAAttachment1Mandatory!!
+                                if (configResponse.IsTAAttachment2Mandatory != null)
+                                    Pref.IsTAAttachment2Mandatory = configResponse.IsTAAttachment2Mandatory!!
+                                if (configResponse.NameforConveyanceAttachment1 != null)
+                                    Pref.NameforConveyanceAttachment1 = configResponse.NameforConveyanceAttachment1!!
+                                if (configResponse.NameforConveyanceAttachment2 != null)
+                                    Pref.NameforConveyanceAttachment2 = configResponse.NameforConveyanceAttachment2!!
+
+                                // 14.0  LoginActivity AppV 4.0.8 Saheli    12/05/2023  0026101
+                                if (configResponse.IsAttachmentAvailableForCurrentStock != null)
+                                    Pref.IsAttachmentAvailableForCurrentStock = configResponse.IsAttachmentAvailableForCurrentStock!!
+                                // end rev 14.0
+                                //Begin 15.0  LoginActivity AppV 4.1.3 Suman    17/05/2023  26119
+                                if (configResponse.IsShowReimbursementTypeInAttendance != null)
+                                    Pref.IsShowReimbursementTypeInAttendance = configResponse.IsShowReimbursementTypeInAttendance!!
+                                //End of 15.0  LoginActivity AppV 4.1.3 Suman    17/05/2023  26119
+
+                                //Begin 16.0  LoginActivity AppV 4.1.3 Suman    19/05/2023  26163
+                                if (configResponse.IsBeatPlanAvailable != null)
+                                    Pref.IsBeatPlanAvailable = configResponse.IsBeatPlanAvailable!!
+                                //End of 16.0  LoginActivity AppV 4.1.3 Suman    19/05/2023  26163
 
                                 /*if (configResponse.willShowUpdateDayPlan != null)
                                     Pref.willShowUpdateDayPlan = configResponse.willShowUpdateDayPlan!!
@@ -3066,6 +3125,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
     }
 
     private fun checkBeatList() {
+        AppDatabase.getDBInstance()?.beatDao()?.delete()
         val list = AppDatabase.getDBInstance()?.beatDao()?.getAll() as ArrayList<BeatEntity>
         if (list != null && list.isNotEmpty())
             getAssignedToShopApi()
@@ -3074,7 +3134,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
     }
 
     private fun getBeatListApi() {
-        if(Pref.isShowBeatGroup || Pref.IsBeatRouteAvailableinAttendance){
+        if(Pref.IsBeatAvailable || Pref.IsBeatRouteAvailableinAttendance){
             val repository = TypeListRepoProvider.provideTypeListRepository()
             /*progress_wheel.spin()*/
             BaseActivity.compositeDisposable.add(
@@ -3274,7 +3334,10 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
     private fun checkToCallTaskListApi() {
         val list = AppDatabase.getDBInstance()?.taskDao()?.getAll()
         if (list != null && list.isNotEmpty())
-            gotoHomeActivity()
+        //Begin 13.0  LoginActivity AppV 4.1.3 Suman    08/05/2023  26047
+            checkLocationFetch()
+            //gotoHomeActivity()
+        //End of 13.0  LoginActivity AppV 4.1.3 Suman    08/05/2023  26047
         else
             callTaskListApi()
     }
@@ -3654,6 +3717,9 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                          Timber.plant(FileLoggingTree())
                      }
                  }*/
+
+                Pref.selectedVisitStationID=""
+                Pref.selectedVisitStationName=""
 
                 Timber.d("Login btn clicked ${AppUtils.getCurrentDateTime()}")
                 val stat = StatFs(Environment.getExternalStorageDirectory().path)
@@ -4351,6 +4417,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                     doAfterLoginFunctionality(loginResponse)
                                 }
                                 else {
+                                    Timber.d("doLogin else")
                                     doAsync {
                                         AppDatabase.getDBInstance()!!.addShopEntryDao().deleteAll()
                                         AppDatabase.getDBInstance()!!.userLocationDataDao().deleteAll()
@@ -4525,6 +4592,9 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
         Pref.totalAttendance = loginResponse.user_count!!.total_attendance!!
         Pref.isAutoLogout = false
         Pref.isAddAttendence = loginResponse.user_details!!.isAddAttendence?.toBoolean()!!
+
+        Pref.selectedVisitStationID = loginResponse.user_details!!.visit_location_id.toString()
+
         Pref.isSeenTermsConditions = false
         Pref.termsConditionsText = ""
         Pref.approvedInTime = AppUtils.convertTime(FTStorageUtils.getStringTimeToDate(loginResponse.user_details!!.user_login_time))
@@ -4650,9 +4720,53 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
         println("xyz - doAfterLoginFunctionality end" + AppUtils.getCurrentDateTime());
         println("xyz - isStartOrEndDay started" + AppUtils.getCurrentDateTime());
 
-        callUserConfigApi()
-
+        //callUserConfigApi()
+        getVisitType()
         //isStartOrEndDay()
+    }
+
+    private fun getVisitType(){
+        try{
+            println("visit_st enter")
+            val repository = RouteRepoProvider.routeListRepoProvider()
+            BaseActivity.compositeDisposable.add(
+                repository.getVisitLocationList()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({ result ->
+                        val response = result as VisitLocationListResponse
+                        if (response.status == NetworkConstant.SUCCESS && response.visit_location_list.size>0){
+                            var mList  = response.visit_location_list
+                            try{
+                                doAsync {
+                                    Pref.selectedVisitStationName = mList.filter { it.id.toString().equals(Pref.selectedVisitStationID) }.firstOrNull()?.visit_location.toString()
+                                    if(Pref.selectedVisitStationName == null || Pref.selectedVisitStationName.equals("null")){
+                                        println("visit_st name set to blank")
+                                        Pref.selectedVisitStationName = ""
+                                    }
+                                    uiThread {
+                                        println("visit_st ok ${Pref.selectedVisitStationName} ${Pref.selectedVisitStationID}")
+                                        callUserConfigApi()
+                                    }
+                                }
+                            }catch (ex:Exception){
+                                println("visit_st ex")
+                                callUserConfigApi()
+                            }
+                        }else{
+                            println("visit_st else")
+                            callUserConfigApi()
+                        }
+                    }, { error ->
+                        println("visit_st error")
+                        callUserConfigApi()
+                        //Toaster.msgShort(mContext,getString(R.string.something_went_wrong))
+                    })
+            )
+        }catch (ex:Exception){
+            println("visit_st catch")
+            callUserConfigApi()
+        }
     }
 
 
@@ -4741,6 +4855,14 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
         Pref.profile_pincode = user_details.pincode!!
         Pref.profile_country = getString(R.string.india)
         Pref.profile_address = user_details.address!!
+        try{
+            Pref.profile_latitude = user_details.profile_latitude.toString()
+            Pref.profile_longitude = user_details.profile_longitude.toString()
+        }catch (ex:Exception){
+            ex.printStackTrace()
+            Pref.profile_latitude = "0.0"
+            Pref.profile_longitude = "0.0"
+        }
         if (Pref.profile_state.isNotBlank())
             Pref.isProfileUpdated = true
 
@@ -6312,6 +6434,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                                     Pref.ShowTotalVisitAppMenu = response.getconfigure!![i].Value == "1"
                                                 }
                                             }
+                                            // end rev 3.0
 
                                             else if (response.getconfigure!![i].Key.equals("IsMultipleContactEnableforShop", ignoreCase = true)) {
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
@@ -6329,6 +6452,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                                     Pref.IsContactPersonRequiredinQuotation = response.getconfigure!![i].Value == "1"
                                                 }
                                             }
+                                            // end rev 2.0
 
                                             // 4.0 LoginActivity AppV 4.0.6 IsAllowShopStatusUpdate
                                             else if (response.getconfigure!![i].Key.equals("IsAllowShopStatusUpdate", ignoreCase = true)) {
@@ -6336,18 +6460,28 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                                     Pref.IsAllowShopStatusUpdate = response.getconfigure!![i].Value == "1"
                                                 }
                                             }
+                                            // end rev 4.0
                                             else if (response.getconfigure!![i].Key.equals("IsShowBeatInMenu", ignoreCase = true)) {
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.IsShowBeatInMenu = response.getconfigure!![i].Value == "1"
                                                 }
                                             }
-
-                                            else if (response.getconfigure?.get(i)?.Key.equals("IsAssignedDDAvailableForAllUser", ignoreCase = true)) {//10.0 LoginActivity  AppV 4.0.8 mantis 0025780
+                                            //10.0 LoginActivity  AppV 4.0.8 mantis 0025780
+                                            else if (response.getconfigure?.get(i)?.Key.equals("IsAssignedDDAvailableForAllUser", ignoreCase = true)) {
                                                 Pref.IsAssignedDDAvailableForAllUser = response.getconfigure!![i].Value == "1"
                                                 if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
                                                     Pref.IsAssignedDDAvailableForAllUser = response.getconfigure?.get(i)?.Value == "1"
                                                 }
                                             }
+                                            // end rev 10.0
+                                            //11.0 LoginActivity  AppV 4.0.8 mantis 25860
+                                            else if (response.getconfigure?.get(i)?.Key.equals("IsShowEmployeePerformance", ignoreCase = true)) {
+                                                Pref.IsShowEmployeePerformance = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.IsShowEmployeePerformance = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+                                            // end rev 11.0
 
 
 
@@ -7007,6 +7141,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                                     }
                                                 }
                                             }
+                                          // end  10.0  LoginActivity
 
 
 
@@ -7147,38 +7282,46 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 // 7.0 LoginActivity AppV 4.0.6 Suman    03/02/2023  Insert login address into location_db
         doAsync {
             //login loc insert
+            Timber.d("insertion login tag begin ${AppUtils.getCurrentDateTime()}")
             var locationObj: UserLocationDataEntity = UserLocationDataEntity()
             locationObj.latitude = Pref.latitude.toString()
             locationObj.longitude = Pref.longitude.toString()
-            locationObj.locationName = "Login from "+LocationWizard.getLocationName(this@LoginActivity, Pref.latitude!!.toDouble(), Pref.longitude!!.toDouble())
+            locationObj.locationName = "Login from " + LocationWizard.getLocationName(
+                this@LoginActivity,
+                Pref.latitude!!.toDouble(),
+                Pref.longitude!!.toDouble()
+            )
             locationObj.time = loginTimeStr //LocationWizard.getFormattedTime24Hours(true)
             locationObj.meridiem = loginmeridiemStr //LocationWizard.getMeridiem()
             locationObj.isUploaded = true
             locationObj.meeting = "0"
-            locationObj.battery_percentage = AppUtils.getBatteryPercentage(this@LoginActivity).toString()
+            locationObj.battery_percentage =
+                AppUtils.getBatteryPercentage(this@LoginActivity).toString()
             locationObj.distance = "0"
-            locationObj.visit_distance=""
+            locationObj.visit_distance = ""
             locationObj.home_distance = "0"
             locationObj.home_duration = ""
             locationObj.updateDate = loginupdateDateStr //AppUtils.getCurrentDateForShopActi()
             locationObj.updateDateTime = loginupdateDateTimeStr //AppUtils.getCurrentDateTime()
             locationObj.timestamp = logintimestampStr //LocationWizard.getTimeStamp()
-            locationObj.shops="0"
-            locationObj.network_status="Online"
+            locationObj.shops = "0"
+            locationObj.network_status = "Online"
             locationObj.minutes = loginminutesStr //LocationWizard.getMinute()
             locationObj.hour = loginhourStr //LocationWizard.getHour()
             AppDatabase.getDBInstance()!!.userLocationDataDao().insertAll(locationObj)
+
+            Timber.d("insertion login tag ends ${AppUtils.getCurrentDateTime()}")
 
             uiThread {
 
                 login_TV.isEnabled = true
                 loadNotProgress()// mantis 0025667
-               /* progress_wheel.stopSpinning()*/
+                /* progress_wheel.stopSpinning()*/
                 setServiceAlarm(this@LoginActivity, 1, 123)
 
                 //AppDatabase.getDBInstance()?.shopActivityDao()?.trash2("2022-04-04","432_1879749092874","28")
                 //AppDatabase.getDBInstance()!!.leadActivityDao().trash2("0d181797-65b8-4d96-929d-15a71ae16192","2022-04-05")
-                println("login_time_tracker ends ${AppUtils.getCurrentDateTime()}")
+                Timber.d("login_time_tracker ends ${AppUtils.getCurrentDateTime()} ${Pref.current_latitude} ${Pref.current_latitude}")
 
                 val intent = Intent(this@LoginActivity, DashboardActivity::class.java)
                 intent.putExtra("fromClass", "LoginActivity")
@@ -7189,8 +7332,148 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
         }
 
+    }
+
+    //Begin 13.0  LoginActivity AppV 4.1.3 Suman    08/05/2023  26047
+    fun checkLocationFetch(){
+        if(AppDatabase.getDBInstance()!!.userLocationDataDao().all.size == 0){
+            Timber.d("loc_check checkLocationFetch")
+            fetchActivityList()
+        }else{
+            gotoHomeActivity()
+        }
 
     }
+
+
+    fun fetchActivityList() {
+        if (!Pref.isLocationActivitySynced) {
+            val fetchLocReq = FetchLocationRequest()
+            fetchLocReq.user_id = Pref.user_id
+            fetchLocReq.session_token = Pref.session_token
+            fetchLocReq.date_span = ""
+            fetchLocReq.from_date = AppUtils.getCurrentDate()
+            fetchLocReq.to_date = AppUtils.getCurrentDate()
+            Timber.d("loc_check callFetchLocationApi")
+            callFetchLocationApi(fetchLocReq)
+    } else{
+            Timber.d("loc_check else callFetchLocationApi")
+            gotoHomeActivity()
+        }
+    }
+
+    private fun callFetchLocationApi(fetchLocReq: FetchLocationRequest) {
+        val repository = LocationFetchRepositoryProvider.provideLocationFetchRepository()
+        BaseActivity.compositeDisposable.add(
+            repository.fetchLocationUpdate(fetchLocReq)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({ result ->
+                    val shopList = result as FetchLocationResponse
+                    if (shopList.status == NetworkConstant.SUCCESS) {
+                        Timber.d("loc_check success")
+                        convertToModelAndSave(shopList.location_details, shopList.visit_distance)
+                    }else {
+                        gotoHomeActivity()
+                    }
+                }, { error ->
+                    error.printStackTrace()
+                    gotoHomeActivity()
+                })
+        )
+    }
+
+    private fun convertToModelAndSave(location_details: List<LocationData>?, visitDistance: String) {
+    if (location_details!!.isEmpty()){
+        gotoHomeActivity()
+    }
+    else{
+        //Begin 15.0  LoginActivity AppV 4.1.3 Suman    11/05/2023  26099
+        doAsync {
+            for (i in 0 until location_details.size) {
+                var localData = UserLocationDataEntity()
+                if (location_details[i].latitude == null)
+                    continue
+                else
+                    localData.latitude = location_details[i].latitude!!
+
+                if (location_details[i].longitude == null)
+                    continue
+                else
+                    localData.longitude = location_details[i].longitude!!
+
+                if (location_details[i].date == null)
+                    continue
+                else {
+                    localData.updateDate = AppUtils.changeAttendanceDateFormatToCurrent(location_details[i].date!!)
+                    localData.updateDateTime = location_details[i].date!!
+                }
+                if (location_details[i].last_update_time == null)
+                    continue
+                else {
+                    val str = location_details[i].last_update_time
+                    localData.time = str.split(" ")[0]
+                    localData.meridiem = str.split(" ")[1]
+                }
+                localData.isUploaded = true
+                localData.minutes = "0"
+                localData.hour = "0"
+                if (location_details[i].distance_covered == null)
+                    continue
+                else
+                    localData.distance = location_details[i].distance_covered!!
+
+                if (location_details[i].shops_covered == null)
+                    continue
+                else
+                    localData.shops = location_details[i].shops_covered!!
+                if (location_details[i].location_name == null)
+                    continue
+                else
+                    localData.locationName = location_details[i].location_name!!
+
+                if (location_details[i].date == null)
+                    continue
+                else
+                    localData.timestamp = AppUtils.getTimeStampFromDate(location_details[i].date!!)
+
+                if (location_details[i].meeting_attended == null)
+                    continue
+                else
+                    localData.meeting = location_details[i].meeting_attended!!
+
+                if (visitDistance == null)
+                    continue
+                else
+                    localData.visit_distance = visitDistance
+
+                if (location_details[i].network_status == null)
+                    continue
+                else
+                    localData.network_status = location_details[i].network_status
+
+                if (location_details[i].battery_percentage == null)
+                    continue
+                else
+                    localData.battery_percentage = location_details[i].battery_percentage
+
+                Timber.d("loc_check ${localData.time}  ${localData.meridiem}")
+
+                AppDatabase.getDBInstance()!!.userLocationDataDao().insert(localData)
+
+                Timber.d("=====================location added to db (Login)======================")
+            }
+
+            uiThread {
+                gotoHomeActivity()
+            }
+        }
+        //End of 15.0  LoginActivity AppV 4.1.3 Suman    11/05/2023  26099
+        }
+
+}
+
+    //End of 13.0  LoginActivity AppV 4.1.3 Suman    08/05/2023  26047
 
 
     fun getCurrentStockApi() {
@@ -8441,27 +8724,45 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                                             }
                                         }
                                         uiThread {
-                                            gotoHomeActivity()
+                                            //Begin 13.0  LoginActivity AppV 4.1.3 Suman    08/05/2023  26047
+                                            checkLocationFetch()
+                                            //gotoHomeActivity()
+                                            //End of 13.0  LoginActivity AppV 4.1.3 Suman    08/05/2023  26047
                                         }
                                     }
 
                                 }else{
-                                    gotoHomeActivity()
+                                    //Begin 13.0  LoginActivity AppV 4.1.3 Suman    08/05/2023  26047
+                                    checkLocationFetch()
+                                    //gotoHomeActivity()
+                                    //End of 13.0  LoginActivity AppV 4.1.3 Suman    08/05/2023  26047
                                 }
                             } else {
-                                gotoHomeActivity()
+                                //Begin 13.0  LoginActivity AppV 4.1.3 Suman    08/05/2023  26047
+                                checkLocationFetch()
+                                //gotoHomeActivity()
+                                //End of 13.0  LoginActivity AppV 4.1.3 Suman    08/05/2023  26047
                             }
                         }, { error ->
-                            gotoHomeActivity()
+                            //Begin 13.0  LoginActivity AppV 4.1.3 Suman    08/05/2023  26047
+                            checkLocationFetch()
+                            //gotoHomeActivity()
+                            //End of 13.0  LoginActivity AppV 4.1.3 Suman    08/05/2023  26047
                         })
                 )
             }else{
-                gotoHomeActivity()
+                //Begin 13.0  LoginActivity AppV 4.1.3 Suman    08/05/2023  26047
+                checkLocationFetch()
+                //gotoHomeActivity()
+                //End of 13.0  LoginActivity AppV 4.1.3 Suman    08/05/2023  26047
             }
         }
         catch (ex:Exception){
             ex.printStackTrace()
-            gotoHomeActivity()
+            //Begin 13.0  LoginActivity AppV 4.1.3 Suman    08/05/2023  26047
+            checkLocationFetch()
+            //gotoHomeActivity()
+            //End of 13.0  LoginActivity AppV 4.1.3 Suman    08/05/2023  26047
         }
     }
 

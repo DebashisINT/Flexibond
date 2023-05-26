@@ -60,6 +60,8 @@ import java.util.*
 /**
  * Created by Pratishruti on 15-11-2017.
  */
+// revision Note
+// 1.0 AverageShopListAdapter mantis 0026066: saheli 09-05-2023 Total Visit Tab design issue fixing
 class AverageShopListAdapter(context: Context, userLocationDataEntity: List<ShopActivityEntity>, val listener: AverageShopListClickListener) : RecyclerView.Adapter<AverageShopListAdapter.MyViewHolder>() {
     private val layoutInflater: LayoutInflater
     private var context: Context
@@ -532,7 +534,10 @@ class AverageShopListAdapter(context: Context, userLocationDataEntity: List<Shop
 
             if(Pref.IsMultipleImagesRequired){
                 itemView.add_multiple_ll.visibility = View.VISIBLE
-                itemView.new_multi_view.visibility = View.GONE
+                //1.0 AverageShopListAdapterStart mantis 0026066: saheli 09-05-2023 Total Visit Tab design issue fixing
+//                itemView.new_multi_view.visibility = View.GONE
+                itemView.new_multi_view.visibility = View.VISIBLE
+                // 1.0 rev end mantis 0026066 AverageShopListAdapterStart
                 itemView.add_multiple_ll.setOnClickListener {
                     listener.onMultipleImageClick(userLocationDataEntity[adapterPosition],adapterPosition)
                 }
