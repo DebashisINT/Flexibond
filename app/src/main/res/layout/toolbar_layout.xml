@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    android:id="@+id/rl_toolbar_root">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -144,42 +145,67 @@
                 android:layout_marginTop="@dimen/_1sdp"
                 android:visibility="gone"/>
 
+            <!--<LinearLayout
+                android:id="@+id/own_point_leaderboard"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/_22sdp"
+                android:visibility="gone"
+                android:background="@drawable/backwhite_round_corner_1">
+
+                <ImageView
+                    android:layout_width="@dimen/_27sdp"
+                    android:layout_height="@dimen/_27sdp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/first_icon"
+                    android:paddingTop="@dimen/_2sdp"
+                    android:paddingBottom="@dimen/_5sdp"
+                    android:paddingStart="@dimen/_3sdp"
+                     />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/_5sdp"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:textColor="@color/black"
+                    android:text="52000"/>
+
+            </LinearLayout>-->
+
+
             <ImageView
                 android:id="@+id/iv_home_icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="@dimen/_27sdp"
+                android:layout_height="@dimen/_27sdp"
                 android:padding="@dimen/_5sdp"
-                android:src="@drawable/ic_header_home_icon_top"
+                android:src="@drawable/home_white"
                 android:visibility="visible"
                 android:contentDescription="@null"/>
 
 
-
-           <!-- <FrameLayout
-                android:id="@+id/fl_noti_with_num"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone">
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                <ImageView
+                    android:id="@+id/add_scheduler_email_verification"
+                    android:layout_width="@dimen/_27sdp"
+                    android:layout_height="@dimen/_27sdp"
                     android:contentDescription="@null"
-                    app:srcCompat="@drawable/ic_notification_white"
-                    android:visibility="visible"
+                    app:srcCompat="@drawable/two_step_verification"
+                    android:visibility="gone"
                     android:padding="@dimen/_5sdp" />
 
-                <TextView
-                    android:layout_width="@dimen/_15sdp"
-                    android:layout_height="@dimen/_15sdp"
-                    android:text="1+"
-                    android:textSize="@dimen/_11sdp"
-                    android:background="@drawable/xx"
-                    android:gravity="center"
-                    android:textColor="@color/white"
-                    android:layout_gravity="right"/>
+            <ImageView
+                android:id="@+id/add_template"
+                android:layout_width="@dimen/_27sdp"
+                android:layout_height="@dimen/_27sdp"
+                android:contentDescription="@null"
+                app:srcCompat="@drawable/listing_selected_template_white"
+                android:visibility="gone"
+                android:padding="@dimen/_5sdp" />
 
-            </FrameLayout>-->
+
+
+
+
+
 
             <FrameLayout
                 android:layout_width="wrap_content"
@@ -194,8 +220,36 @@
                     android:visibility="visible"
                     android:padding="@dimen/_5sdp" />
 
-                <com.flexibond.widgets.AppCustomTextView
+                <com.breezefieldflexibond.widgets.AppCustomTextView
                     android:id="@+id/tv_noti_count"
+                    android:layout_width="@dimen/_15sdp"
+                    android:layout_height="@dimen/_15sdp"
+                    android:text="1+"
+                    android:textSize="@dimen/_11sdp"
+                    android:background="@drawable/xx"
+                    android:gravity="center"
+                    android:textColor="@color/white"
+                    android:layout_gravity="right"
+                    android:visibility="gone"/>
+
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/add_bookmark"
+                    android:layout_width="@dimen/_27sdp"
+                    android:layout_height="@dimen/_27sdp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_bookmark_fill"
+                    android:visibility="gone"
+                    android:tint="@color/white"
+                    android:padding="@dimen/_5sdp" />
+
+                <com.breezefieldflexibond.widgets.AppCustomTextView
+                    android:id="@+id/tv_saved_count"
                     android:layout_width="@dimen/_15sdp"
                     android:layout_height="@dimen/_15sdp"
                     android:text="1+"
@@ -244,7 +298,7 @@
                     android:paddingBottom="@dimen/_5sdp"
                     android:src="@drawable/icon_cart3" />
 
-                <com.flexibond.widgets.AppCustomTextView
+                <com.breezefieldflexibond.widgets.AppCustomTextView
                     android:id="@+id/tv_cart_count"
                     android:layout_width="@dimen/_15sdp"
                     android:layout_height="@dimen/_15sdp"
@@ -272,7 +326,7 @@
             android:visibility="gone"
             android:background="@drawable/rounded_corner_cyan_bg">
 
-            <com.flexibond.widgets.AppCustomTextView
+            <com.breezefieldflexibond.widgets.AppCustomTextView
                 android:id="@+id/tv_confirm_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -308,8 +362,8 @@
 
         <ImageView
             android:id="@+id/iv_sync_icon"
-            android:layout_width="@dimen/_32sdp"
-            android:layout_height="@dimen/_32sdp"
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_30sdp"
             android:padding="@dimen/_5sdp"
             android:layout_centerVertical="true"
             android:layout_toLeftOf="@id/iv_search_icon"
@@ -360,27 +414,40 @@
             android:contentDescription="@null"
             android:visibility="gone"/>-->
 
-        <RelativeLayout
+
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:layout_centerVertical="true">
 
-
-            <com.flexibond.widgets.AppCustomTextView
+            <ImageView
+                android:visibility="gone"
+                android:id="@+id/iv_leaderboard"
+                android:layout_width="@dimen/_35sdp"
+                android:layout_height="@dimen/_35sdp"
+                android:padding="@dimen/_5sdp"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@id/rl_cart"
+                android:src="@drawable/first_icon"
+                android:contentDescription="@null"
+               />
+            <com.breezefieldflexibond.widgets.AppCustomTextView
                 android:id="@+id/tv_header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_gravity="center"
+                android:text="Dashboard"
                 android:gravity="center"
                 android:paddingTop="@dimen/_3sdp"
                 android:paddingBottom="@dimen/_3sdp"
-                android:paddingRight="@dimen/_15sdp"
+                android:paddingRight="@dimen/_20sdp"
                 android:textColor="@color/white"
-                android:textSize="@dimen/_13sdp" />
+                android:textSize="@dimen/_12sdp" />
 
-        </RelativeLayout>
+        </LinearLayout>
 
 
         <LinearLayout
@@ -433,7 +500,7 @@
 
         </LinearLayout>
 
-        <com.flexibond.app.MaterialSearchView
+        <com.breezefieldflexibond.app.MaterialSearchView
             android:id="@+id/search_view"
             style="@style/MaterialSearchViewStyle"
             android:layout_width="match_parent"

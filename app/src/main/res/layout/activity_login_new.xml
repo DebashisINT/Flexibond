@@ -27,7 +27,7 @@
             android:background="@drawable/ic_new_login_bg_new3">
 
 
-            <com.flexibond.widgets.AppCustomTextView
+            <com.breezefieldflexibond.widgets.AppCustomTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
@@ -46,8 +46,8 @@
 
                 <ImageView
                     android:id="@+id/logo_new"
-                    android:layout_width="@dimen/_145sdp"
-                    android:layout_height="@dimen/_68sdp"
+                    android:layout_width="@dimen/_185sdp"
+                    android:layout_height="@dimen/_118sdp"
                     android:src="@drawable/breezelogo"
                     android:layout_marginTop="@dimen/_30sdp"
                     android:layout_centerHorizontal="true"
@@ -55,7 +55,8 @@
                     android:layout_gravity="center"
                   />
 
-                <com.flexibond.widgets.AppCustomTextView
+                <com.breezefieldflexibond.widgets.AppCustomTextView
+                    android:visibility="gone"
                     android:id="@+id/Logo_name_TV"
                     android:layout_below="@+id/logo_new"
                     android:layout_width="wrap_content"
@@ -63,14 +64,13 @@
                     android:gravity="center|center_horizontal"
                     android:layout_gravity="center"
                     android:textStyle="bold"
-                    android:visibility="gone"
                     android:layout_centerHorizontal="true"
                     android:textColor="#287fb2"
                     android:text="@string/name_filed_managenent_system"
                     android:textSize="@dimen/_12sdp"
                     android:layout_marginTop="@dimen/_10sdp"/>
 
-                <com.flexibond.widgets.AppCustomTextView
+                <com.breezefieldflexibond.widgets.AppCustomTextView
                     android:id="@+id/app_title_TV"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -134,7 +134,7 @@
                                                 android:layout_gravity="center"
                                                 app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout">
 
-                                                <com.flexibond.widgets.AppCustomEditText
+                                                <com.breezefieldflexibond.widgets.AppCustomEditText
                                                     android:id="@+id/username_EDT"
                                                     android:layout_width="match_parent"
                                                     android:layout_height="match_parent"
@@ -144,6 +144,8 @@
                                                     android:background="@color/transparent"
                                                     android:inputType="textEmailAddress"
                                                     android:singleLine="true"
+                                                    android:focusable="true"
+                                                    android:cursorVisible="true"
                                                     android:paddingStart="@dimen/_10sdp"
                                                     android:textSize="@dimen/_13sdp"
                                                     app:theme="@style/EvoEditTextTheme" />
@@ -197,7 +199,8 @@
                                                     android:paddingStart="@dimen/_10sdp"
                                                     android:singleLine="true"
                                                     android:textSize="@dimen/_13sdp"
-                                                    app:theme="@style/EvoEditTextTheme" />
+                                                    app:theme="@style/EvoEditTextTheme"
+                                                    android:textCursorDrawable="@drawable/custom_cursor"/>
 
                                             </com.google.android.material.textfield.TextInputLayout>
 
@@ -249,7 +252,7 @@
 <!--                            android:thumb="@drawable/login_rem_thumb_selector"-->
 <!--                            wheel:track="@drawable/login_rem_track_selector" />-->
 
-                        <com.flexibond.widgets.AppCustomTextView
+                        <com.breezefieldflexibond.widgets.AppCustomTextView
                             android:id="@+id/share_log_login_TV"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
@@ -266,7 +269,7 @@
                     </RelativeLayout>
 
 
-                    <com.flexibond.widgets.AppCustomTextView
+                    <com.breezefieldflexibond.widgets.AppCustomTextView
                         android:id="@+id/forgot_password_TV"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -277,7 +280,7 @@
                         android:textSize="@dimen/_11sdp"
                         android:visibility="gone" />
 
-                    <!--<com.flexibond.widgets.AppCustomTextView
+                    <!--<com.breezefieldflexibond.widgets.AppCustomTextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/_15sdp"
@@ -286,7 +289,7 @@
                         android:textSize="@dimen/_12sdp"
                         android:textStyle="bold"/>
 
-                    <com.flexibond.widgets.AppCustomTextView
+                    <com.breezefieldflexibond.widgets.AppCustomTextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/_15sdp"
@@ -306,7 +309,7 @@
                     android:layout_marginTop="@dimen/_7sdp"
                     android:layout_below="@+id/tv_internet_info">
 
-                    <com.flexibond.widgets.AppCustomTextView
+                    <com.breezefieldflexibond.widgets.AppCustomTextView
                         android:id="@+id/activity_login_tvappCustomAnydeskInfo"
                         android:layout_width="@dimen/_45sdp"
                         android:layout_height="@dimen/_35sdp"
@@ -333,7 +336,7 @@
 <!--                        android:layout_marginStart="@dimen/_1sdp"-->
 <!--                        android:visibility="invisible">-->
 
-<!--                        <com.flexibond.widgets.AppCustomTextView-->
+<!--                        <com.breezefieldflexibond.widgets.AppCustomTextView-->
 <!--                            android:id="@+id/activity_login_tvappCustomAnydesk"-->
 <!--                            android:layout_width="wrap_content"-->
 <!--                            android:layout_height="wrap_content"-->
@@ -346,7 +349,7 @@
 <!--                            android:textColor="@color/white"-->
 <!--                            android:textSize="@dimen/_8sdp" />-->
 
-<!--                        <com.flexibond.widgets.AppCustomTextView-->
+<!--                        <com.breezefieldflexibond.widgets.AppCustomTextView-->
 <!--                            android:id="@+id/activity_login_tvappCustomLogs"-->
 <!--                            android:layout_width="wrap_content"-->
 <!--                            android:layout_height="wrap_content"-->
@@ -363,7 +366,7 @@
 
                 </LinearLayout>
 
-                <com.flexibond.widgets.AppCustomTextView
+                <com.breezefieldflexibond.widgets.AppCustomTextView
                     android:id="@+id/tv_internet_info"
                     android:layout_width="@dimen/_265sdp"
                     android:layout_height="wrap_content"
@@ -393,7 +396,7 @@
 
     </ScrollView>
 
-    <com.flexibond.widgets.AppCustomTextView
+    <com.breezefieldflexibond.widgets.AppCustomTextView
         android:id="@+id/version_name_TV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

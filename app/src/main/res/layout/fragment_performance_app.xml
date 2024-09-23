@@ -11,28 +11,30 @@
         android:clickable="true"
         android:focusable="true"
         android:orientation="horizontal"
-        android:weightSum="2">
+        android:weightSum="3">
 
-        <com.flexibond.widgets.AppCustomTextView
+        <com.breezefieldflexibond.widgets.AppCustomTextView
             android:id="@+id/ownPerformace_TV_frag_performace_app"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_40sdp"
             android:layout_weight="1"
             android:background="@drawable/selected_performance_bg"
             android:clickable="true"
             android:focusable="true"
             android:gravity="center"
-            android:padding="@dimen/_15sdp"
-            android:text="Own Performace"
+            android:paddingStart="@dimen/_20sdp"
+            android:text="Own"
             android:drawableLeft="@drawable/ic_customer"
+            android:drawablePadding="-20dp"
             android:drawableTint="@color/white"
             android:textStyle="bold"
+            android:textSize="@dimen/_11sdp"
             android:textColor="@drawable/selector_text_color_white_performance" />
 
-        <com.flexibond.widgets.AppCustomTextView
+        <com.breezefieldflexibond.widgets.AppCustomTextView
             android:id="@+id/teamPerformace_TV_frag_performace_app"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_40sdp"
             android:layout_weight="1"
             android:background="@drawable/selected_performance_bg"
             android:clickable="true"
@@ -40,9 +42,28 @@
             android:drawableLeft="@drawable/ic_team_icon"
             android:drawableTint="@color/white"
             android:gravity="center"
-            android:padding="@dimen/_13sdp"
-            android:text="Team Performace"
+            android:paddingStart="@dimen/_20sdp"
+            android:text="Team"
             android:textStyle="bold"
+            android:textSize="@dimen/_11sdp"
+            android:textColor="@drawable/selector_text_color_white_performance" />
+
+
+        <com.breezefieldflexibond.widgets.AppCustomTextView
+            android:id="@+id/all_TV_frag_performace_app"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_40sdp"
+            android:layout_weight="1"
+            android:background="@drawable/selected_performance_bg"
+            android:clickable="true"
+            android:focusable="true"
+            android:drawableLeft="@drawable/ic_team_icon"
+            android:drawableTint="@color/white"
+            android:gravity="center"
+            android:paddingStart="@dimen/_20sdp"
+            android:text="All"
+            android:textStyle="bold"
+            android:textSize="@dimen/_11sdp"
             android:textColor="@drawable/selector_text_color_white_performance" />
 
     </LinearLayout>
